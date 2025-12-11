@@ -1,0 +1,265 @@
+
+:root {
+  --color-primary: #0056B3; 
+  --color-background: #F7F7F7; 
+  --color-paper-base: #FFFFFF; 
+  --color-paper-form: #EDEDED; 
+  --color-text-dark: #333333; 
+  --border-color: #CCCCCC;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: Arial, sans-serif;
+}
+
+
+.page-background {
+  background-color: var(--color-background);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 20px;
+}
+
+
+.base-document-container {
+  width: 95%;
+  max-width: 1100px;
+  height: 700px;
+  background-color: var(--color-paper-base);
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1); 
+  position: relative; 
+  display: flex;
+}
+
+
+.content-split {
+  display: flex;
+  width: 100%;
+}
+
+
+.branding-column {
+  width: 50%;
+  padding: 60px; 
+  
+  position: relative; 
+  z-index: 1; 
+  
+  color: white; 
+  display: flex; 
+  flex-direction: column;
+  justify-content: center;
+  
+  background-color: transparent; 
+}
+
+.branding-column::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    
+    background-image: url('./Images/photo.png'); 
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    
+    filter: brightness(0.25) blur(3px); 
+    z-index: -1; 
+}
+
+.headline-desktop-only {
+    display: inline; 
+}
+
+.headline-mobile-only {
+    display: none; 
+}
+
+.desktop-content-only {
+    display: block; 
+}
+
+
+.branding-headline {
+  font-size: 32px; 
+  margin-bottom: 20px;
+  color: white; 
+}
+
+.branding-column .benefit-list li {
+  list-style: none;
+  font-size: 18px;
+  margin-bottom: 10px;
+  padding-left: 20px;
+  position: relative;
+  color: #E0E0E0; 
+}
+
+
+.signup-form-card {
+  width: 50%; 
+  height: 100%;
+  background-color: var(--color-paper-form);
+  border-radius: 12px;
+  
+  box-shadow: -8px 0px 15px rgba(0, 0, 0, 0.15); 
+  z-index: 2; 
+
+  padding: 40px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.form-title {
+  font-size: 28px;
+  color: var(--color-text-dark);
+  margin-bottom: 30px;
+  text-align: center;
+}
+
+.form-group-row {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 0;
+}
+
+.form-group {
+  flex: 1; 
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  font-weight: bold;
+  margin-bottom: 5px;
+  font-size: 14px;
+  color: #555555; 
+}
+
+.form-group input {
+  width: 100%;
+  padding: 12px;
+  background-color: #FAFAFA; 
+  border: 1px solid #E0E0E0;
+  border-radius: 4px;
+  font-size: 16px;
+  transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+
+.form-group input:focus {
+    border-color: var(--color-primary); 
+    box-shadow: 0 0 0 2px rgba(0, 86, 179, 0.3); 
+    outline: none;
+}
+
+.error-message {
+  color: red;
+  font-size: 12px;
+  margin-top: 5px;
+}
+
+.submit-button {
+  width: 100%;
+  padding: 15px;
+  background-color: var(--color-primary);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 18px;
+  cursor: pointer;
+  margin-top: 20px;
+  transition: background-color 0.2s;
+}
+
+
+.submit-button:hover {
+    background-color: #004499; 
+}
+
+.login-footer {
+  text-align: center;
+  margin-top: 25px;
+  font-size: 14px;
+}
+
+.login-footer a {
+  color: #666666; 
+  text-decoration: none;
+  font-weight: bold;
+}
+.login-footer a:hover {
+    color: var(--color-primary);
+}
+
+
+/*  Mobile Responsiveness (Less than 768px)  */
+@media (max-width: 768px) {
+  .base-document-container {
+    height: auto; 
+    box-shadow: none; 
+  }
+  
+  .content-split {
+    flex-direction: column; 
+  }
+
+  .branding-column {
+    width: 100%;
+    padding: 20px;
+    position: relative;
+    filter: none;
+    min-height: 150px; 
+    color: white; 
+    background-color: transparent; 
+    
+    text-align: center; 
+  }
+  
+  .branding-column::before {
+      content: ''; 
+      z-index: -1;
+      filter: brightness(0.25) blur(3px); 
+  }
+
+  
+  .headline-desktop-only {
+      display: none; 
+  }
+
+  .headline-mobile-only {
+      display: inline; 
+  }
+
+  .desktop-content-only {
+      display: none; 
+  }
+
+  .branding-headline {
+      font-size: 20px; 
+      margin-bottom: 0; 
+      color: white; 
+  }
+  
+ 
+  .signup-form-card {
+    width: 100%;
+    padding: 20px;
+    box-shadow: none; 
+  }
+  
+  .form-group-row {
+    flex-direction: column; 
+    gap: 0;
+  }
+}
