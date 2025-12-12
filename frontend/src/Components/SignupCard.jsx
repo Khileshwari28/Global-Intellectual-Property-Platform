@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from "react-router-dom";
 import SignupForm from './SignupForm';
 
 const SignupCard = () => {
@@ -11,7 +12,10 @@ const SignupCard = () => {
         By signing up, you agree to our <a href="/terms">Terms</a> and <a href="/privacy">Privacy Policy</a>.
       </p>
       <p className="login-footer">
-        Already have an account? <a href="/login">Sign In</a>
+        Already have an account? 
+        <Link to="/login" className="text-blue-600 font-medium">
+          Sign In
+        </Link>
       </p>
     </div>
   );

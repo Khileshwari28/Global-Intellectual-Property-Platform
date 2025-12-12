@@ -42,18 +42,49 @@ const SignupForm = () => {
     return Object.keys(tempErrors).length === 0;
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (validate()) {
-      console.log('FORM SUBMITTED. Data ready for Spring Boot:', formData);
-      alert('Signup Successful! (Check console for data log)');
-      // *** API CALL WILL GO HERE LATER ***
-      setFormData(initialFormState);  //to clear form on success
-    } else {
-      console.log('Form has validation errors.');
-    }
-  };
+  // const handleSubmit = (e) => {
+  //   e.preventDefault();
+  //   if (validate()) {
+  //     console.log('FORM SUBMITTED. Data ready for Spring Boot:', formData);
+  //     alert('Signup Successful! (Check console for data log)');
+  //     // *** API CALL WILL GO HERE LATER ***
+  //     setFormData(initialFormState);  //to clear form on success
+  //   } else {
+  //     console.log('Form has validation errors.');
+  //   }
+  // };
   
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  if (validate()) {
+    try {
+      const response = await fetch("http://localhost:8080/api/users/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          username: formData.firstName + " " + formData.lastName,
+          email: formData.email,
+          password: formData.password,
+          role: "USER"
+        })
+      });
+
+      if (response.ok) {
+        alert("Signup Successful!");
+        setFormData(initialFormState);
+      } else {
+        alert("Failed to register. Check backend.");
+      }
+
+    } catch (error) {
+      console.error("Error:", error);
+      alert("Server error");
+    }
+  }
+};
+
+
+
   return (
     <form onSubmit={handleSubmit}>
       <div className="form-group-row">
