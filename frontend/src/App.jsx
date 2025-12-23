@@ -10,27 +10,6 @@ import ProtectedRoute from "./Components/ProtectedRoute";
 
 function App() {
   return (
-    // <>
-    // <div className="page-background">
-    //   {/* Base Document Container  */}
-    //   <div className="base-document-container">
-
-    //     <div className="content-split">
-
-    //       {/* Left Column */}
-    //       <BrandingColumn />
-
-    //       {/* Right Column (The Overlapping Card ) */}
-    //       <SignupCard />
-
-
-    //     </div>
-    //   </div>
-    // </div>
-
-    // {/* Dashboard Section */}
-    // {/* <Home /> */}
-    // </>
 
     <BrowserRouter>
       <Routes>

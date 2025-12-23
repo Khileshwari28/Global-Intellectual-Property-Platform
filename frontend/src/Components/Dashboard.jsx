@@ -1,6 +1,6 @@
 import React from 'react';
 
-const Dashboard = () => {
+const Dashboard = ({ setActiveComponent }) => {
     const stats = [
         { label: 'Total Filings', value: '248', icon: '📑' },
         { label: 'Pending Review', value: '12', icon: '⏳' },
@@ -37,9 +37,12 @@ const Dashboard = () => {
 
     return (
         <div>
+            {/* Header */}
             <div className="mb-4">
                 <h1 className="h2 mb-2">Dashboard</h1>
-                <p className="text-muted">Welcome to the Global IPI Platform - Manage your intellectual property filings</p>
+                <p className="text-muted">
+                    Welcome to the Global IPI Platform - Manage your intellectual property filings
+                </p>
             </div>
 
             {/* Stats Grid */}
@@ -48,11 +51,23 @@ const Dashboard = () => {
                     <div key={index} className="col-md-6 col-lg-3">
                         <div className="card border-0 shadow-sm h-100">
                             <div className="card-body">
-                                <div style={{ fontSize: '32px', marginBottom: '12px' }}>{stat.icon}</div>
-                                <h6 className="text-muted text-uppercase mb-2" style={{ fontSize: '12px', letterSpacing: '0.5px', fontWeight: '600' }}>
+                                <div style={{ fontSize: '32px', marginBottom: '12px' }}>
+                                    {stat.icon}
+                                </div>
+                                <h6
+                                    className="text-muted text-uppercase mb-2"
+                                    style={{
+                                        fontSize: '12px',
+                                        letterSpacing: '0.5px',
+                                        fontWeight: '600'
+                                    }}
+                                >
                                     {stat.label}
                                 </h6>
-                                <h3 className="mb-0" style={{ fontSize: '28px', fontWeight: 'bold' }}>
+                                <h3
+                                    className="mb-0"
+                                    style={{ fontSize: '28px', fontWeight: 'bold' }}
+                                >
                                     {stat.value}
                                 </h3>
                             </div>
@@ -67,9 +82,20 @@ const Dashboard = () => {
                 <div className="row g-2">
                     {quickActions.map((action, index) => (
                         <div key={index} className="col-md-6 col-lg-3">
-                            <button className="btn btn-outline-secondary w-100 py-3">
-                                <div style={{ fontSize: '24px', marginBottom: '8px' }}>{action.icon}</div>
-                                <div style={{ fontSize: '13px', fontWeight: '500' }}>{action.name}</div>
+                            <button
+                                className="btn btn-outline-secondary w-100 py-3"
+                                onClick={() => {
+                                    if (action.name === 'Search Patents') {
+                                        setActiveComponent('Search Result');
+                                    }
+                                }}
+                            >
+                                <div style={{ fontSize: '24px', marginBottom: '8px' }}>
+                                    {action.icon}
+                                </div>
+                                <div style={{ fontSize: '13px', fontWeight: '500' }}>
+                                    {action.name}
+                                </div>
                             </button>
                         </div>
                     ))}
@@ -81,12 +107,24 @@ const Dashboard = () => {
                 <div className="card-body">
                     <h5 className="card-title mb-3">Recent Activity</h5>
                     {recentActivities.map((activity) => (
-                        <div key={activity.id} className="d-flex justify-content-between align-items-center py-3 border-bottom" style={{ borderBottomColor: '#f0f0f0' }}>
+                        <div
+                            key={activity.id}
+                            className="d-flex justify-content-between align-items-center py-3 border-bottom"
+                            style={{ borderBottomColor: '#f0f0f0' }}
+                        >
                             <div className="flex-grow-1">
-                                <p className="mb-1" style={{ fontSize: '14px', fontWeight: '500' }}>{activity.action}</p>
+                                <p
+                                    className="mb-1"
+                                    style={{ fontSize: '14px', fontWeight: '500' }}
+                                >
+                                    {activity.action}
+                                </p>
                                 <small className="text-muted">{activity.time}</small>
                             </div>
-                            <span className={`badge rounded-pill ${getStatusBadgeClass(activity.status)}`} style={{ marginLeft: '10px' }}>
+                            <span
+                                className={`badge rounded-pill ${getStatusBadgeClass(activity.status)}`}
+                                style={{ marginLeft: '10px' }}
+                            >
                                 {activity.status.replace('-', ' ')}
                             </span>
                         </div>

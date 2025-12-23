@@ -1,0 +1,32 @@
+.search-card {
+  border-radius: 10px;
+  border: none;
+  background-color: #ffffff;
+}
+
+.search-title {
+  font-weight: 600;
+  color: #0b3c6f; /* matches sidebar/topbar blue */
+}
+
+.form-label {
+  font-weight: 500;
+  color: #344767;
+}
+
+.form-control,
+.form-select {
+  border-radius: 8px;
+  border: 1px solid #dce3ed;
+}
+
+.form-control:focus,
+.form-select:focus {
+  border-color: #0b5ed7;
+  box-shadow: 0 0 0 0.15rem rgba(13, 110, 253, 0.25);
+}
+
+.search-btn {
+  border-radius: 8px;
+  font-weight: 500;
+}
