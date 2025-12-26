@@ -13,18 +13,16 @@ public class SecurityConfig {
 
         http
                 .csrf(csrf -> csrf.disable())
+                .cors(cors -> {})
                 .authorizeHttpRequests(auth -> auth
-                        // ✅ Allow auth APIs
-                        .requestMatchers("/api/users/register", "/api/users/login").permitAll()
-
-                        // ✅ Allow IP search & details APIs
-                        .requestMatchers("/api/ip/**").permitAll()
-
-                        // ❌ Everything else secured
+                        .requestMatchers(
+                                "/api/users/**",
+                                "/api/ip/**",
+                                "/api/map/**"   // ✅ REQUIRED
+                        ).permitAll()
                         .anyRequest().authenticated()
                 )
-                .cors(cors -> {})
-                .httpBasic(httpBasic -> httpBasic.disable()); // ❌ disable browser login popup
+                .httpBasic(httpBasic -> httpBasic.disable());
 
         return http.build();
     }
