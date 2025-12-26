@@ -41,7 +41,7 @@ const IPSidePanel = ({ country }) => {
       <div className="card-body">
         <h5>{country ? `Patents (${country})` : "Select a country"}</h5>
 
-        <div style={{ maxHeight: "260px", overflowY: "auto" }}>
+        <div style={{ maxHeight: "260px", overflowY: "auto" }} >
           {loading && <p className="text-muted">Loading...</p>}
 
           {!loading && error && (

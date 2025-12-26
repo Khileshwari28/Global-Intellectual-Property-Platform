@@ -1,6 +1,8 @@
 import React from 'react';
 
 const ProfileCard = () => {
+    const user = JSON.parse(localStorage.getItem("user"));
+
     return (
         <div 
             className="card border-0 shadow-lg mt-3"
@@ -32,9 +34,8 @@ const ProfileCard = () => {
                         👤
                     </div>
                     <div className="flex-grow-1">
-                        <h6 className="mb-1" style={{ fontSize: '14px', fontWeight: '600' }}>John Developer</h6>
-                        <small className="text-primary d-block mb-1" style={{ fontWeight: '600' }}>IP Manager</small>
-                        <small className="text-muted">john.dev@globalipi.com</small>
+                        <h6 className="mb-1" style={{ fontSize: '14px', fontWeight: '600' }}>{user?.username}</h6>
+                        <small className="text-muted">{user?.email}</small>
                     </div>
                 </div>
 

@@ -1,13 +1,14 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";  // added for navigation
+import { Link } from "react-router-dom";  
 import photo from "../frontend_img/photo.png";
 
-
 export default function LoginForm() {
+    const [error, setError] = useState("");
     const [formData, setFormData] = useState({ email: "", password: "" });
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
+        setError(""); // clear error while typing
     };
 
     const handleSubmit = async (e) => {
@@ -30,31 +31,28 @@ export default function LoginForm() {
             }
             else if (response.status === 401) {
                 const err = await response.json();
-                alert(err.error);
+                setError(err.error);
             }
 
         } catch (error) {
             console.error("Login Error:", error);
-            alert("Server error");
+            setError("Wrong email or password");
         }
     };
 
     return (
         <div className="page-background">
             <div className="base-document-container">
-
                 <div className="content-split">
 
                     {/* LEFT SIDE WITH PHOTO BACKGROUND */}
                     <div
                         className="branding-column"
                         style={{ backgroundImage: `url(${photo})` }}
-                    >
-                    </div>
+                    ></div>
 
                     {/* RIGHT SIDE LOGIN FORM */}
                     <div className="signup-form-card">
-
                         <h2 className="form-title">Login</h2>
 
                         <form onSubmit={handleSubmit}>
@@ -83,6 +81,13 @@ export default function LoginForm() {
                                 />
                             </div>
 
+                            {/* ✅ ERROR SHOWN HERE */}
+                            {error && (
+                                <p style={{ color: "red", marginBottom: "10px" }}>
+                                    {error}
+                                </p>
+                            )}
+
                             <button className="submit-button">Login</button>
                         </form>
 
@@ -91,10 +96,8 @@ export default function LoginForm() {
                         </p>
 
                     </div>
-
                 </div>
             </div>
         </div>
     );
-
 }

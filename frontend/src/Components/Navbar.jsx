@@ -1,12 +1,9 @@
 import React, { useState } from 'react';
 
 const Navbar = ({ sidebarOpen, setSidebarOpen }) => {
+    const user = JSON.parse(localStorage.getItem("user"));
     const [isProfileOpen, setIsProfileOpen] = useState(false);
     const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
-    
-    const userName = 'Sarthak Ahir';
-    const userEmail = 'sarthak@globalip.com';
-    const userRole = 'IP Manager';
 
     const notifications = [
         { id: 1, message: 'Patent filing for US2024/567890 approved', time: '2 hours ago', type: 'success' },
@@ -23,11 +20,16 @@ const Navbar = ({ sidebarOpen, setSidebarOpen }) => {
         setIsNotificationsOpen(!isNotificationsOpen);
     };
 
+    const handleLogout = () => {
+        localStorage.removeItem("user");
+        window.location.href = "/login";
+    };
+
     return (
         <>
             <nav className="navbar-top">
                 <div className="navbar-container d-flex align-items-center justify-content-between">
-                    <button 
+                    <button
                         className="hamburger-btn"
                         onClick={() => setSidebarOpen(!sidebarOpen)}
                         title="Toggle Sidebar"
@@ -37,7 +39,7 @@ const Navbar = ({ sidebarOpen, setSidebarOpen }) => {
                     <div className="navbar-right d-flex align-items-center gap-3">
                         {/* Notifications */}
                         <div className="navbar-item">
-                            <button 
+                            <button
                                 className="navbar-icon-btn notification-btn"
                                 onClick={toggleNotifications}
                                 title="Notifications"
@@ -60,11 +62,11 @@ const Navbar = ({ sidebarOpen, setSidebarOpen }) => {
                                                     <p className="notif-message">{notif.message}</p>
                                                     <span className="notif-time">{notif.time}</span>
                                                 </div>
-                            <span className="notif-icon">
-                                {notif.type === 'success' && '✓'}
-                                {notif.type === 'warning' && '⚠️'}
-                                {notif.type === 'info' && 'ℹ️'}
-                            </span>
+                                                <span className="notif-icon">
+                                                    {notif.type === 'success' && '✓'}
+                                                    {notif.type === 'warning' && '⚠️'}
+                                                    {notif.type === 'info' && 'ℹ️'}
+                                                </span>
                                             </div>
                                         ))}
                                     </div>
@@ -78,7 +80,7 @@ const Navbar = ({ sidebarOpen, setSidebarOpen }) => {
 
                         {/* Profile */}
                         <div className="navbar-item">
-                            <button 
+                            <button
                                 className="profile-icon-btn"
                                 onClick={toggleProfile}
                                 title="Open Profile"
@@ -91,9 +93,8 @@ const Navbar = ({ sidebarOpen, setSidebarOpen }) => {
                                     <div className="profile-dropdown-header">
                                         <div className="profile-avatar-large">👤</div>
                                         <div className="profile-info">
-                                            <h5 className="mb-0">{userName}</h5>
-                                            <p className="mb-1" style={{ fontSize: '12px', opacity: '0.8' }}>{userRole}</p>
-                                            <p className="mb-0" style={{ fontSize: '11px', opacity: '0.6' }}>{userEmail}</p>
+                                            <h5 className="mb-0">{user?.username}</h5>
+                                            <p className="mb-0" style={{ fontSize: '11px', opacity: '0.6' }}>{user?.email}</p>
                                         </div>
                                     </div>
 
@@ -109,7 +110,13 @@ const Navbar = ({ sidebarOpen, setSidebarOpen }) => {
                                     <div className="profile-dropdown-divider"></div>
 
                                     <div className="profile-dropdown-footer">
-                                        <button className="btn-logout w-100">🚪 Logout</button>
+                                        <button
+                                            className="btn-logout w-100"
+                                            onClick={handleLogout}
+                                        >
+                                            🚪 Logout
+                                        </button>
+
                                     </div>
                                 </div>
                             )}
@@ -119,7 +126,7 @@ const Navbar = ({ sidebarOpen, setSidebarOpen }) => {
             </nav>
 
             {(isProfileOpen || isNotificationsOpen) && (
-                <div 
+                <div
                     className="profile-overlay"
                     onClick={() => {
                         setIsProfileOpen(false);

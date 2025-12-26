@@ -3,6 +3,9 @@ import IPMap from "./IPMap";
 import IPSidePanel from "./IPSidePanel";
 
 const Dashboard = ({ setActiveComponent }) => {
+  const user = JSON.parse(localStorage.getItem("user"));
+  console.log("Dashboard user:", user);
+
   const [selectedCountry, setSelectedCountry] = useState(null);
 
   const stats = [
@@ -45,7 +48,7 @@ const Dashboard = ({ setActiveComponent }) => {
       <div className="mb-4">
         <h1 className="h2 mb-2">Dashboard</h1>
         <p className="text-muted">
-          Welcome to the Global IPI Platform - Manage your intellectual property filings
+          Welcome to Global IP Platform, {user?.username} — Manage your intellectual property filings
         </p>
       </div>
 
