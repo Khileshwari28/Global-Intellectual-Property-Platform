@@ -1,6 +1,5 @@
 import React from 'react';
-import IPSearch from './IPSearch';
-import '../Components/SearchResult';
+import IPMap from "./IPMap";
 
 const Dashboard = ({ setActiveComponent }) => {
     const stats = [
@@ -76,6 +75,48 @@ const Dashboard = ({ setActiveComponent }) => {
                         </div>
                     </div>
                 ))}
+            </div>
+
+            {/* 🌍 IP DISTRIBUTION SECTION (NEW) */}
+            <div className="row mb-4">
+                <div className="col-lg-8">
+                    <div className="card border-0 shadow-sm h-100">
+                        <div className="card-body">
+                            <h5 className="mb-3">IP Distribution by Country</h5>
+                            <IPMap />
+                            <div className="small text-muted mt-2">
+                                ● Circle size indicates number of IP filings
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="col-lg-4">
+                    <div className="card border-0 shadow-sm h-100">
+                        <div className="card-body">
+                            <h5 className="mb-3">Top Countries</h5>
+
+                            <ul className="list-group list-group-flush">
+                                <li className="list-group-item d-flex justify-content-between">
+                                    <span>🇺🇸 United States</span>
+                                    <strong>120</strong>
+                                </li>
+                                <li className="list-group-item d-flex justify-content-between">
+                                    <span>🇮🇳 India</span>
+                                    <strong>60</strong>
+                                </li>
+                                <li className="list-group-item d-flex justify-content-between">
+                                    <span>🇩🇪 Germany</span>
+                                    <strong>40</strong>
+                                </li>
+                                <li className="list-group-item d-flex justify-content-between">
+                                    <span>🇯🇵 Japan</span>
+                                    <strong>30</strong>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             {/* Quick Actions */}
