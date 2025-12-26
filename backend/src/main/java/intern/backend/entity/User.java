@@ -1,4 +1,4 @@
-package intern.backend;
+package intern.backend.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;

@@ -87,7 +87,7 @@ export default function LoginForm() {
                         </form>
 
                         <p className="login-footer">
-                            Don’t have an account? <Link to="/signup">Register</Link>
+                            Don’t have an account? <Link to="/">Register</Link>
                         </p>
 
                     </div>

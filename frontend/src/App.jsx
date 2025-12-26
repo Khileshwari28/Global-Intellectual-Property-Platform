@@ -16,7 +16,7 @@ function App() {
 
         {/* Signup page */}
         <Route
-          path="/signup"
+          path="/"
           element={
             <div className="page-background">
               <div className="base-document-container">
@@ -32,8 +32,6 @@ function App() {
         {/* Login page */}
         <Route path="/login" element={<Login />} />
 
-        {/* Default route → signup */}
-        <Route path="/" element={<SignupCard />} />
 
         {/* Dashboard */}
         <Route

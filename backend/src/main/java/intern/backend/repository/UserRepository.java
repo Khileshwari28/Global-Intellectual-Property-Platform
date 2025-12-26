@@ -1,6 +1,6 @@
-package intern.backend;
+package intern.backend.repository;
 
-import intern.backend.User;
+import intern.backend.entity.User;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;

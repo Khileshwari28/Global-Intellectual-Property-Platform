@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
-import Navbar from '../components/Navbar';
-import Sidebar from '../components/Sidebar';
-import Dashboard from '../components/Dashboard';
-import SearchResult from '../components/SearchResult';
-import FillingTracker from '../components/FillingTracker';
-import LegalStatus from '../components/LegalStatus';
+import Navbar from '../Components/Navbar';
+import Sidebar from '../Components/Sidebar';
+import Dashboard from '../Components/Dashboard';
+import SearchResult from '../Components/SearchResult';
+import FillingTracker from '../Components/FillingTracker';
+import LegalStatus from '../Components/LegalStatus';
 
 const Home = () => {
   const [activeComponent, setActiveComponent] = useState('Dashboard');
@@ -12,8 +12,10 @@ const Home = () => {
 
   const renderComponent = () => {
     switch (activeComponent) {
-      case 'Dashboard':
-        return <Dashboard />;
+      // case 'Dashboard':
+      //   return <Dashboard />;
+       case 'Dashboard':
+      return <Dashboard setActiveComponent={setActiveComponent} />;
       case 'Search Result':
         return <SearchResult />;
       case 'Filling Tracker':
@@ -21,7 +23,7 @@ const Home = () => {
       case 'Legal Status':
         return <LegalStatus />;
       default:
-        return <Dashboard />;
+        return  <Dashboard setActiveComponent={setActiveComponent} />;
     }
   };
 

@@ -66,7 +66,7 @@ const IPSearch = ({ onSearch }) => {
                 onChange={(e) => setCountry(e.target.value)}
               >
                 <option value="">All Countries</option>
-                <option value="United States">United States</option>
+                <option value="US">United States</option>
                 <option value="India">India</option>
               </select>
             </div>

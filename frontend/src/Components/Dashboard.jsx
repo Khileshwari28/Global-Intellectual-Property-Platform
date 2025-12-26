@@ -1,4 +1,6 @@
 import React from 'react';
+import IPSearch from './IPSearch';
+import '../Components/SearchResult';
 
 const Dashboard = ({ setActiveComponent }) => {
     const stats = [

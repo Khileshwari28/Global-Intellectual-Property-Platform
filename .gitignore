@@ -21,4 +21,20 @@ frontend/npm-debug.log*
 frontend/yarn-debug.log*
 frontend/yarn-error.log*
 
+# IDE
+.idea/
+.vscode/
+
+# Backend (Spring Boot / Java)
+backend/target/
+backend/.classpath
+backend/.project
+backend/.settings/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Env files (general)
+.env
 
