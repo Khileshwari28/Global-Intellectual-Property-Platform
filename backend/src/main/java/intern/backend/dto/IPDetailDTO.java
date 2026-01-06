@@ -12,6 +12,18 @@ public class IPDetailDTO {
     private String filedDate;
     private String expiryDate;
     private String description;
+    private String filingDate;
+    private String grantDate;
+
+    private String pdfLink;
+
+    public String getPdfLink() {
+        return pdfLink;
+    }
+
+    public void setPdfLink(String pdfLink) {
+        this.pdfLink = pdfLink;
+    }
 
     public IPDetailDTO() {}
 
@@ -71,22 +83,6 @@ public class IPDetailDTO {
         this.issuingAuthority = issuingAuthority;
     }
 
-    public String getFiledDate() {
-        return filedDate;
-    }
-
-    public void setFiledDate(String filedDate) {
-        this.filedDate = filedDate;
-    }
-
-    public String getExpiryDate() {
-        return expiryDate;
-    }
-
-    public void setExpiryDate(String expiryDate) {
-        this.expiryDate = expiryDate;
-    }
-
     public String getDescription() {
         return description;
     }
@@ -94,4 +90,22 @@ public class IPDetailDTO {
     public void setDescription(String description) {
         this.description = description;
     }
+
+
+    public String getFilingDate() {
+        return filingDate;
+    }
+
+    public void setFilingDate(String filingDate) {
+        this.filingDate = filingDate;
+    }
+
+    public String getGrantDate() {
+        return grantDate;
+    }
+
+    public void setGrantDate(String grantDate) {
+        this.grantDate = grantDate;
+    }
+
 }

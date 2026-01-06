@@ -25,9 +25,22 @@ public class IPAsset {
     @Column(length = 2000)
     private String description;
 
-    private String filedDate;
-
     private String expiryDate;
+
+    private String searchKeyword;
+
+    private String filingDate;
+    private String publicationDate;
+    private String grantDate;
+    private String patentLink;
+    private String pdfLink;
+    private String thumbnail;
+    private String rawStatus; // ACTIVE / NOT_ACTIVE
+
+
+    public IPAsset() {}
+
+    // ===== Getters & Setters =====
 
     public String getSearchKeyword() {
         return searchKeyword;
@@ -36,12 +49,6 @@ public class IPAsset {
     public void setSearchKeyword(String searchKeyword) {
         this.searchKeyword = searchKeyword;
     }
-
-    private String searchKeyword;
-
-    public IPAsset() {}
-
-    // ===== Getters & Setters =====
 
     public Long getId() {
         return id;
@@ -107,19 +114,67 @@ public class IPAsset {
         this.description = description;
     }
 
-    public String getFiledDate() {
-        return filedDate;
-    }
-
-    public void setFiledDate(String filedDate) {
-        this.filedDate = filedDate;
-    }
-
     public String getExpiryDate() {
         return expiryDate;
     }
 
     public void setExpiryDate(String expiryDate) {
         this.expiryDate = expiryDate;
+    }
+
+    public String getFilingDate() {
+        return filingDate;
+    }
+
+    public void setFilingDate(String filingDate) {
+        this.filingDate = filingDate;
+    }
+
+    public String getPublicationDate() {
+        return publicationDate;
+    }
+
+    public void setPublicationDate(String publicationDate) {
+        this.publicationDate = publicationDate;
+    }
+
+    public String getGrantDate() {
+        return grantDate;
+    }
+
+    public void setGrantDate(String grantDate) {
+        this.grantDate = grantDate;
+    }
+
+    public String getPatentLink() {
+        return patentLink;
+    }
+
+    public void setPatentLink(String patentLink) {
+        this.patentLink = patentLink;
+    }
+
+    public String getPdfLink() {
+        return pdfLink;
+    }
+
+    public void setPdfLink(String pdfLink) {
+        this.pdfLink = pdfLink;
+    }
+
+    public String getThumbnail() {
+        return thumbnail;
+    }
+
+    public void setThumbnail(String thumbnail) {
+        this.thumbnail = thumbnail;
+    }
+
+    public String getRawStatus() {
+        return rawStatus;
+    }
+
+    public void setRawStatus(String rawStatus) {
+        this.rawStatus = rawStatus;
     }
 }

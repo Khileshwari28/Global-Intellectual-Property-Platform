@@ -32,104 +32,100 @@ public class IPService {
     // ================= SEARCH =================
     public List<IPResultDTO> searchIPs(IPSearchRequest request) {
 
-        System.out.println(">>> IP SEARCH STARTED");
+        if (request.getKeyword() == null || request.getKeyword().isBlank()) {
+            return List.of();
+        }
 
-        // ===============================
-        // 1️⃣ CALL SERPAPI
-        // ===============================
         String url = apiUrl
                 + "?engine=google_patents"
                 + "&q=" + request.getKeyword()
                 + "&api_key=" + apiKey;
 
-        Map<String, Object> response = restTemplate.getForObject(url, Map.class);
-
-        List<Map<String, Object>> organicResults =
-                response != null
-                        ? (List<Map<String, Object>>) response.get("organic_results")
-                        : null;
-
-        if (organicResults != null && !organicResults.isEmpty()) {
-
-            System.out.println(">>> API returned data");
-
-            for (Map<String, Object> item : organicResults) {
-
-                String title = (String) item.get("title");
-                String snippet = (String) item.get("snippet");
-
-                // 🔹 Extract owner (assignee)
-                // 🔹 Extract owner / assignee (multiple fallbacks)
-                String owner = null;
-
-// Primary: assignees
-                List<Map<String, Object>> assignees =
-                        (List<Map<String, Object>>) item.get("assignees");
-                if (assignees != null && !assignees.isEmpty()) {
-                    owner = (String) assignees.get(0).get("name");
-                }
-
-// Fallback 1: applicant
-                if (owner == null) {
-                    owner = (String) item.get("applicant");
-                }
-
-// Fallback 2: first inventor
-                if (owner == null) {
-                    List<Map<String, Object>> inventors =
-                            (List<Map<String, Object>>) item.get("inventors");
-                    if (inventors != null && !inventors.isEmpty()) {
-                        owner = (String) inventors.get(0).get("name");
-                    }
-                }
-
-// Final fallback
-                if (owner == null) {
-                    owner = "Not Available";
-                }
-
-
-                // 🔹 Extract country from publication_number (e.g., US123456A → US)
-                String country = null;
-                String publicationNumber = (String) item.get("publication_number");
-                if (publicationNumber != null && publicationNumber.length() >= 2) {
-                    country = publicationNumber.substring(0, 2);
-                }
-
-                // 🔹 Prevent duplicates (title + country + keyword)
-                if (repository
-                        .existsByTitleIgnoreCaseAndCountryIgnoreCaseAndSearchKeywordIgnoreCase(
-                                title,
-                                country,
-                                request.getKeyword()
-                        )) {
-                    continue;
-                }
-
-                IPAsset asset = new IPAsset();
-                asset.setTitle(title);
-                asset.setType(request.getType());
-                asset.setCountry(country);          // ✅ REAL country
-                asset.setOwner(owner);              // ✅ REAL owner
-                asset.setStatus("Fetched");
-                asset.setIssuingAuthority("Google Patents");
-                asset.setDescription(snippet);
-                asset.setSearchKeyword(request.getKeyword());
-
-                repository.save(asset);
-            }
+        Map<String, Object> response;
+        try {
+            response = restTemplate.getForObject(url, Map.class);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return List.of(); // ✅ prevents 500
         }
 
-        // ===============================
-        // 2️⃣ FETCH FROM DATABASE
-        // ===============================
-        System.out.println(">>> FETCHING FROM DATABASE");
+        Object resultsObj = response != null ? response.get("organic_results") : null;
+        if (!(resultsObj instanceof List)) {
+            return List.of();
+        }
 
+        List<?> organicResults = (List<?>) resultsObj;
+
+        for (Object obj : organicResults) {
+            if (!(obj instanceof Map)) continue;
+
+            Map<String, Object> item = (Map<String, Object>) obj;
+
+            String title = (String) item.getOrDefault("title", "Untitled");
+            String snippet = (String) item.getOrDefault("snippet", "");
+
+            // OWNER
+            String owner = "Not Available";
+
+            // Primary: assignee (STRING)
+            if (item.get("assignee") instanceof String assignee && !assignee.isBlank()) {
+                owner = assignee;
+            }
+
+// Fallback: inventor
+            else if (item.get("inventor") instanceof String inventor && !inventor.isBlank()) {
+                owner = inventor;
+            }
+
+
+            // ================= PDF LINK =================
+            String pdfLink = (String) item.get("pdf");
+
+
+            // COUNTRY
+            String country = "NA";
+            Object pub = item.get("publication_number");
+            if (pub instanceof String p && p.length() >= 2) {
+                country = p.substring(0, 2);
+            }
+
+            String filingDate = (String) item.get("filing_date");
+            String publicationDate = (String) item.get("publication_date");
+            String grantDate = (String) item.get("grant_date");
+
+            String status = (grantDate != null && !grantDate.isBlank())
+                    ? "GRANTED"
+                    : "PENDING";
+
+            if (repository.existsByTitleIgnoreCaseAndCountryIgnoreCaseAndSearchKeywordIgnoreCase(
+                    title, country, request.getKeyword())) {
+                continue;
+            }
+
+            IPAsset asset = new IPAsset();
+            asset.setTitle(title);
+            asset.setType(request.getType());
+            asset.setCountry(country);
+            asset.setOwner(owner);
+            asset.setStatus(status);
+            asset.setIssuingAuthority("Google Patents");
+            asset.setDescription(snippet);
+            asset.setSearchKeyword(request.getKeyword());
+            asset.setFilingDate(filingDate);
+            asset.setPublicationDate(publicationDate);
+            asset.setGrantDate(grantDate);
+            asset.setPdfLink(pdfLink);
+
+            repository.save(asset);
+        }
+
+
+        // ================= FETCH FROM DB =================
         List<IPAsset> dbResults;
 
         boolean hasCountry =
                 request.getCountry() != null &&
-                        !request.getCountry().isEmpty() &&
+                        !request.getCountry().isBlank() &&
                         !"All Countries".equalsIgnoreCase(request.getCountry());
 
         if (hasCountry) {
@@ -160,11 +156,14 @@ public class IPService {
         dto.setId(asset.getId());
         dto.setTitle(asset.getTitle());
         dto.setType(asset.getType());
-        dto.setCountry(asset.getCountry());   // ✅ FIXED
-        dto.setOwner(asset.getOwner());       // ✅ FIXED
+        dto.setCountry(asset.getCountry());
+        dto.setOwner(asset.getOwner());
         dto.setStatus(asset.getStatus());
         dto.setIssuingAuthority(asset.getIssuingAuthority());
         dto.setDescription(asset.getDescription());
+        dto.setFilingDate(asset.getFilingDate());
+        dto.setGrantDate(asset.getGrantDate());
+        dto.setPdfLink(asset.getPdfLink());
 
         return dto;
     }

@@ -21,7 +21,7 @@ public class IPMapService {
      * Does NOT affect any other search functionality.
      */
     public List<IPResultDTO> getAssetsByCountry(String country) {
-        return repository.findByCountryForMap(country)   // ✅ CHANGE IS HERE
+        return repository.findByCountryForMap(country)
                 .stream()
                 .map(ip -> new IPResultDTO(
                         ip.getId(),

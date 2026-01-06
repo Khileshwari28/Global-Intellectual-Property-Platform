@@ -23,6 +23,7 @@ public class IPSearchController {
     // 🔍 SEARCH API (used by IPSearch form)
     @PostMapping("/search")
     public List<IPResultDTO> searchIP(@RequestBody IPSearchRequest request) {
+        System.out.println("🔥 CONTROLLER HIT 🔥");
         return ipService.searchIPs(request);
     }
 

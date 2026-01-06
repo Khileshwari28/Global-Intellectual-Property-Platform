@@ -1,10 +1,16 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import IPMap from "./IPMap";
 import IPSidePanel from "./IPSidePanel";
 import IPTrendChart from "./charts/IPTrendChart";
 import IPTypeTrendChart from "./charts/IPTypeTrendChart";
 import IPStatusChart from "./charts/IPStatusChart";
 import { VIZ_IDS } from "./charts/vizConfig";
+import {
+  fetchFilingTrend,
+  fetchIPTypeTrend,
+  fetchIPStatusDist
+} from "./charts/chartApi";
+
 
 
 const Dashboard = ({ setActiveComponent }) => {
@@ -46,6 +52,25 @@ const Dashboard = ({ setActiveComponent }) => {
         return "bg-secondary";
     }
   };
+
+  const [filingTrendData, setFilingTrendData] = useState([]);
+  const [ipTypeTrendData, setIPTypeTrendData] = useState([]);
+  const [ipStatusData, setIPStatusData] = useState([]);
+
+  useEffect(() => {
+    fetchFilingTrend()
+      .then(res => setFilingTrendData(res.data))
+      .catch(err => console.error("Filing trend error", err));
+
+    fetchIPTypeTrend()
+      .then(res => setIPTypeTrendData(res.data))
+      .catch(err => console.error("IP type error", err));
+
+    fetchIPStatusDist()
+      .then(res => setIPStatusData(res.data))
+      .catch(err => console.error("Status error", err));
+  }, []);
+
 
   return (
     <div>
@@ -91,78 +116,51 @@ const Dashboard = ({ setActiveComponent }) => {
         </div>
       </div>
 
-      {/* 🌍 IP Distribution (Viz ID aware) */}
-            <div className="row mb-4">
-                <div className="col-lg-8">
-                    <div className="card border-0 shadow-sm h-100">
-                        <div className="card-body">
-                            <h5 className="mb-3">IP Distribution by Country</h5>
-                            <IPMap vizId={VIZ_IDS.IP_COUNTRY_MAP} />
-                            <div className="small text-muted mt-2">
-                                ● Circle size indicates number of IP filings
-                            </div>
-                        </div>
-                    </div>
-                </div>
+      
 
-                <div className="col-lg-4">
-                    <div className="card border-0 shadow-sm h-100">
-                        <div className="card-body">
-                            <h5 className="mb-3">Top Countries</h5>
-                            <ul className="list-group list-group-flush">
-                                <li className="list-group-item d-flex justify-content-between">
-                                    <span>🇺🇸 United States</span>
-                                    <strong>120</strong>
-                                </li>
-                                <li className="list-group-item d-flex justify-content-between">
-                                    <span>🇮🇳 India</span>
-                                    <strong>60</strong>
-                                </li>
-                                <li className="list-group-item d-flex justify-content-between">
-                                    <span>🇩🇪 Germany</span>
-                                    <strong>40</strong>
-                                </li>
-                                <li className="list-group-item d-flex justify-content-between">
-                                    <span>🇯🇵 Japan</span>
-                                    <strong>30</strong>
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
+      {/* 📊 Landscape Visualizations (Trend Charts with Viz IDs) */}
+      <div className="row mb-4">
+        <div className="col-lg-6">
+          <div className="card border-0 shadow-sm">
+            <div className="card-body">
+              <h5>IP Filings Trend</h5>
+              <IPTrendChart
+                data={filingTrendData}
+                vizId={VIZ_IDS.IP_FILING_TREND}
+              />
+
             </div>
+          </div>
+        </div>
 
-            {/* 📊 Landscape Visualizations (Trend Charts with Viz IDs) */}
-            <div className="row mb-4">
-                <div className="col-lg-6">
-                    <div className="card border-0 shadow-sm">
-                        <div className="card-body">
-                            <h5>IP Filings Trend</h5>
-                            <IPTrendChart vizId={VIZ_IDS.IP_FILING_TREND} />
-                        </div>
-                    </div>
-                </div>
+        <div className="col-lg-6">
+          <div className="card border-0 shadow-sm">
+            <div className="card-body">
+              <h5>Patent vs Trademark Trend</h5>
+              <IPTypeTrendChart
+                data={ipTypeTrendData}
+                vizId={VIZ_IDS.IP_TYPE_TREND}
+              />
 
-                <div className="col-lg-6">
-                    <div className="card border-0 shadow-sm">
-                        <div className="card-body">
-                            <h5>Patent vs Trademark Trend</h5>
-                            <IPTypeTrendChart vizId={VIZ_IDS.IP_TYPE_TREND} />
-                        </div>
-                    </div>
-                </div>
             </div>
+          </div>
+        </div>
+      </div>
 
-            <div className="row mb-4">
-                <div className="col-lg-6">
-                    <div className="card border-0 shadow-sm">
-                        <div className="card-body">
-                            <h5>IP Status Distribution</h5>
-                            <IPStatusChart vizId={VIZ_IDS.IP_STATUS_DIST} />
-                        </div>
-                    </div>
-                </div>
+      <div className="row mb-4">
+        <div className="col-lg-6">
+          <div className="card border-0 shadow-sm">
+            <div className="card-body">
+              <h5>IP Status Distribution</h5>
+              <IPStatusChart
+                data={ipStatusData}
+                vizId={VIZ_IDS.IP_STATUS_DIST}
+              />
+
             </div>
+          </div>
+        </div>
+      </div>
 
       {/* Quick Actions */}
       <div className="mb-4">
