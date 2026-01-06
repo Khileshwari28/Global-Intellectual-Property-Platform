@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Filing Tracker | Global IP Intelligence Platform</title>
+
+<style>
+    body {
+        margin: 0;
+        font-family: Arial, sans-serif;
+        background: #f4f6f9;
+    }
+
+    header {
+        background: #003366;
+        color: #fff;
+        padding: 15px 20px;
+    }
+
+    header h2 {
+        margin: 0;
+    }
+
+    header p {
+        margin: 5px 0 0;
+        font-size: 14px;
+        opacity: 0.9;
+    }
+
+    .container {
+        padding: 20px;
+    }
+
+    .controls {
+        margin-bottom: 15px;
+    }
+
+    .controls input,
+    .controls select {
+        padding: 8px;
+        margin-right: 10px;
+        width: 220px;
+    }
+
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        background: #fff;
+    }
+
+    th, td {
+        padding: 12px;
+        text-align: left;
+        border-bottom: 1px solid #ddd;
+        font-size: 14px;
+    }
+
+    th {
+        background: #f0f2f5;
+    }
+
+    tr:hover {
+        background: #f9fbfd;
+        cursor: pointer;
+    }
+
+    .status {
+        padding: 5px 10px;
+        border-radius: 4px;
+        color: #fff;
+        font-size: 12px;
+    }
+
+    .application { background: #f0ad4e; }
+    .granted { background: #5cb85c; }
+    .renewal { background: #0275d8; }
+    .expired { background: #d9534f; }
+
+    .alert {
+        color: #d9534f;
+        font-weight: bold;
+        font-size: 13px;
+    }
+
+    /* Modal */
+    .modal {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.6);
+    }
+
+    .modal-content {
+        background: #fff;
+        width: 50%;
+        margin: 8% auto;
+        padding: 20px;
+        border-radius: 6px;
+    }
+
+    .close {
+        float: right;
+        font-size: 22px;
+        cursor: pointer;
+    }
+
+    .modal h3 {
+        margin-top: 0;
+    }
+
+    .modal p {
+        margin: 8px 0;
+        font-size: 14px;
+    }
+</style>
+</head>
+
+<body>
+
+<header>
+    <h2>Filing Tracker Module</h2>
+    <p>Global Intellectual Property Intelligence Platform</p>
+</header>
+
+<div class="container">
+
+    <div class="controls">
+        <input type="text" id="searchInput" placeholder="Search by Filing ID or Title">
+        <select id="statusFilter">
+            <option value="">All Status</option>
+            <option value="Application Filed">Application Filed</option>
+            <option value="Granted">Granted</option>
+            <option value="Renewal Due">Renewal Due</option>
+            <option value="Expired">Expired</option>
+        </select>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Filing ID</th>
+                <th>IP Type</th>
+                <th>Title</th>
+                <th>Status</th>
+                <th>Renewal Date</th>
+                <th>Expiry Date</th>
+                <th>Alert</th>
+            </tr>
+        </thead>
+        <tbody id="filingTable"></tbody>
+    </table>
+
+</div>
+
+<!-- Details Modal -->
+<div id="detailsModal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal()">×</span>
+        <div id="modalBody"></div>
+    </div>
+</div>
+
+<script>
+const filings = [
+    {
+        id: "IP-1001",
+        type: "Patent",
+        title: "AI-based Medical Diagnosis",
+        status: "Granted",
+        filingDate: "2022-07-18",
+        grantDate: "2024-01-10",
+        renewalDate: "2026-07-18",
+        expiryDate: "2042-07-18",
+        alert: ""
+    },
+    {
+        id: "IP-1002",
+        type: "Trademark",
+        title: "SmartBrand",
+        status: "Renewal Due",
+        filingDate: "2016-01-25",
+        grantDate: "2017-04-12",
+        renewalDate: "2026-01-25",
+        expiryDate: "2036-01-25",
+        alert: "Renewal due in 30 days"
+    },
+    {
+        id: "IP-1003",
+        type: "Patent",
+        title: "Energy Efficient Engine",
+        status: "Expired",
+        filingDate: "2002-03-10",
+        grantDate: "2004-09-05",
+        renewalDate: "2022-03-10",
+        expiryDate: "2023-03-10",
+        alert: "Expired"
+    }
+];
+
+const tableBody = document.getElementById("filingTable");
+const searchInput = document.getElementById("searchInput");
+const statusFilter = document.getElementById("statusFilter");
+
+function renderTable(data) {
+    tableBody.innerHTML = "";
+    data.forEach(f => {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+            <td>${f.id}</td>
+            <td>${f.type}</td>
+            <td>${f.title}</td>
+            <td><span class="status ${getStatusClass(f.status)}">${f.status}</span></td>
+            <td>${f.renewalDate}</td>
+            <td>${f.expiryDate}</td>
+            <td class="alert">${f.alert}</td>
+        `;
+        row.onclick = () => openModal(f);
+        tableBody.appendChild(row);
+    });
+}
+
+function getStatusClass(status) {
+    if (status === "Granted") return "granted";
+    if (status === "Renewal Due") return "renewal";
+    if (status === "Expired") return "expired";
+    return "application";
+}
+
+function openModal(f) {
+    document.getElementById("modalBody").innerHTML = `
+        <h3>${f.title}</h3>
+        <p><b>Filing ID:</b> ${f.id}</p>
+        <p><b>IP Type:</b> ${f.type}</p>
+        <p><b>Filing Date:</b> ${f.filingDate}</p>
+        <p><b>Status:</b> ${f.status}</p>
+        <p><b>Grant Date:</b> ${f.grantDate || "N/A"}</p>
+        <p><b>Renewal Date:</b> ${f.renewalDate}</p>
+        <p><b>Expiry Date:</b> ${f.expiryDate}</p>
+    `;
+    document.getElementById("detailsModal").style.display = "block";
+}
+
+function closeModal() {
+    document.getElementById("detailsModal").style.display = "none";
+}
+
+function applyFilters() {
+    const search = searchInput.value.toLowerCase();
+    const status = statusFilter.value;
+
+    const filtered = filings.filter(f => {
+        const matchesSearch =
+            f.id.toLowerCase().includes(search) ||
+            f.title.toLowerCase().includes(search);
+
+        const matchesStatus =
+            status === "" || f.status === status;
+
+        return matchesSearch && matchesStatus;
+    });
+
+    renderTable(filtered);
+}
+
+searchInput.addEventListener("input", applyFilters);
+statusFilter.addEventListener("change", applyFilters);
+
+// Initial load
+renderTable(filings);
+</script>
+
+</body>
+</html>
