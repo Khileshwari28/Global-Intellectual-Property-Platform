@@ -5,6 +5,8 @@ import IPTrendChart from "./charts/IPTrendChart";
 import IPTypeTrendChart from "./charts/IPTypeTrendChart";
 import IPStatusChart from "./charts/IPStatusChart";
 import { VIZ_IDS } from "./charts/vizConfig";
+import KPISummary from "./KPISummary";
+
 import {
   fetchFilingTrend,
   fetchIPTypeTrend,
@@ -145,19 +147,26 @@ const Dashboard = ({ setActiveComponent }) => {
           </div>
         </div>
 
-        {/* RIGHT SIDE – Radar Chart */}
+        {/* RIGHT SIDE – Radar Chart + KPI Summary */}
         <div className="col-lg-4">
-          <div className="card border-0 shadow-sm">
-            <div className="card-body d-flex flex-column">
-              <h5>IP Status Distribution</h5>
-              <div className="flex-grow-1">
-                <IPStatusChart vizId={VIZ_IDS.IP_STATUS_DIST} />
+          <div className="row g-3">
+            {/* Radar Chart */}
+            <div className="col-12">
+              <div className="card border-0 shadow-sm">
+                <div className="card-body">
+                  <h5>IP Status Distribution</h5>
+                  <IPStatusChart vizId={VIZ_IDS.IP_STATUS_DIST} />
+                </div>
               </div>
+            </div>
+
+            {/* KPI Summary */}
+            <div className="col-12">
+              <KPISummary />
             </div>
           </div>
         </div>
       </div>
-
 
       {/* Quick Actions */}
       <div className="mb-4">
