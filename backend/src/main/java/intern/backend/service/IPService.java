@@ -1,5 +1,6 @@
 package intern.backend.service;
 
+import intern.backend.dto.FilingTrackerDTO;
 import intern.backend.dto.IPDetailDTO;
 import intern.backend.dto.IPResultDTO;
 import intern.backend.dto.IPSearchRequest;
@@ -184,5 +185,48 @@ public class IPService {
             ));
         }
         return results;
+    }
+
+
+    //================FilingTracker============
+    public List<FilingTrackerDTO> getFilingTracker() {
+
+        List<IPAsset> assets = repository.findAll();
+
+        List<FilingTrackerDTO> list = new ArrayList<>();
+
+        for (IPAsset asset : assets) {
+
+            List<FilingTrackerDTO.StepDTO> steps = List.of(
+                    new FilingTrackerDTO.StepDTO("Application Submitted", true, asset.getFilingDate()),
+                    new FilingTrackerDTO.StepDTO("Examination", asset.getGrantDate() != null, asset.getGrantDate() != null ? asset.getGrantDate() : "Pending"),
+                    new FilingTrackerDTO.StepDTO("Grant", asset.getGrantDate() != null, asset.getGrantDate() != null ? asset.getGrantDate() : "Pending")
+            );
+
+            int progress =
+                    asset.getGrantDate() != null ? 100 :
+                            asset.getPublicationDate() != null ? 75 :
+                                    asset.getFilingDate() != null ? 50 : 25;
+
+            String status =
+                    progress == 100 ? "Completed" :
+                            progress >= 50 ? "In Progress" : "Pending";
+
+            list.add(
+                    new FilingTrackerDTO(
+                            asset.getId(),
+                            asset.getTitle(),
+                            asset.getType(),
+                            progress,
+                            status,
+                            asset.getFilingDate(),
+                            asset.getExpiryDate(),
+                            asset.getDescription(),
+                            steps
+                    )
+            );
+        }
+
+        return list;
     }
 }

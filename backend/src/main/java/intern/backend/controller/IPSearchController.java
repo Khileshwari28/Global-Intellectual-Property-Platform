@@ -1,5 +1,6 @@
 package intern.backend.controller;
 
+import intern.backend.dto.FilingTrackerDTO;
 import intern.backend.dto.IPSearchRequest;
 import intern.backend.dto.IPResultDTO;
 import intern.backend.dto.IPDetailDTO;
@@ -31,5 +32,11 @@ public class IPSearchController {
     @GetMapping("/{id}")
     public IPDetailDTO getIPDetails(@PathVariable Long id) {
         return ipService.getIPDetails(id);
+    }
+
+    // FILING TRACKER
+    @GetMapping("/filings/tracker")
+    public List<FilingTrackerDTO> getFilingTracker() {
+        return ipService.getFilingTracker();
     }
 }
