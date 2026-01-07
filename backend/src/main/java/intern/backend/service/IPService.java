@@ -1,15 +1,13 @@
 package intern.backend.service;
 
-import intern.backend.dto.FilingTrackerDTO;
-import intern.backend.dto.IPDetailDTO;
-import intern.backend.dto.IPResultDTO;
-import intern.backend.dto.IPSearchRequest;
+import intern.backend.dto.*;
 import intern.backend.entity.IPAsset;
 import intern.backend.repository.IPAssetRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -112,7 +110,11 @@ public class IPService {
             asset.setIssuingAuthority("Google Patents");
             asset.setDescription(snippet);
             asset.setSearchKeyword(request.getKeyword());
-            asset.setFilingDate(filingDate);
+            if (filingDate != null && !filingDate.isBlank()) {
+                asset.setFilingDate(LocalDate.parse(filingDate));
+            }
+
+
             asset.setPublicationDate(publicationDate);
             asset.setGrantDate(grantDate);
             asset.setPdfLink(pdfLink);
@@ -162,7 +164,12 @@ public class IPService {
         dto.setStatus(asset.getStatus());
         dto.setIssuingAuthority(asset.getIssuingAuthority());
         dto.setDescription(asset.getDescription());
-        dto.setFilingDate(asset.getFilingDate());
+        dto.setFilingDate(
+                asset.getFilingDate() != null
+                        ? asset.getFilingDate().toString()
+                        : "N/A"
+        );
+
         dto.setGrantDate(asset.getGrantDate());
         dto.setPdfLink(asset.getPdfLink());
 
@@ -192,15 +199,31 @@ public class IPService {
     public List<FilingTrackerDTO> getFilingTracker() {
 
         List<IPAsset> assets = repository.findAll();
-
         List<FilingTrackerDTO> list = new ArrayList<>();
 
         for (IPAsset asset : assets) {
 
+            String filingDate =
+                    asset.getFilingDate() != null
+                            ? asset.getFilingDate().toString()
+                            : "N/A";
+
             List<FilingTrackerDTO.StepDTO> steps = List.of(
-                    new FilingTrackerDTO.StepDTO("Application Submitted", true, asset.getFilingDate()),
-                    new FilingTrackerDTO.StepDTO("Examination", asset.getGrantDate() != null, asset.getGrantDate() != null ? asset.getGrantDate() : "Pending"),
-                    new FilingTrackerDTO.StepDTO("Grant", asset.getGrantDate() != null, asset.getGrantDate() != null ? asset.getGrantDate() : "Pending")
+                    new FilingTrackerDTO.StepDTO(
+                            "Application Submitted",
+                            asset.getFilingDate() != null,
+                            filingDate
+                    ),
+                    new FilingTrackerDTO.StepDTO(
+                            "Examination",
+                            asset.getGrantDate() != null,
+                            asset.getGrantDate() != null ? asset.getGrantDate() : "Pending"
+                    ),
+                    new FilingTrackerDTO.StepDTO(
+                            "Grant",
+                            asset.getGrantDate() != null,
+                            asset.getGrantDate() != null ? asset.getGrantDate() : "Pending"
+                    )
             );
 
             int progress =
@@ -212,21 +235,107 @@ public class IPService {
                     progress == 100 ? "Completed" :
                             progress >= 50 ? "In Progress" : "Pending";
 
-            list.add(
-                    new FilingTrackerDTO(
-                            asset.getId(),
-                            asset.getTitle(),
-                            asset.getType(),
-                            progress,
-                            status,
-                            asset.getFilingDate(),
-                            asset.getExpiryDate(),
-                            asset.getDescription(),
-                            steps
-                    )
-            );
+            list.add(new FilingTrackerDTO(
+                    asset.getId(),
+                    asset.getTitle(),
+                    asset.getType(),
+                    progress,
+                    status,
+                    filingDate,
+                    asset.getExpiryDate() != null ? asset.getExpiryDate() : "N/A",
+                    asset.getDescription(),
+                    steps
+            ));
         }
-
         return list;
     }
+
+
+    //======Legal Status-===================
+
+
+    public List<LegalStatusDTO> getLegalStatus() {
+
+        List<IPAsset> assets = repository.findAll();
+        List<LegalStatusDTO> list = new ArrayList<>();
+
+        for (IPAsset ip : assets) {
+
+            LegalStatusDTO dto = new LegalStatusDTO();
+
+            dto.setId(ip.getId());
+            dto.setName(ip.getTitle());
+            dto.setType(ip.getType());
+            dto.setJurisdiction(ip.getCountry());
+            dto.setDescription(ip.getDescription());
+
+            dto.setFiledDate(
+                    ip.getFilingDate() != null
+                            ? ip.getFilingDate().toString()
+                            : "N/A"
+            );
+
+            dto.setExpiryDate(ip.getExpiryDate());
+
+            dto.setFilingNumber(ip.getCountry() + "/" + ip.getId());
+
+            String status =
+                    ip.getGrantDate() != null && !ip.getGrantDate().isBlank()
+                            ? "Registered"
+                            : "Pending";
+            dto.setStatus(status);
+
+            dto.setLegalRisk("Low");
+
+            dto.setDetails(Map.of(
+                    "Issuing Authority", ip.getIssuingAuthority(),
+                    "Owner", ip.getOwner(),
+                    "Current Status", status
+            ));
+
+            list.add(dto);
+        }
+        return list;
+    }
+
+
+
+    public LegalStatusSummaryDTO getLegalStatusSummary() {
+
+        long total = repository.count();
+        long pending = repository.countByStatusIgnoreCase("PENDING");
+        long granted = repository.countByStatusIgnoreCase("GRANTED");
+
+        LegalStatusSummaryDTO dto = new LegalStatusSummaryDTO();
+        dto.setTotalFilings(total);
+        dto.setPendingCount(pending);
+        dto.setActiveCount(granted);
+        dto.setRiskLevel("Low");
+
+        return dto;
+    }
+
+
+    //======== KPI Data===========
+
+    public KPIDTO getKPIData() {
+
+        long total = repository.count();
+        long pending = repository.countByStatusIgnoreCase("PENDING");
+        long countries = repository.countDistinctCountries();
+
+        // simple milestone logic
+        int growth = 18; // can be calculated later
+        long highPriority = pending; // expiry logic later
+
+        KPIDTO dto = new KPIDTO();
+        dto.setGrowthPercent(growth);
+        dto.setPendingActions(pending);
+        dto.setActiveCountries(countries);
+        dto.setHighPriorityIPs(highPriority);
+
+        return dto;
+    }
+
+
 }

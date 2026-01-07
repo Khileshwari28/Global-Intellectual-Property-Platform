@@ -1,100 +1,39 @@
 import React, { useState } from 'react';
+import axios from "axios";
+import { useEffect } from "react";
 
 const LegalStatus = () => {
     const [expandedId, setExpandedId] = useState(null);
+    const ITEMS_PER_PAGE = 5;
 
-    const filings = [
-        {
-            id: 1,
-            name: 'Patent - IoT Smart Device',
-            filingNumber: 'US2023/234567',
-            type: 'Patent',
-            status: 'Active',
-            filedDate: '2021-05-10',
-            expiryDate: '2041-05-10',
-            jurisdiction: 'United States',
-            description: 'A comprehensive patent covering smart home automation technology',
-            legalRisks: 'Low',
-            details: {
-                claims: '25 independent claims',
-                examiner: 'Dr. John Smith',
-                office: 'USPTO, Silicon Valley',
-                annualFee: 'Paid until 2024'
-            }
-        },
-        {
-            id: 2,
-            name: 'Trademark - Brand Logo',
-            filingNumber: 'TM2022/456789',
-            type: 'Trademark',
-            status: 'Registered',
-            filedDate: '2019-08-15',
-            expiryDate: '2029-08-15',
-            jurisdiction: 'European Union',
-            description: 'Registered trademark for company brand and logo',
-            legalRisks: 'Very Low',
-            details: {
-                class: 'Class 35, 42',
-                registrar: 'EUIPO',
-                status: 'Fully Protected',
-                renewalDate: '2024-08-15'
-            }
-        },
-        {
-            id: 3,
-            name: 'Copyright - Software',
-            filingNumber: 'CR2023/567890',
-            type: 'Copyright',
-            status: 'Protected',
-            filedDate: '2020-03-20',
-            expiryDate: '2070-03-20',
-            jurisdiction: 'International',
-            description: 'Copyright protection for proprietary software library',
-            legalRisks: 'Moderate',
-            details: {
-                works: '15 software modules',
-                registrant: 'Tech Corp Ltd',
-                protectionLevel: 'Automatic + Registered',
-                lastUpdated: '2023-09-10'
-            }
-        },
-        {
-            id: 4,
-            name: 'Trade Secret - Process',
-            filingNumber: 'TS2023/789012',
-            type: 'Trade Secret',
-            status: 'Confidential',
-            filedDate: '2022-01-05',
-            expiryDate: 'Indefinite',
-            jurisdiction: 'Confidential',
-            description: 'Manufacturing process and formulation details',
-            legalRisks: 'Medium',
-            details: {
-                category: 'Manufacturing Process',
-                accessLevel: 'Restricted',
-                lastAudit: '2023-08-15',
-                protectionMeasures: 'NDA, Access Control'
-            }
-        },
-        {
-            id: 5,
-            name: 'Design Patent - UI',
-            filingNumber: 'DP2023/901234',
-            type: 'Design',
-            status: 'Pending',
-            filedDate: '2023-04-10',
-            expiryDate: 'Pending',
-            jurisdiction: 'United States',
-            description: 'Design patent for innovative user interface',
-            legalRisks: 'Low',
-            details: {
-                drawings: '15 design drawings',
-                examiner: 'Ms. Sarah Johnson',
-                stage: 'Under Examination',
-                nextAction: 'Office Action Response Due'
-            }
-        }
-    ];
+    const [currentPage, setCurrentPage] = useState(1);
+
+
+    const [filings, setFilings] = useState([]);
+    const [summary, setSummary] = useState({
+        totalFilings: 0,
+        activeCount: 0,
+        pendingCount: 0,
+        riskLevel: "Low"
+    });
+
+    useEffect(() => {
+        axios.get("http://localhost:8080/api/ip/legal-status")
+            .then(res => setFilings(res.data))
+            .catch(err => console.error(err));
+
+        axios.get("http://localhost:8080/api/ip/legal-status/summary")
+            .then(res => setSummary(res.data))
+            .catch(err => console.error(err));
+    }, []);
+
+    const indexOfLastItem = currentPage * ITEMS_PER_PAGE;
+    const indexOfFirstItem = indexOfLastItem - ITEMS_PER_PAGE;
+
+    const currentFilings = filings.slice(indexOfFirstItem, indexOfLastItem);
+
+    const totalPages = Math.ceil(filings.length / ITEMS_PER_PAGE);
+
 
     const getRiskBadgeClass = (risk) => {
         switch (risk) {
@@ -137,7 +76,7 @@ const LegalStatus = () => {
                     <div className="card border-0 shadow-sm">
                         <div className="card-body text-center">
                             <p className="text-muted mb-2" style={{ fontSize: '12px', fontWeight: '600' }}>Total Filings</p>
-                            <h3>{filings.length}</h3>
+                            <h3>{summary.totalFilings}</h3>
                         </div>
                     </div>
                 </div>
@@ -145,7 +84,7 @@ const LegalStatus = () => {
                     <div className="card border-0 shadow-sm">
                         <div className="card-body text-center">
                             <p className="text-muted mb-2" style={{ fontSize: '12px', fontWeight: '600' }}>Active/Protected</p>
-                            <h3>{filings.filter(f => f.status === 'Active' || f.status === 'Protected' || f.status === 'Registered').length}</h3>
+                            <h3>{summary.activeCount}</h3>
                         </div>
                     </div>
                 </div>
@@ -153,7 +92,7 @@ const LegalStatus = () => {
                     <div className="card border-0 shadow-sm">
                         <div className="card-body text-center">
                             <p className="text-muted mb-2" style={{ fontSize: '12px', fontWeight: '600' }}>Pending</p>
-                            <h3>{filings.filter(f => f.status === 'Pending').length}</h3>
+                            <h3>{summary.pendingCount}</h3>
                         </div>
                     </div>
                 </div>
@@ -161,14 +100,15 @@ const LegalStatus = () => {
                     <div className="card border-0 shadow-sm">
                         <div className="card-body text-center">
                             <p className="text-muted mb-2" style={{ fontSize: '12px', fontWeight: '600' }}>Risk Level</p>
-                            <span className="badge bg-success" style={{ fontSize: '14px', padding: '8px' }}>Low</span>
+                            <span className="badge bg-success">{summary.riskLevel}</span>
+
                         </div>
                     </div>
                 </div>
             </div>
 
             <div className="space-y-3">
-                {filings.map((filing) => (
+                {currentFilings.map((filing) => (
                     <div
                         key={filing.id}
                         className="card border-0 shadow-sm"
@@ -216,11 +156,16 @@ const LegalStatus = () => {
                                     <p className="text-muted mb-3">{filing.description}</p>
                                     <h6 className="mb-2">Details</h6>
                                     <div className="row text-muted small">
-                                        {Object.entries(filing.details).map(([key, value]) => (
-                                            <div key={key} className="col-md-6 mb-2">
-                                                <strong className="text-capitalize">{key.replace(/([A-Z])/g, ' $1')}:</strong> {value}
-                                            </div>
-                                        ))}
+                                        {filing.details &&
+                                            Object.entries(filing.details).map(([key, value]) => (
+                                                <div key={key} className="col-md-6 mb-2">
+                                                    <strong className="text-capitalize">
+                                                        {key.replace(/([A-Z])/g, " $1")}:
+                                                    </strong>{" "}
+                                                    {value}
+                                                </div>
+                                            ))}
+
                                     </div>
                                     <div className="d-flex gap-2 mt-3">
                                         <button className="btn btn-primary btn-sm">Request Certificate</button>
@@ -233,6 +178,29 @@ const LegalStatus = () => {
                     </div>
                 ))}
             </div>
+
+            <div className="d-flex justify-content-center align-items-center gap-3 mt-4">
+                <button
+                    className="btn btn-outline-primary btn-sm"
+                    disabled={currentPage === 1}
+                    onClick={() => setCurrentPage(prev => prev - 1)}
+                >
+                    Previous
+                </button>
+
+                <span style={{ fontWeight: "600" }}>
+                    Page {currentPage} of {totalPages}
+                </span>
+
+                <button
+                    className="btn btn-outline-primary btn-sm"
+                    disabled={currentPage === totalPages}
+                    onClick={() => setCurrentPage(prev => prev + 1)}
+                >
+                    Next
+                </button>
+            </div>
+
         </div>
     );
 };

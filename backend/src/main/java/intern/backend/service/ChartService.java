@@ -15,9 +15,6 @@ public class ChartService {
     @Autowired
     private IPAssetRepository ipAssetRepository;
 
-    public List<IPTrendDTO> getFilingsTrend() {
-        return ipAssetRepository.findFilingsTrend();
-    }
 
     public List<IPTypeDTO> getIPTypeTrend() {
         return ipAssetRepository.findIPTypeTrend();
@@ -26,4 +23,14 @@ public class ChartService {
     public List<IPStatusDTO> getIPStatusDistribution() {
         return ipAssetRepository.findStatusDistribution();
     }
+
+    public List<IPTrendDTO> getFilingsTrendByYear(int year) {
+        return ipAssetRepository.findMonthlyFilingsByYear(year);
+    }
+
+    public List<Integer> getAvailableYears() {
+        return ipAssetRepository.findDistinctYears();
+    }
+
+
 }

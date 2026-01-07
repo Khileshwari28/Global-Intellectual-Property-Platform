@@ -10,7 +10,8 @@ import KPISummary from "./KPISummary";
 import {
   fetchFilingTrend,
   fetchIPTypeTrend,
-  fetchIPStatusDist
+  fetchIPStatusDist,
+  fetchAvailableYears
 } from "./charts/chartApi";
 
 
@@ -20,6 +21,43 @@ const Dashboard = ({ setActiveComponent }) => {
   console.log("Dashboard user:", user);
 
   const [selectedCountry, setSelectedCountry] = useState(null);
+  const [years, setYears] = useState([]);
+  const [selectedYear, setSelectedYear] = useState(null);
+
+  
+  const [filingTrendData, setFilingTrendData] = useState([]);
+  const [ipTypeTrendData, setIPTypeTrendData] = useState([]);
+  const [ipStatusData, setIPStatusData] = useState([]);
+
+  useEffect(() => {
+  fetchAvailableYears()
+    .then(res => {
+      setYears(res.data);
+      setSelectedYear(2025); // DEFAULT ON LOAD
+    })
+    .catch(console.error);
+}, []);
+
+useEffect(() => {
+  if (!selectedYear) return;
+
+  fetchFilingTrend(selectedYear)
+    .then(res => setFilingTrendData(res.data))
+    .catch(console.error);
+}, [selectedYear]);
+
+
+
+  useEffect(() => {
+    fetchIPTypeTrend()
+      .then(res => setIPTypeTrendData(res.data))
+      .catch(err => console.error("IP type error", err));
+
+    fetchIPStatusDist()
+      .then(res => setIPStatusData(res.data))
+      .catch(err => console.error("Status error", err));
+  }, []);
+
 
   const stats = [
     { label: "Total Filings", value: "248", icon: "📑" },
@@ -54,25 +92,6 @@ const Dashboard = ({ setActiveComponent }) => {
         return "bg-secondary";
     }
   };
-
-  const [filingTrendData, setFilingTrendData] = useState([]);
-  const [ipTypeTrendData, setIPTypeTrendData] = useState([]);
-  const [ipStatusData, setIPStatusData] = useState([]);
-
-  useEffect(() => {
-    fetchFilingTrend()
-      .then(res => setFilingTrendData(res.data))
-      .catch(err => console.error("Filing trend error", err));
-
-    fetchIPTypeTrend()
-      .then(res => setIPTypeTrendData(res.data))
-      .catch(err => console.error("IP type error", err));
-
-    fetchIPStatusDist()
-      .then(res => setIPStatusData(res.data))
-      .catch(err => console.error("Status error", err));
-  }, []);
-
 
   return (
     <div>
@@ -118,9 +137,9 @@ const Dashboard = ({ setActiveComponent }) => {
         </div>
       </div>
 
-      
 
-     {/* 📊 Landscape Visualizations (Improved Layout) */}
+
+      {/* 📊 Landscape Visualizations (Improved Layout) */}
       <div className="row mb-4">
         {/* LEFT SIDE – Line + Bar charts */}
         <div className="col-lg-8">
@@ -130,7 +149,15 @@ const Dashboard = ({ setActiveComponent }) => {
               <div className="card border-0 shadow-sm">
                 <div className="card-body">
                   <h5>IP Filings Trend</h5>
-                  <IPTrendChart vizId={VIZ_IDS.IP_FILING_TREND} />
+                  <IPTrendChart
+                    data={filingTrendData}
+                    years={years}
+                    selectedYear={selectedYear}
+                    onYearChange={setSelectedYear}
+                  />
+
+
+
                 </div>
               </div>
             </div>
@@ -140,7 +167,11 @@ const Dashboard = ({ setActiveComponent }) => {
               <div className="card border-0 shadow-sm">
                 <div className="card-body">
                   <h5>Patent vs Trademark Trend</h5>
-                  <IPTypeTrendChart vizId={VIZ_IDS.IP_TYPE_TREND} />
+                  <IPTypeTrendChart
+                    data={ipTypeTrendData}
+                    vizId={VIZ_IDS.IP_TYPE_TREND}
+                  />
+
                 </div>
               </div>
             </div>
@@ -155,7 +186,11 @@ const Dashboard = ({ setActiveComponent }) => {
               <div className="card border-0 shadow-sm">
                 <div className="card-body">
                   <h5>IP Status Distribution</h5>
-                  <IPStatusChart vizId={VIZ_IDS.IP_STATUS_DIST} />
+                  <IPStatusChart
+                    data={ipStatusData}
+                    vizId={VIZ_IDS.IP_STATUS_DIST}
+                  />
+
                 </div>
               </div>
             </div>

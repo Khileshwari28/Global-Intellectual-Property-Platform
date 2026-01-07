@@ -1,37 +1,58 @@
-import React from "react";
-
-const kpis = [
-  {
-    title: "Total IP Growth",
-    value: "+18%",
-    subtitle: "Compared to last year",
-    icon: "📈",
-    color: "text-success"
-  },
-  {
-    title: "Pending Actions",
-    value: "12",
-    subtitle: "Needs review",
-    icon: "⏳",
-    color: "text-warning"
-  },
-  {
-    title: "Active Countries",
-    value: "6",
-    subtitle: "With IP filings",
-    icon: "🌍",
-    color: "text-primary"
-  },
-  {
-    title: "High Priority IPs",
-    value: "4",
-    subtitle: "Immediate attention",
-    icon: "⚠️",
-    color: "text-danger"
-  }
-];
+import React, { useEffect, useState } from "react";
+import axios from "axios";
 
 const KPISummary = () => {
+  const [kpiData, setKpiData] = useState(null);
+
+  useEffect(() => {
+    axios
+      .get("http://localhost:8080/api/ip/kpis")
+      .then((res) => setKpiData(res.data))
+      .catch((err) => console.error("KPI API error:", err));
+  }, []);
+
+  if (!kpiData) {
+    return (
+      <div className="card border-0 shadow-sm h-100">
+        <div className="card-body">
+          <h5 className="mb-3">Key Insights</h5>
+          <p className="text-muted">Loading insights...</p>
+        </div>
+      </div>
+    );
+  }
+
+  const kpis = [
+    {
+      title: "Total IP Growth",
+      value: `+${kpiData.growthPercent}%`,
+      subtitle: "Compared to last year",
+      icon: "📈",
+      color: "text-success"
+    },
+    {
+      title: "Pending Actions",
+      value: kpiData.pendingActions,
+      subtitle: "Needs review",
+      icon: "⏳",
+      color: "text-warning"
+    },
+    {
+      title: "Active Countries",
+      value: kpiData.activeCountries,
+      subtitle: "With IP filings",
+      icon: "🌍",
+      color: "text-primary"
+    },
+    {
+      title: "High Priority IPs",
+      value: kpiData.highPriorityIPs,
+      subtitle: "Immediate attention",
+      icon: "⚠️",
+      color: "text-danger"
+    }
+  ];
+
   return (
     <div className="card border-0 shadow-sm h-100">
       <div className="card-body">

@@ -1,9 +1,6 @@
 package intern.backend.controller;
 
-import intern.backend.dto.FilingTrackerDTO;
-import intern.backend.dto.IPSearchRequest;
-import intern.backend.dto.IPResultDTO;
-import intern.backend.dto.IPDetailDTO;
+import intern.backend.dto.*;
 import intern.backend.service.IPService;
 import org.springframework.web.bind.annotation.*;
 
@@ -39,4 +36,22 @@ public class IPSearchController {
     public List<FilingTrackerDTO> getFilingTracker() {
         return ipService.getFilingTracker();
     }
+
+    //======LEGAL STATUS====
+    @GetMapping("/legal-status")
+    public List<LegalStatusDTO> getLegalStatus() {
+        return ipService.getLegalStatus();
+    }
+
+    @GetMapping("/legal-status/summary")
+    public LegalStatusSummaryDTO getLegalStatusSummary() {
+        return ipService.getLegalStatusSummary();
+    }
+
+    @GetMapping("/kpis")
+    public KPIDTO getKPIs() {
+        return ipService.getKPIData();
+    }
+
+
 }

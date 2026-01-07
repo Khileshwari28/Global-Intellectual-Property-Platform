@@ -4,11 +4,12 @@ import IPDetailModal from "./IPDetailModal";
 
 const SearchResult = () => {
   const [results, setResults] = useState([]);
-  const [selectedIP, setSelectedIP] = useState(null);
+  const [selectedIPId, setSelectedIPId] = useState(null);
   const [showModal, setShowModal] = useState(false);
 
   const [loading, setLoading] = useState(false);
   const [noData, setNoData] = useState(false);
+
 
   // 🔍 SEARCH API
   const handleSearch = async (filters) => {
@@ -53,16 +54,11 @@ const SearchResult = () => {
   };
 
   // 📄 DETAILS API
-  const handleViewDetails = async (id) => {
-    try {
-      const response = await fetch(`http://localhost:8080/api/ip/${id}`);
-      const data = await response.json();
-      setSelectedIP(data);
-      setShowModal(true);
-    } catch (error) {
-      console.error("Details API error:", error);
-    }
-  };
+  const handleViewDetails = (id) => {
+  setSelectedIPId(id);
+  setShowModal(true);
+};
+
 
   return (
     <div>
@@ -112,12 +108,16 @@ const SearchResult = () => {
       )}
 
       {/* 📦 Modal */}
-      <IPDetailModal
-        show={showModal}
-        data={selectedIP}
-        onClose={() => setShowModal(false)}
-      />
+      {showModal && (
+  <IPDetailModal
+    ipId={selectedIPId}
+    onClose={() => setShowModal(false)}
+  />
+)}
+
     </div>
+
+
   );
 };
 
