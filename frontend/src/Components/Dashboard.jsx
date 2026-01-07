@@ -5,6 +5,8 @@ import IPTrendChart from "./charts/IPTrendChart";
 import IPTypeTrendChart from "./charts/IPTypeTrendChart";
 import IPStatusChart from "./charts/IPStatusChart";
 import { VIZ_IDS } from "./charts/vizConfig";
+import KPISummary from "./KPISummary";
+
 import {
   fetchFilingTrend,
   fetchIPTypeTrend,
@@ -118,45 +120,49 @@ const Dashboard = ({ setActiveComponent }) => {
 
       
 
-      {/* 📊 Landscape Visualizations (Trend Charts with Viz IDs) */}
+     {/* 📊 Landscape Visualizations (Improved Layout) */}
       <div className="row mb-4">
-        <div className="col-lg-6">
-          <div className="card border-0 shadow-sm">
-            <div className="card-body">
-              <h5>IP Filings Trend</h5>
-              <IPTrendChart
-                data={filingTrendData}
-                vizId={VIZ_IDS.IP_FILING_TREND}
-              />
+        {/* LEFT SIDE – Line + Bar charts */}
+        <div className="col-lg-8">
+          <div className="row g-3">
+            {/* IP Filings Trend */}
+            <div className="col-12">
+              <div className="card border-0 shadow-sm">
+                <div className="card-body">
+                  <h5>IP Filings Trend</h5>
+                  <IPTrendChart vizId={VIZ_IDS.IP_FILING_TREND} />
+                </div>
+              </div>
+            </div>
 
+            {/* Patent vs Trademark */}
+            <div className="col-12">
+              <div className="card border-0 shadow-sm">
+                <div className="card-body">
+                  <h5>Patent vs Trademark Trend</h5>
+                  <IPTypeTrendChart vizId={VIZ_IDS.IP_TYPE_TREND} />
+                </div>
+              </div>
             </div>
           </div>
         </div>
 
-        <div className="col-lg-6">
-          <div className="card border-0 shadow-sm">
-            <div className="card-body">
-              <h5>Patent vs Trademark Trend</h5>
-              <IPTypeTrendChart
-                data={ipTypeTrendData}
-                vizId={VIZ_IDS.IP_TYPE_TREND}
-              />
-
+        {/* RIGHT SIDE – Radar Chart + KPI Summary */}
+        <div className="col-lg-4">
+          <div className="row g-3">
+            {/* Radar Chart */}
+            <div className="col-12">
+              <div className="card border-0 shadow-sm">
+                <div className="card-body">
+                  <h5>IP Status Distribution</h5>
+                  <IPStatusChart vizId={VIZ_IDS.IP_STATUS_DIST} />
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
-      </div>
 
-      <div className="row mb-4">
-        <div className="col-lg-6">
-          <div className="card border-0 shadow-sm">
-            <div className="card-body">
-              <h5>IP Status Distribution</h5>
-              <IPStatusChart
-                data={ipStatusData}
-                vizId={VIZ_IDS.IP_STATUS_DIST}
-              />
-
+            {/* KPI Summary */}
+            <div className="col-12">
+              <KPISummary />
             </div>
           </div>
         </div>

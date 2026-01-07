@@ -1,10 +1,24 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import axios from "axios";
 
-const IPDetailModal = ({ show, onClose, data }) => {
-  if (!show || !data) return null;
+const IPDetailModal = ({ ipId, onClose }) => {
+
+  const [ip, setIp] = useState(null);
+
+  useEffect(() => {
+    if (ipId) {
+      axios
+        .get(`http://localhost:8080/api/ip/${ipId}`)
+        .then((res) => setIp(res.data))
+        .catch((err) => console.error(err));
+    }
+  }, [ipId]);
+
+  if (!ip) return null;
 
   return (
     <>
+      {/* Modal */}
       <div
         className="modal fade show d-block"
         tabIndex="-1"
@@ -12,9 +26,10 @@ const IPDetailModal = ({ show, onClose, data }) => {
       >
         <div className="modal-dialog modal-lg modal-dialog-centered">
           <div className="modal-content border-0 shadow">
+
             {/* Header */}
             <div className="modal-header">
-              <h5 className="modal-title">{data.type} Details</h5>
+              <h5 className="modal-title">{ip.type} Details</h5>
               <button className="btn-close" onClick={onClose}></button>
             </div>
 
@@ -24,59 +39,57 @@ const IPDetailModal = ({ show, onClose, data }) => {
 
                 <div className="col-md-6">
                   <strong>Title</strong>
-                  <p>{data.title}</p>
+                  <p>{ip.title}</p>
                 </div>
 
                 <div className="col-md-6">
                   <strong>Status</strong><br />
-                  <span className="badge bg-success">{data.status}</span>
+                  <span className="badge bg-success">{ip.status}</span>
                 </div>
 
                 <div className="col-md-6">
                   <strong>Assignee</strong>
-                  <p>{data.owner || "Not Available"}</p>
+                  <p>{ip.owner || "Not Available"}</p>
                 </div>
 
                 <div className="col-md-6">
                   <strong>Country</strong>
-                  <p>{data.country}</p>
+                  <p>{ip.country}</p>
                 </div>
 
                 <div className="col-md-6">
                   <strong>IP Type</strong>
-                  <p>{data.type}</p>
+                  <p>{ip.type}</p>
                 </div>
 
                 <div className="col-md-6">
                   <strong>Issuing Authority</strong>
-                  <p>{data.issuingAuthority}</p>
+                  <p>{ip.issuingAuthority}</p>
                 </div>
 
-                {/* ✅ NEW: Filing Date */}
                 <div className="col-md-6">
                   <strong>Filing Date</strong>
-                  <p>{data.filingDate || "Not Available"}</p>
+                  <p>{ip.filingDate || "Not Available"}</p>
                 </div>
 
-                {/* ✅ NEW: Grant Date */}
                 <div className="col-md-6">
                   <strong>Grant Date</strong>
-                  <p>{data.grantDate || "Not Granted Yet"}</p>
+                  <p>{ip.grantDate || "Not Granted Yet"}</p>
                 </div>
 
                 <div className="col-12">
                   <strong>Description</strong>
                   <p className="text-muted">
-                    {data.description || "No description available."}
+                    {ip.description || "No description available."}
                   </p>
                 </div>
 
               </div>
 
-              {data.pdfLink && (
-                <div className="col-12 mt-3">
+              {ip.pdfLink && (
+                <div className="mt-3">
                   <a
-                    href={data.pdfLink}
+                    href={ip.pdfLink}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="btn btn-outline-primary"
@@ -85,9 +98,6 @@ const IPDetailModal = ({ show, onClose, data }) => {
                   </a>
                 </div>
               )}
-
-
-
             </div>
 
             {/* Footer */}
@@ -96,10 +106,12 @@ const IPDetailModal = ({ show, onClose, data }) => {
                 Close
               </button>
             </div>
+
           </div>
         </div>
       </div>
 
+      {/* Backdrop */}
       <div
         className="modal-backdrop fade show"
         style={{ zIndex: 1050 }}
