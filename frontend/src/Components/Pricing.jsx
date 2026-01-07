@@ -1,96 +1,110 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-/*  Razorpay TEST Key */
-const RAZORPAY_KEY = "rzp_test_S0yogPh9RsxaZ5"; 
-
-const CURRENT_PLAN = "Basic"; 
+/* Razorpay TEST Key */
+const RAZORPAY_KEY = "rzp_test_S0yogPh9RsxaZ5";
 
 const plans = [
   {
     name: "Basic",
+    role: "BASIC",
     price: 0,
     displayPrice: "₹0",
     credits: "100 Credits",
-    search: "Standard Search",
+    track: "Standard Search",
     updates: "Manual",
     support: "Email Only",
   },
   {
     name: "Professional",
+    role: "PRO",
     price: 499,
     displayPrice: "₹499",
     credits: "5,000 Credits",
-    search: "Advanced Track",
+    track: "Legal Status Access",
     updates: "Real-time",
     support: "24/7 Priority",
     popular: true,
   },
   {
     name: "Enterprise",
+    role: "ENTERPRISE",
     price: 1999,
     displayPrice: "₹1999",
     credits: "Unlimited",
-    search: "Full API Access",
+    track: "Legal Status Access",
     updates: "Instant Push",
     support: "Dedicated Mgr",
+    
   },
 ];
 
 export default function Pricing() {
+  const navigate = useNavigate();
+
+  const [currentPlan, setCurrentPlan] = useState("Basic");
   const [selectedPlan, setSelectedPlan] = useState(null);
   const [showModal, setShowModal] = useState(false);
-  const navigate = useNavigate();
-  
-  const currentPlanPrice = plans.find((p) => p.name === CURRENT_PLAN)?.price;
-  
+
+  /* Load current plan from localStorage */
+  useEffect(() => {
+    const user = JSON.parse(localStorage.getItem("user"));
+    setCurrentPlan(user?.plan || "Basic");
+  }, []);
+
+  const currentPlanPrice =
+    plans.find((p) => p.name === currentPlan)?.price ?? 0;
+
   const handleSelect = (plan) => {
     setSelectedPlan(plan);
     setShowModal(true);
   };
-  
- const confirmUpgrade = () => {
-  setShowModal(false);
 
-  // Free plan → instant upgrade
-  if (selectedPlan.price === 0) {
-    applyRole(selectedPlan.role);
-    alert(`Upgraded to ${selectedPlan.name} plan!`);
-    navigate("/dashboard");
-    return;
-  }
+  const confirmUpgrade = () => {
+    setShowModal(false);
 
-  if (!window.Razorpay) {
-    alert("Razorpay SDK not loaded");
-    return;
-  }
-
-  const rzp = new window.Razorpay({
-    key: RAZORPAY_KEY,
-    amount: selectedPlan.price * 100,
-    currency: "INR",
-    name: "Demo App",
-    description: selectedPlan.name,
-    theme: { color: "#2563eb" },
-    handler: function (response) {
-      // Payment completed (success alert after card entry)
-      alert(`Payment successful! Upgraded to ${selectedPlan.name}`);
-      applyRole(selectedPlan.role);
+    // FREE PLAN
+    if (selectedPlan.price === 0) {
+      applyRole(selectedPlan.role, selectedPlan.name);
+      setCurrentPlan(selectedPlan.name);
+      alert(`Upgraded to ${selectedPlan.name} plan`);
       navigate("/dashboard");
-    },
-    modal: {
-      ondismiss: function () {
-        //  Even if user closes/fails payment, we treat as success for demo
-        alert(`Payment successful (Demo Mode)! Upgraded to ${selectedPlan.name}`);
-        applyRole(selectedPlan.role);
+      return;
+    }
+
+    if (!window.Razorpay) {
+      alert("Razorpay SDK not loaded");
+      return;
+    }
+
+    const rzp = new window.Razorpay({
+      key: RAZORPAY_KEY,
+      amount: selectedPlan.price * 100,
+      currency: "INR",
+      name: "Global IP Platform",
+      description: selectedPlan.name,
+      theme: { color: "#2563eb" },
+
+      handler: function () {
+        alert(`Payment successful! Upgraded to ${selectedPlan.name}`);
+        applyRole(selectedPlan.role, selectedPlan.name);
+        setCurrentPlan(selectedPlan.name);
         navigate("/dashboard");
       },
-    },
-  });
 
-  rzp.open();
-};
-  
+      modal: {
+        ondismiss: function () {
+          // DEMO MODE SUCCESS
+          alert(`Payment successful (Demo)! Upgraded to ${selectedPlan.name}`);
+          applyRole(selectedPlan.role, selectedPlan.name);
+          setCurrentPlan(selectedPlan.name);
+          navigate("/dashboard");
+        },
+      },
+    });
+
+    rzp.open();
+  };
 
   return (
     <div style={styles.wrapper}>
@@ -98,7 +112,7 @@ export default function Pricing() {
 
       <div style={styles.grid}>
         {plans.map((plan) => {
-          const isCurrent = plan.name === CURRENT_PLAN;
+          const isCurrent = plan.name === currentPlan;
           const isDowngrade = plan.price < currentPlanPrice;
 
           return (
@@ -117,7 +131,7 @@ export default function Pricing() {
               <div style={styles.body}>
                 <Item label="Monthly price" value={plan.displayPrice} />
                 <Item label="API Credits" value={plan.credits} />
-                <Item label="Search & Track" value={plan.search} />
+                <Item label="Track" value={plan.track} />
                 <Item label="Data Updates" value={plan.updates} />
                 <Item label="Support" value={plan.support} />
               </div>
@@ -153,8 +167,8 @@ export default function Pricing() {
   );
 }
 
-/* Role storage */
-function applyRole(role) {
+/* Save user role + plan */
+function applyRole(role, planName) {
   const existingUser = JSON.parse(localStorage.getItem("user")) || {
     id: 1,
     email: "test@test.com",
@@ -165,11 +179,12 @@ function applyRole(role) {
     JSON.stringify({
       ...existingUser,
       role,
+      plan: planName,
     })
   );
 }
 
-/* Confirm modal */
+/* Modal */
 function ConfirmModal({ plan, onCancel, onConfirm }) {
   return (
     <div style={styles.modalBackdrop}>
@@ -199,44 +214,70 @@ const Item = ({ label, value }) => (
   </div>
 );
 
-
 const styles = {
-  wrapper: { padding: "40px", fontFamily: "Inter, Arial, sans-serif" },
-  heading: { fontSize: "28px", marginBottom: "32px" },
-  grid: { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: "24px" },
+  wrapper: { padding: 40, fontFamily: "Inter, Arial" },
+  heading: { fontSize: 28, marginBottom: 32 },
+  grid: {
+    display: "grid",
+    gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
+    gap: 24,
+  },
   card: {
     border: "1px solid #e5e7eb",
-    borderRadius: "14px",
-    padding: "24px",
+    borderRadius: 14,
+    padding: 24,
     background: "#fff",
-    display: "flex",
-    flexDirection: "column",
-    justifyContent: "space-between",
     position: "relative",
   },
   current: { boxShadow: "0 0 0 2px #2563eb" },
   disabledCard: { opacity: 0.6 },
   popular: {
     position: "absolute",
-    top: "-12px",
+    top: -12,
     left: "50%",
     transform: "translateX(-50%)",
     background: "#111827",
     color: "#fff",
     padding: "6px 14px",
-    borderRadius: "20px",
-    fontSize: "12px",
+    borderRadius: 20,
+    fontSize: 12,
   },
   body: { margin: "20px 0" },
-  item: { display: "flex", justifyContent: "space-between", padding: "10px 0", borderBottom: "1px solid #e5e7eb", fontSize: "14px" },
+  item: {
+    display: "flex",
+    justifyContent: "space-between",
+    padding: "10px 0",
+    borderBottom: "1px solid #e5e7eb",
+  },
   label: { color: "#6b7280" },
-  value: { fontWeight: "500" },
-  button: { padding: "12px", borderRadius: "8px", border: "none", fontSize: "14px", cursor: "pointer", background: "#2563eb", color: "#fff" },
-  currentBtn: { background: "#e5e7eb", color: "#374151", cursor: "not-allowed" },
-  disabledBtn: { background: "#9ca3af", cursor: "not-allowed" },
-  modalBackdrop: { position: "fixed", inset: 0, background: "rgba(0,0,0,0.4)", display: "flex", justifyContent: "center", alignItems: "center" },
+  value: { fontWeight: 500 },
+  button: {
+    padding: 12,
+    borderRadius: 8,
+    border: "none",
+    background: "#2563eb",
+    color: "#fff",
+    cursor: "pointer",
+  },
+  currentBtn: {
+    background: "#e5e7eb",
+    color: "#374151",
+    cursor: "not-allowed",
+  },
+  disabledBtn: {
+    background: "#9ca3af",
+    cursor: "not-allowed",
+  },
+  modalBackdrop: {
+    position: "fixed",
+    inset: 0,
+    background: "rgba(0,0,0,0.4)",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+  },
   modal: { background: "#fff", padding: 24, borderRadius: 12, width: 320 },
   modalActions: { display: "flex", justifyContent: "space-between", marginTop: 20 },
-  cancelBtn: { background: "#e5e7eb", border: "none", padding: "10px 16px", borderRadius: 6 },
-  confirmBtn: { background: "#2563eb", color: "#fff", border: "none", padding: "10px 16px", borderRadius: 6 },
+  cancelBtn: { background: "#e5e7eb", border: "none", padding: "10px 16px" },
+  confirmBtn: { background: "#2563eb", color: "#fff", border: "none", padding: "10px 16px" },
 };

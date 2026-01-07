@@ -1,20 +1,18 @@
-import React from 'react';
+
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+
 import BrandingColumn from './Components/BrandingColumn';
 import SignupCard from './Components/SignupCard';
 import Login from "./pages/Login";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import './SignupStyles.css';
 import Home from "./pages/Home";
-import ProtectedRoute from "./Components/ProtectedRoute";
 import Pricing from './Components/Pricing';
+
+import './SignupStyles.css';
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
-
-        {/* Pricing */}
-        <Route path="/pricing" element={<Pricing />} />
 
         {/* Signup */}
         <Route
@@ -34,16 +32,20 @@ function App() {
         {/* Login */}
         <Route path="/login" element={<Login />} />
 
-        {/* Dashboard (PRO + ENTERPRISE only) */}
+        {/* Pricing (public page, optional) */}
+        <Route path="/pricing" element={<Pricing />} />
+
+        {/* Dashboard (AFTER login) */}
+        {/* <Route path="/dashboard" element={<Home />} /> */}
+      
         <Route
           path="/dashboard"
           element={
             // <ProtectedRoute allowedRoles={["PRO", "ENTERPRISE"]}>
               <Home />
-            // </ProtectedRoute>
-          }
-        />
-
+              // </ProtectedRoute> 
+           }
+      />
       </Routes>
     </BrowserRouter>
   );

@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import InputField from './InputField';
+import { Navigate, useNavigate } from "react-router-dom";
+
 
 const initialFormState = {
   firstName: '',
@@ -56,35 +58,38 @@ const SignupForm = () => {
   
 const handleSubmit = async (e) => {
   e.preventDefault();
-  if (validate()) {
-    try {
-      const response = await fetch("http://localhost:8080/api/users/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          username: formData.firstName + " " + formData.lastName,
-          email: formData.email,
-          password: formData.password,
-          role: "USER"
-        })
-      });
 
-      if (response.ok) {
-        alert("Signup Successful!");
-        setFormData(initialFormState);
-      } else {
-        alert("Failed to register. Check backend.");
-      }
+ // if (validate()) {
+//     try {
+//       const response = await fetch("http://localhost:8080/api/users/register", {
+//         method: "POST",
+//         headers: { "Content-Type": "application/json" },
+//         body: JSON.stringify({
+//           username: formData.firstName + " " + formData.lastName,
+//           email: formData.email,
+//           password: formData.password,
+//           role: "USER"
+//         })
+//       });
 
-    } catch (error) {
-      console.error("Error:", error);
-      alert("Server error");
-    }
-  }
-};
+//       if (response.ok) {
+//         alert("Signup Successful!");
+//         setFormData(initialFormState);
+//       } else {
+//         alert("Failed to register. Check backend.");
+//       }
 
+//     } catch (error) {
+//       console.error("Error:", error);
+//       alert("Server error");
+//     }
+//   }
+ 
+   Navigate("/dashboard")  // Redirect to dashboard after signup
+ };
+  
 
-
+  
   return (
     <form onSubmit={handleSubmit}>
       <div className="form-group-row">

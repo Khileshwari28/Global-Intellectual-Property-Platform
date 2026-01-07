@@ -1,18 +1,18 @@
+
 import React, { useState } from 'react';
 import ProfileCard from './ProfileCard';
 
-const Sidebar = ({ activeComponent, setActiveComponent }) => {
+const Sidebar = ({ activeComponent, setActiveComponent, userPlan }) => {
     const [isProfileOpen, setProfileOpen] = useState(false);
 
-    const toggleProfile = () => {
-        setProfileOpen(!isProfileOpen);
-    };
+    const toggleProfile = () => setProfileOpen(!isProfileOpen);
 
     const menuItems = [
         { name: 'Dashboard', icon: '📊' },
         { name: 'Search Result', icon: '🔍' },
         { name: 'Filling Tracker', icon: '📋' },
-        { name: 'Legal Status', icon: '⚖️' }
+        { name: 'Legal Status', icon: '⚖️', requiresPro: true },
+        { name: 'Upgrade Plan', icon: '🚀' }
     ];
 
     return (
@@ -46,6 +46,7 @@ const Sidebar = ({ activeComponent, setActiveComponent }) => {
                             >
                                 <span style={{ fontSize: '18px' }}>{item.icon}</span>
                                 <span>{item.name}</span>
+                                {item.requiresPro && userPlan === "Basic" && <span style={{ marginLeft: 'auto' }}>🔒</span>}
                             </button>
                         </li>
                     ))}
@@ -53,15 +54,20 @@ const Sidebar = ({ activeComponent, setActiveComponent }) => {
             </nav>
 
             <div className="mt-auto pt-3 border-top border-white border-opacity-25">
-                <button 
-                    onClick={toggleProfile} 
+                <button
+                    onClick={toggleProfile}
                     className="btn btn-outline-light w-100 mb-2 d-flex align-items-center justify-content-center gap-2"
                     style={{ fontSize: '13px', fontWeight: '600' }}
                 >
                     ⚙️ Settings
                 </button>
+
                 {isProfileOpen && <ProfileCard />}
-                <button className="btn btn-outline-light w-100 d-flex align-items-center justify-content-center gap-2" style={{ fontSize: '13px', fontWeight: '600' }}>
+
+                <button
+                    className="btn btn-outline-light w-100 d-flex align-items-center justify-content-center gap-2"
+                    style={{ fontSize: '13px', fontWeight: '600' }}
+                >
                     🚪 Logout
                 </button>
             </div>
