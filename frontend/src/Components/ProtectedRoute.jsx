@@ -1,6 +1,6 @@
 import { Navigate } from "react-router-dom";
 
-export default function ProtectedRoute({ children }) {
+export default function ProtectedRoute({ children, allowedRoles }) {
   const stored = localStorage.getItem("user");
 
   let user = null;
@@ -11,8 +11,17 @@ export default function ProtectedRoute({ children }) {
     user = null;
   }
 
+  // 🔒 Not logged in
   if (!user || Object.keys(user).length === 0) {
     return <Navigate to="/login" replace />;
+  }
+
+  // 🔐 Role-based protection (optional)
+  if (
+    allowedRoles &&
+    (!user.role || !allowedRoles.includes(user.role))
+  ) {
+    return <Navigate to="/pricing" replace />;
   }
 
   return children;

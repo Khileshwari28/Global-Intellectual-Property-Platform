@@ -6,15 +6,17 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import './SignupStyles.css';
 import Home from "./pages/Home";
 import ProtectedRoute from "./Components/ProtectedRoute";
-
+import Pricing from './Components/Pricing';
 
 function App() {
   return (
-
     <BrowserRouter>
       <Routes>
 
-        {/* Signup page */}
+        {/* Pricing */}
+        <Route path="/pricing" element={<Pricing />} />
+
+        {/* Signup */}
         <Route
           path="/"
           element={
@@ -29,24 +31,21 @@ function App() {
           }
         />
 
-        {/* Login page */}
+        {/* Login */}
         <Route path="/login" element={<Login />} />
 
-
-        {/* Dashboard */}
+        {/* Dashboard (PRO + ENTERPRISE only) */}
         <Route
           path="/dashboard"
           element={
-            <ProtectedRoute>
+            <ProtectedRoute allowedRoles={["PRO", "ENTERPRISE"]}>
               <Home />
             </ProtectedRoute>
           }
         />
 
-
       </Routes>
     </BrowserRouter>
-
   );
 }
 
