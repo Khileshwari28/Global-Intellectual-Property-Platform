@@ -1,59 +1,89 @@
 import React from "react";
-import { Bar } from "react-chartjs-2";
+import { Radar } from "react-chartjs-2";
 import {
   Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  BarElement,
+  RadialLinearScale,
+  PointElement,
+  LineElement,
   Tooltip,
   Legend
 } from "chart.js";
 import { VIZ_IDS } from "./vizConfig";
 
 ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  BarElement,
+  RadialLinearScale,
+  PointElement,
+  LineElement,
   Tooltip,
   Legend
 );
 
 const IPStatusChart = ({ data = [], vizId = VIZ_IDS.IP_STATUS_DIST }) => {
-  // ✅ Fallback data (used until API is connected)
   const fallbackData = [
-    { status: "Completed", count: 236 },
-    { status: "Pending", count: 12 },
-    { status: "Rejected", count: 8 }
+    { status: "Completed", count: 136 },
+    { status: "Pending", count: 50 },
+    { status: "Rejected", count: 38 }
   ];
 
-  // ✅ Use API data if available
   const finalData = data.length ? data : fallbackData;
 
-  // ✅ Convert API format → Chart.js format
   const chartData = {
     labels: finalData.map(item => item.status),
     datasets: [
       {
-        label: "IP Status",
+        label: "IP Status Distribution",
         data: finalData.map(item => item.count),
-        backgroundColor: ["#198754", "#ffc107", "#dc3545"]
+
+        /* ⭐ THIS MAKES IT LOOK LIKE YOUR IMAGE */
+        fill: "origin",
+
+        backgroundColor: "rgba(54, 162, 235, 0.45)", // light blue fill
+        borderColor: "rgba(54, 162, 235, 1)",
+        borderWidth: 3,
+
+        pointBackgroundColor: "rgba(54, 162, 235, 1)",
+        pointBorderColor: "#fff",
+        pointRadius: 4,
+        pointHoverRadius: 6
       }
     ]
   };
 
   const options = {
     responsive: true,
+    scales: {
+      r: {
+        beginAtZero: true,
+
+        /* GRID + ANGLES (very important) */
+        grid: {
+          color: "rgba(0,0,0,0.08)"
+        },
+        angleLines: {
+          color: "rgba(0,0,0,0.12)"
+        },
+
+        ticks: {
+          backdropColor: "transparent",
+          stepSize: 50
+        },
+
+        pointLabels: {
+          font: {
+            size: 12,
+            weight: "600"
+          }
+        }
+      }
+    },
     plugins: {
       legend: {
         position: "top"
-      },
-      tooltip: {
-        enabled: true
       }
     }
   };
 
-  return <Bar data={chartData} options={options} />;
+  return <Radar data={chartData} options={options} />;
 };
 
 export default IPStatusChart;
