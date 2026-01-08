@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import axios from "axios";
 import { Bar } from "react-chartjs-2";
 import {
   Chart as ChartJS,
@@ -18,7 +19,21 @@ ChartJS.register(
   Legend
 );
 
-const IPTypeTrendChart = ({ data = [], vizId = VIZ_IDS.IP_TYPE_TREND }) => {
+const IPTypeTrendChart = ({ vizId = VIZ_IDS.IP_TYPE_TREND }) => {
+  const [data, setData] = useState([]);
+
+  /* 🔌 FETCH REAL DATA */
+  useEffect(() => {
+    axios
+      .get("http://localhost:8080/api/charts/ip-type-trend")
+      .then(res => setData(res.data))
+      .catch(err => {
+        console.error("IP Type Trend error:", err);
+        setData([]);
+      });
+  }, []);
+
+  /* 🔁 FALLBACK (only if API fails / DB empty) */
   const fallbackData = [
     { type: "Patent", count: 180 },
     { type: "Trademark", count: 68 }
@@ -27,7 +42,11 @@ const IPTypeTrendChart = ({ data = [], vizId = VIZ_IDS.IP_TYPE_TREND }) => {
   const finalData = data.length ? data : fallbackData;
 
   const chartData = {
-    labels: finalData.map(item => item.type),
+    labels: finalData.map(item =>
+      item.type?.toUpperCase() === "PATENT"
+        ? "Patent"
+        : "Trademark"
+    ),
     datasets: [
       {
         label: "IP Type Distribution",
