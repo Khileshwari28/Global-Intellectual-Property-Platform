@@ -94,6 +94,7 @@ const Navbar = ({ sidebarOpen, setSidebarOpen }) => {
                                         <div className="profile-avatar-large">👤</div>
                                         <div className="profile-info">
                                             <h5 className="mb-0">{user?.username}</h5>
+                                            <p className="mb-0" style={{ fontSize: '11px', opacity: '0.6' }}>{user?.role}</p>
                                             <p className="mb-0" style={{ fontSize: '11px', opacity: '0.6' }}>{user?.email}</p>
                                         </div>
                                     </div>

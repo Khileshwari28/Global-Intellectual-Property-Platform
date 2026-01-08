@@ -1,61 +1,16 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import IPMap from "./IPMap";
 import IPSidePanel from "./IPSidePanel";
 import DashboardInsights from "./DashboardInsights";
 import DashboardAlerts from "./DashboardAlerts";
-import { VIZ_IDS } from "./charts/vizConfig";
 import DashboardQuickRatio from "./DashboardQuickRatio";
-
-import {
-  fetchFilingTrend,
-  fetchIPTypeTrend,
-  fetchIPStatusDist,
-  fetchAvailableYears
-} from "./charts/chartApi";
-
-
+import KPISummary from "./KPISummary";
 
 const Dashboard = ({ setActiveComponent }) => {
   const user = JSON.parse(localStorage.getItem("user"));
   console.log("Dashboard user:", user);
 
   const [selectedCountry, setSelectedCountry] = useState(null);
-  const [years, setYears] = useState([]);
-  const [selectedYear, setSelectedYear] = useState(null);
-
-  
-  const [filingTrendData, setFilingTrendData] = useState([]);
-  const [ipTypeTrendData, setIPTypeTrendData] = useState([]);
-  const [ipStatusData, setIPStatusData] = useState([]);
-
-  useEffect(() => {
-  fetchAvailableYears()
-    .then(res => {
-      setYears(res.data);
-      setSelectedYear(2025); // DEFAULT ON LOAD
-    })
-    .catch(console.error);
-}, []);
-
-useEffect(() => {
-  if (!selectedYear) return;
-
-  fetchFilingTrend(selectedYear)
-    .then(res => setFilingTrendData(res.data))
-    .catch(console.error);
-}, [selectedYear]);
-
-
-
-  useEffect(() => {
-    fetchIPTypeTrend()
-      .then(res => setIPTypeTrendData(res.data))
-      .catch(err => console.error("IP type error", err));
-
-    fetchIPStatusDist()
-      .then(res => setIPStatusData(res.data))
-      .catch(err => console.error("Status error", err));
-  }, []);
 
 
   const stats = [
@@ -98,7 +53,7 @@ useEffect(() => {
       <div className="mb-4">
         <h1 className="h2 mb-2">Dashboard</h1>
         <p className="text-muted">
-          Welcome to Global IP Platform, {user?.username} — Manage your intellectual property filings
+          Welcome to Global IP Platform, {user?.username}
         </p>
       </div>
 
@@ -109,7 +64,9 @@ useEffect(() => {
             <div className="card border-0 shadow-sm h-100">
               <div className="card-body">
                 <div style={{ fontSize: "32px" }}>{stat.icon}</div>
-                <h6 className="text-muted text-uppercase mt-2">{stat.label}</h6>
+                <h6 className="text-muted text-uppercase mt-2">
+                  {stat.label}
+                </h6>
                 <h3 className="fw-bold">{stat.value}</h3>
               </div>
             </div>
@@ -117,16 +74,13 @@ useEffect(() => {
         ))}
       </div>
 
-      {/* 🌍 MAP + SIDE PANEL */}
+      {/* MAP + SIDE PANEL */}
       <div className="row mb-4">
         <div className="col-lg-8">
           <div className="card border-0 shadow-sm h-100">
             <div className="card-body">
               <h5 className="mb-3">IP Distribution by Country</h5>
               <IPMap onCountrySelect={setSelectedCountry} />
-              <div className="small text-muted mt-2">
-                ● Click on a country to view IP assets
-              </div>
             </div>
           </div>
         </div>
@@ -136,22 +90,20 @@ useEffect(() => {
         </div>
       </div>
 
-         {/* 🔍 Insights + Alerts + Quick Ratio */}
+      {/* Insights */}
       <div className="row mb-4">
         <div className="col-lg-4">
-          <DashboardInsights />
+          <KPISummary />
         </div>
-
         <div className="col-lg-4">
           <DashboardAlerts />
         </div>
-
         <div className="col-lg-4">
           <DashboardQuickRatio />
+
         </div>
       </div>
 
-     
 
       {/* Quick Actions */}
       <div className="mb-4">
@@ -185,7 +137,7 @@ useEffect(() => {
                 <div className="fw-medium">{activity.action}</div>
                 <small className="text-muted">{activity.time}</small>
               </div>
-              <span className={`badge ${getStatusBadgeClass(activity.status)}`}>
+              <span className={`badge   ${getStatusBadgeClass(activity.status)}`}>
                 {activity.status}
               </span>
             </div>

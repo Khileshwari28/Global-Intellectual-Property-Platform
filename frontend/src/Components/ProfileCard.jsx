@@ -35,7 +35,11 @@ const ProfileCard = () => {
                     </div>
                     <div className="flex-grow-1">
                         <h6 className="mb-1" style={{ fontSize: '14px', fontWeight: '600' }}>{user?.username}</h6>
-                        <small className="text-muted">{user?.email}</small>
+                        <h6 className="text-muted" style={{ fontSize: '10px', fontWeight: '600' }}>{user?.role}</h6>
+                        <h6 className="text-muted" style={{ fontSize: '10px', fontWeight: '600' }}>{user?.email}</h6>
+                        {/* <small className="text-muted">{user?.role}</small><br />
+                        <small className="text-muted">{user?.email}</small> */}
+                        
                     </div>
                 </div>
 

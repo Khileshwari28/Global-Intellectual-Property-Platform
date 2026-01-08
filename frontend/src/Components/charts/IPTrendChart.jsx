@@ -7,7 +7,8 @@ import {
   PointElement,
   LineElement,
   Tooltip,
-  Legend
+  Legend,
+  Filler
 } from "chart.js";
 import axios from "axios";
 
@@ -17,7 +18,8 @@ ChartJS.register(
   PointElement,
   LineElement,
   Tooltip,
-  Legend
+  Legend,
+  Filler
 );
 
 // Month mapping (DB → UI)

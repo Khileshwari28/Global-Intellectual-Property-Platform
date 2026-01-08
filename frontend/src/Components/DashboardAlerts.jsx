@@ -1,70 +1,41 @@
-import React from "react";
-
-const alerts = [
-  {
-    icon: "⚠️",
-    title: "Patent Expiry",
-    message: "3 patents expiring in 60 days",
-    type: "danger",
-  },
-  {
-    icon: "⏰",
-    title: "Pending Review",
-    message: "5 filings pending legal review",
-    type: "warning",
-  },
-  {
-    icon: "❗",
-    title: "Trademark Objection",
-    message: "Objection received on trademark filing",
-    type: "info",
-  },
-];
+import React, { useEffect, useState } from "react";
+import axios from "axios";
 
 const getBorderClass = (type) => {
-  switch (type) {
-    case "danger":
-      return "border-start border-4 border-danger";
-    case "warning":
-      return "border-start border-4 border-warning";
-    case "info":
-      return "border-start border-4 border-primary";
-    default:
-      return "";
-  }
+  if (type === "danger") return "border-danger";
+  if (type === "warning") return "border-warning";
+  if (type === "success") return "border-success";
+  return "border-primary";
 };
 
 const DashboardAlerts = () => {
+  const [alerts, setAlerts] = useState([]);
+  const user = JSON.parse(localStorage.getItem("user"));
+
+  useEffect(() => {
+    if (!user?.userId) return;
+
+    axios
+      .get(`http://localhost:8080/api/notifications/${user.userId}`)
+      .then(res => setAlerts(res.data))
+      .catch(err => console.error(err));
+  }, [user]);
+
   return (
-    <div className="card border-0 shadow-sm h-100">
+    <div className="card shadow-sm">
       <div className="card-body">
-        <h6 className="mb-3 text-muted fw-semibold">
-          Action Required
-        </h6>
+        <h6 className="text-muted mb-3">Action Required</h6>
 
-        {alerts.map((alert, index) => (
-          <div
-            key={index}
-            className={`d-flex align-items-start p-3 mb-3 rounded bg-light ${getBorderClass(
-              alert.type
-            )}`}
-            style={{ cursor: "pointer" }}
-          >
-            {/* Icon */}
-            <div style={{ fontSize: "20px", marginRight: "12px" }}>
-              {alert.icon}
-            </div>
+        {alerts.length === 0 && (
+          <small className="text-muted">No alerts</small>
+        )}
 
-            {/* Content */}
-            <div className="flex-grow-1">
-              <div className="fw-semibold">{alert.title}</div>
-              <small className="text-muted">
-                {alert.message}
-              </small>
-            </div>
-
-            {/* Arrow */}
-            <div className="text-muted">›</div>
+        {alerts.map(a => (
+          <div key={a.id} className={`p-3 mb-2 border-start border-4 ${getBorderClass(a.type)}`}>
+            <div className="fw-semibold">{a.message}</div>
+            <small className="text-muted">
+              {new Date(a.timestamp).toLocaleString()}
+            </small>
           </div>
         ))}
       </div>

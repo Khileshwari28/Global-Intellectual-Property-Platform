@@ -6,7 +6,7 @@ import SignupCard from './Components/SignupCard';
 import Login from "./pages/Login";
 import Home from "./pages/Home";
 import Pricing from './Components/Pricing';
-
+import ProtectedRoute from './Components/ProtectedRoute';
 import './SignupStyles.css';
 
 function App() {
@@ -33,17 +33,17 @@ function App() {
         <Route path="/login" element={<Login />} />
 
         {/* Pricing (public page, optional) */}
-        <Route path="/pricing" element={<Pricing />} />
+        {/* <Route path="/pricing" element={<Pricing />} /> */}
 
         {/* Dashboard (AFTER login) */}
-        {/* <Route path="/dashboard" element={<Home />} /> */}
+        <Route path="/dashboard" element={<Home />} />
       
         <Route
           path="/dashboard"
           element={
-            // <ProtectedRoute allowedRoles={["PRO", "ENTERPRISE"]}>
+            <ProtectedRoute allowedRoles={["PRO", "ENTERPRISE"]}>
               <Home />
-              // </ProtectedRoute> 
+              </ProtectedRoute> 
            }
       />
       </Routes>

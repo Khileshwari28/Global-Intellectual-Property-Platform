@@ -5,8 +5,10 @@ import intern.backend.dto.IPTrendDTO;
 import intern.backend.dto.IPTypeDTO;
 import intern.backend.entity.IPAsset;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -92,5 +94,15 @@ public interface IPAssetRepository extends JpaRepository<IPAsset, Long> {
 
     @Query("SELECT COUNT(DISTINCT ip.country) FROM IPAsset ip")
     long countDistinctCountries();
+
+    // ✅ Only tracked IPs
+    List<IPAsset> findByIsTrackedTrue();
+
+    @Modifying
+    @Transactional
+    @Query("UPDATE IPAsset ip SET ip.isTracked = true WHERE ip.id = :id")
+    int markAsTracked(@Param("id") Long id);
+
+
 
 }

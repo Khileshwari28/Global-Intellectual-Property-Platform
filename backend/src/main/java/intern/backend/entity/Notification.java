@@ -1,7 +1,7 @@
 package intern.backend.entity;
 
 import jakarta.persistence.*;
-import java.time.LocalDateTime;
+import java.util.Date;
 
 @Entity
 @Table(name = "notifications")
@@ -9,7 +9,6 @@ public class Notification {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
     private Integer id;
 
     @Column(name = "user_id", nullable = false)
@@ -24,58 +23,20 @@ public class Notification {
     @Column(name = "type")
     private String type;
 
-    @Column(name = "timestamp", nullable = false)
-    private LocalDateTime timestamp;
+    @Column(name = "timestamp")
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date timestamp = new Date();
 
-    public Notification() {
-        this.timestamp = LocalDateTime.now();
-    }
+    public Integer getId() { return id; }
+    public Integer getUserId() { return userId; }
+    public Integer getIpAssetId() { return ipAssetId; }
+    public String getMessage() { return message; }
+    public String getType() { return type; }
+    public Date getTimestamp() { return timestamp; }
 
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    public Integer getUserId() {
-        return userId;
-    }
-
-    public void setUserId(Integer userId) {
-        this.userId = userId;
-    }
-
-    public Integer getIpAssetId() {
-        return ipAssetId;
-    }
-
-    public void setIpAssetId(Integer ipAssetId) {
-        this.ipAssetId = ipAssetId;
-    }
-
-    public String getMessage() {
-        return message;
-    }
-
-    public void setMessage(String message) {
-        this.message = message;
-    }
-
-    public String getType() {
-        return type;
-    }
-
-    public void setType(String type) {
-        this.type = type;
-    }
-
-    public LocalDateTime getTimestamp() {
-        return timestamp;
-    }
-
-    public void setTimestamp(LocalDateTime timestamp) {
-        this.timestamp = timestamp;
-    }
+    public void setUserId(Integer userId) { this.userId = userId; }
+    public void setIpAssetId(Integer ipAssetId) { this.ipAssetId = ipAssetId; }
+    public void setMessage(String message) { this.message = message; }
+    public void setType(String type) { this.type = type; }
+    public void setTimestamp(Date timestamp) { this.timestamp = timestamp; }
 }

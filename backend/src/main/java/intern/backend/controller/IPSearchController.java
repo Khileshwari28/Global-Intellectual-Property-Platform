@@ -54,4 +54,11 @@ public class IPSearchController {
     }
 
 
+    //========Tracked Patents =====
+    @PostMapping("/track/{id}")
+    public void trackIP(@PathVariable Long id) {
+        ipService.trackIP(id);
+    }
+
+
 }

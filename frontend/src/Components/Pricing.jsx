@@ -35,7 +35,6 @@ const plans = [
     track: "Legal Status Access",
     updates: "Instant Push",
     support: "Dedicated Mgr",
-    
   },
 ];
 
@@ -45,8 +44,9 @@ export default function Pricing() {
   const [currentPlan, setCurrentPlan] = useState("Basic");
   const [selectedPlan, setSelectedPlan] = useState(null);
   const [showModal, setShowModal] = useState(false);
+  const [hoveredPlan, setHoveredPlan] = useState(null);
 
-  /* Load current plan from localStorage */
+  /* Load current plan */
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem("user"));
     setCurrentPlan(user?.plan || "Basic");
@@ -63,14 +63,10 @@ export default function Pricing() {
   const confirmUpgrade = () => {
     setShowModal(false);
 
-    // FREE PLAN
-    if (selectedPlan.price === 0) {
-      applyRole(selectedPlan.role, selectedPlan.name);
-      setCurrentPlan(selectedPlan.name);
-      alert(`Upgraded to ${selectedPlan.name} plan`);
-      navigate("/dashboard");
-      return;
-    }
+    const user = JSON.parse(localStorage.getItem("user"));
+    if (!user?.id) return;
+
+    if (selectedPlan.price === 0) return;
 
     if (!window.Razorpay) {
       alert("Razorpay SDK not loaded");
@@ -83,23 +79,39 @@ export default function Pricing() {
       currency: "INR",
       name: "Global IP Platform",
       description: selectedPlan.name,
-      theme: { color: "#2563eb" },
 
-      handler: function () {
-        alert(`Payment successful! Upgraded to ${selectedPlan.name}`);
-        applyRole(selectedPlan.role, selectedPlan.name);
-        setCurrentPlan(selectedPlan.name);
-        navigate("/dashboard");
-      },
+      handler: async function () {
+        try {
+          const res = await fetch(
+            `http://localhost:8080/api/subscription/upgrade?userId=${user.id}&plan=${selectedPlan.name}`,
+            { method: "POST" }
+          );
 
-      modal: {
-        ondismiss: function () {
-          // DEMO MODE SUCCESS
-          alert(`Payment successful (Demo)! Upgraded to ${selectedPlan.name}`);
-          applyRole(selectedPlan.role, selectedPlan.name);
-          setCurrentPlan(selectedPlan.name);
+          if (!res.ok) throw new Error("Upgrade failed");
+
+          const subscription = await res.json();
+
+          localStorage.setItem(
+            "user",
+            JSON.stringify({
+              ...user,
+              plan: subscription.planName,
+            })
+          );
+
+          setCurrentPlan(
+            user?.plan
+              ? user.plan.charAt(0) + user.plan.slice(1).toLowerCase()
+              : "Basic"
+          );
+
+          alert(`Payment successful! Upgraded to ${selectedPlan.name}`);
+          
           navigate("/dashboard");
-        },
+        } catch (err) {
+          console.error(err);
+          alert("Subscription upgrade failed");
+        }
       },
     });
 
@@ -114,13 +126,17 @@ export default function Pricing() {
         {plans.map((plan) => {
           const isCurrent = plan.name === currentPlan;
           const isDowngrade = plan.price < currentPlanPrice;
+          const isHovered = hoveredPlan === plan.name;
 
           return (
             <div
               key={plan.name}
+              onMouseEnter={() => setHoveredPlan(plan.name)}
+              onMouseLeave={() => setHoveredPlan(null)}
               style={{
                 ...styles.card,
                 ...(isCurrent ? styles.current : {}),
+                ...(isHovered && !isCurrent ? styles.hovered : {}),
                 ...(isDowngrade ? styles.disabledCard : {}),
               }}
             >
@@ -148,8 +164,8 @@ export default function Pricing() {
                 {isCurrent
                   ? "Current Plan"
                   : isDowngrade
-                  ? "Downgrade Disabled"
-                  : "Select Plan"}
+                    ? "Downgrade Disabled"
+                    : "Select Plan"}
               </button>
             </div>
           );
@@ -167,24 +183,8 @@ export default function Pricing() {
   );
 }
 
-/* Save user role + plan */
-function applyRole(role, planName) {
-  const existingUser = JSON.parse(localStorage.getItem("user")) || {
-    id: 1,
-    email: "test@test.com",
-  };
+/* ----------------- modal ----------------- */
 
-  localStorage.setItem(
-    "user",
-    JSON.stringify({
-      ...existingUser,
-      role,
-      plan: planName,
-    })
-  );
-}
-
-/* Modal */
 function ConfirmModal({ plan, onCancel, onConfirm }) {
   return (
     <div style={styles.modalBackdrop}>
@@ -214,23 +214,43 @@ const Item = ({ label, value }) => (
   </div>
 );
 
+/* ----------------- STYLES ----------------- */
+
 const styles = {
   wrapper: { padding: 40, fontFamily: "Inter, Arial" },
   heading: { fontSize: 28, marginBottom: 32 },
+
   grid: {
     display: "grid",
     gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
     gap: 24,
   },
+
   card: {
     border: "1px solid #e5e7eb",
     borderRadius: 14,
     padding: 24,
     background: "#fff",
     position: "relative",
+    transition: "all 0.25s ease",
   },
-  current: { boxShadow: "0 0 0 2px #2563eb" },
+
+  hovered: {
+    border: "2px solid #2563eb",
+    boxShadow: "0 12px 28px rgba(37,99,235,0.25)",
+    transform: "translateY(-4px)",
+  },
+
+  // current: { boxShadow: "0 0 0 2px #2563eb" },
+
+  current: {
+    background: "#f3f4f6",
+    border: "2px solid #9ca3af",
+    boxShadow: "0 8px 20px rgba(0,0,0,0.08)",
+  },
+
   disabledCard: { opacity: 0.6 },
+
   popular: {
     position: "absolute",
     top: -12,
@@ -242,15 +262,19 @@ const styles = {
     borderRadius: 20,
     fontSize: 12,
   },
+
   body: { margin: "20px 0" },
+
   item: {
     display: "flex",
     justifyContent: "space-between",
     padding: "10px 0",
     borderBottom: "1px solid #e5e7eb",
   },
+
   label: { color: "#6b7280" },
   value: { fontWeight: 500 },
+
   button: {
     padding: 12,
     borderRadius: 8,
@@ -259,15 +283,18 @@ const styles = {
     color: "#fff",
     cursor: "pointer",
   },
+
   currentBtn: {
     background: "#e5e7eb",
     color: "#374151",
     cursor: "not-allowed",
   },
+
   disabledBtn: {
     background: "#9ca3af",
     cursor: "not-allowed",
   },
+
   modalBackdrop: {
     position: "fixed",
     inset: 0,
@@ -276,8 +303,30 @@ const styles = {
     alignItems: "center",
     justifyContent: "center",
   },
-  modal: { background: "#fff", padding: 24, borderRadius: 12, width: 320 },
-  modalActions: { display: "flex", justifyContent: "space-between", marginTop: 20 },
-  cancelBtn: { background: "#e5e7eb", border: "none", padding: "10px 16px" },
-  confirmBtn: { background: "#2563eb", color: "#fff", border: "none", padding: "10px 16px" },
+
+  modal: {
+    background: "#fff",
+    padding: 24,
+    borderRadius: 12,
+    width: 320,
+  },
+
+  modalActions: {
+    display: "flex",
+    justifyContent: "space-between",
+    marginTop: 20,
+  },
+
+  cancelBtn: {
+    background: "#e5e7eb",
+    border: "none",
+    padding: "10px 16px",
+  },
+
+  confirmBtn: {
+    background: "#2563eb",
+    color: "#fff",
+    border: "none",
+    padding: "10px 16px",
+  },
 };

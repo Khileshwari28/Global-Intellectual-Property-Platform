@@ -7,7 +7,7 @@ import IPStatusChart from "./charts/IPStatusChart";
 import { VIZ_IDS } from "./charts/vizConfig";
 import KPISummary from "./KPISummary";
 
-const LegalStatus = ({ userPlan, setActiveComponent }) => {
+const LegalStatus = ({ userRole, userPlan, setActiveComponent }) => {
   const [expandedId, setExpandedId] = useState(null);
   const [filings, setFilings] = useState([]);
   const [summary, setSummary] = useState({
@@ -20,20 +20,31 @@ const LegalStatus = ({ userPlan, setActiveComponent }) => {
   const ITEMS_PER_PAGE = 5;
   const [currentPage, setCurrentPage] = useState(1);
 
-  /* 🔌 Fetch backend data */
-  useEffect(() => {
-    if (userPlan !== "Basic") {
-      axios
-        .get("http://localhost:8080/api/ip/legal-status")
-        .then((res) => setFilings(res.data))
-        .catch(console.error);
+  /* ✅ NORMALIZE */
+  const role = (userRole || "").toUpperCase();
+  const plan = (userPlan || "").toUpperCase();
 
-      axios
-        .get("http://localhost:8080/api/ip/legal-status/summary")
-        .then((res) => setSummary(res.data))
-        .catch(console.error);
-    }
-  }, [userPlan]);
+  /* ✅ FINAL ACCESS RULE (ADMIN OVERRIDE) */
+  const hasAccess =
+    role === "ADMIN" ||
+    (role === "USER" &&
+      (plan === "PROFESSIONAL" || plan === "ENTERPRISE"));
+
+
+  /* 🔌 Fetch data ONLY if access allowed */
+  useEffect(() => {
+    if (!hasAccess) return;
+
+    axios
+      .get("http://localhost:8080/api/ip/legal-status")
+      .then(res => setFilings(res.data))
+      .catch(console.error);
+
+    axios
+      .get("http://localhost:8080/api/ip/legal-status/summary")
+      .then(res => setSummary(res.data))
+      .catch(console.error);
+  }, [hasAccess]);
 
   /* Pagination */
   const indexOfLastItem = currentPage * ITEMS_PER_PAGE;
@@ -41,42 +52,38 @@ const LegalStatus = ({ userPlan, setActiveComponent }) => {
   const currentFilings = filings.slice(indexOfFirstItem, indexOfLastItem);
   const totalPages = Math.ceil(filings.length / ITEMS_PER_PAGE);
 
-  /* Badge helpers */
-  const getRiskBadgeClass = (risk) => {
-    switch (risk) {
-      case "Very Low":
-      case "Low":
+  const getStatusBadgeClass = (status) => {
+    switch (status?.toUpperCase()) {
+      case "ACTIVE":
         return "bg-success";
-      case "Moderate":
+      case "PENDING":
         return "bg-warning text-dark";
-      case "High":
+      case "EXPIRED":
         return "bg-danger";
       default:
         return "bg-secondary";
     }
   };
 
-  const getStatusBadgeClass = (status) => {
-    switch (status) {
-      case "Active":
-      case "Protected":
-      case "Registered":
-        return "bg-success";
-      case "Pending":
+  const getRiskBadgeClass = (risk) => {
+    switch (risk?.toUpperCase()) {
+      case "HIGH":
+        return "bg-danger";
+      case "MEDIUM":
         return "bg-warning text-dark";
-      case "Confidential":
-        return "bg-secondary";
+      case "LOW":
+        return "bg-success";
       default:
         return "bg-secondary";
     }
   };
 
-  const handleUpgradeClick = () => setActiveComponent("Upgrade Plan");
 
   return (
     <div className="position-relative">
-      {/* 🔒 Plan Restriction Overlay */}
-      {userPlan === "Basic" && (
+
+      {/* 🔒 RESTRICTED OVERLAY (same design) */}
+      {!hasAccess && (
         <div
           style={{
             position: "absolute",
@@ -92,13 +99,18 @@ const LegalStatus = ({ userPlan, setActiveComponent }) => {
           }}
         >
           <h4>Upgrade to Pro or Enterprise to access Legal Status</h4>
-          <button className="btn btn-primary mt-3" onClick={handleUpgradeClick}>
+
+          <button
+            className="btn btn-primary mt-3"
+            onClick={() => setActiveComponent("Upgrade Plan")}
+          >
             Upgrade Now
           </button>
         </div>
       )}
 
-      {/* Header */}
+      {/* ================= ORIGINAL UI ================= */}
+
       <div className="mb-4">
         <h1 className="h2 mb-2">Legal Status</h1>
         <p className="text-muted">
@@ -109,32 +121,20 @@ const LegalStatus = ({ userPlan, setActiveComponent }) => {
 
       {/* Summary Cards */}
       <div className="row g-3 mb-4">
-        <div className="col-md-6 col-lg-3">
-          <div className="card border-0 shadow-sm text-center">
-            <div className="card-body">
-              <p className="text-muted small">Total Filings</p>
-              <h3>{summary.totalFilings}</h3>
+        {[
+          { label: "Total Filings", value: summary.totalFilings },
+          { label: "Active / Protected", value: summary.activeCount },
+          { label: "Pending", value: summary.pendingCount },
+        ].map((item, i) => (
+          <div key={i} className="col-md-6 col-lg-3">
+            <div className="card border-0 shadow-sm text-center">
+              <div className="card-body">
+                <p className="text-muted small">{item.label}</p>
+                <h3>{item.value}</h3>
+              </div>
             </div>
           </div>
-        </div>
-
-        <div className="col-md-6 col-lg-3">
-          <div className="card border-0 shadow-sm text-center">
-            <div className="card-body">
-              <p className="text-muted small">Active / Protected</p>
-              <h3>{summary.activeCount}</h3>
-            </div>
-          </div>
-        </div>
-
-        <div className="col-md-6 col-lg-3">
-          <div className="card border-0 shadow-sm text-center">
-            <div className="card-body">
-              <p className="text-muted small">Pending</p>
-              <h3>{summary.pendingCount}</h3>
-            </div>
-          </div>
-        </div>
+        ))}
 
         <div className="col-md-6 col-lg-3">
           <div className="card border-0 shadow-sm text-center">
@@ -148,47 +148,33 @@ const LegalStatus = ({ userPlan, setActiveComponent }) => {
         </div>
       </div>
 
-      {/* 📊 Legal Insights & Trends */}
+      {/* Charts */}
       <div className="row mb-4">
-        {/* LEFT */}
         <div className="col-lg-8">
-          <div className="row g-3">
-            <div className="col-12">
-              <div className="card border-0 shadow-sm">
-                <div className="card-body">
-                  <h5>IP Filings Trend</h5>
-                  <IPTrendChart vizId={VIZ_IDS.IP_FILING_TREND} />
-                </div>
-              </div>
+          <div className="card border-0 shadow-sm mb-3">
+            <div className="card-body">
+              <h5>IP Filings Trend</h5>
+              <IPTrendChart vizId={VIZ_IDS.IP_FILING_TREND} />
             </div>
+          </div>
 
-            <div className="col-12">
-              <div className="card border-0 shadow-sm">
-                <div className="card-body">
-                  <h5>Patent vs Trademark Trend</h5>
-                  <IPTypeTrendChart vizId={VIZ_IDS.IP_TYPE_TREND} />
-                </div>
-              </div>
+          <div className="card border-0 shadow-sm">
+            <div className="card-body">
+              <h5>Patent vs Trademark Trend</h5>
+              <IPTypeTrendChart vizId={VIZ_IDS.IP_TYPE_TREND} />
             </div>
           </div>
         </div>
 
-        {/* RIGHT */}
         <div className="col-lg-4">
-          <div className="row g-3">
-            <div className="col-12">
-              <div className="card border-0 shadow-sm">
-                <div className="card-body">
-                  <h5>IP Status Distribution</h5>
-                  <IPStatusChart vizId={VIZ_IDS.IP_STATUS_DIST} />
-                </div>
-              </div>
-            </div>
-
-            <div className="col-12">
-              <KPISummary />
+          <div className="card border-0 shadow-sm mb-3">
+            <div className="card-body">
+              <h5>IP Status Distribution</h5>
+              <IPStatusChart vizId={VIZ_IDS.IP_STATUS_DIST} />
             </div>
           </div>
+
+          <KPISummary />
         </div>
       </div>
 
@@ -198,35 +184,42 @@ const LegalStatus = ({ userPlan, setActiveComponent }) => {
           <div
             key={filing.id}
             className="card border-0 shadow-sm"
+            style={{ cursor: "pointer" }}
             onClick={() =>
               setExpandedId(expandedId === filing.id ? null : filing.id)
             }
-            style={{ cursor: "pointer" }}
           >
             <div className="card-body">
-              <div className="d-flex justify-content-between align-items-start">
+              <div className="d-flex justify-content-between">
                 <div>
-                  <h5 className="mb-2">{filing.name}</h5>
+                  <h5>{filing.name}</h5>
                   <span className="badge bg-secondary">{filing.type}</span>
                 </div>
 
-                <div className="d-flex gap-2">
+                <div className="d-flex align-items-center gap-2 flex-wrap">
                   <span
-                    className={`badge ${getStatusBadgeClass(filing.status)}`}
+                    className={`badge rounded-pill px-3 py-2 ${getStatusBadgeClass(
+                      filing.status
+                    )}`}
+                    style={{ fontSize: "0.85rem" }}
                   >
                     {filing.status}
                   </span>
+
                   <span
-                    className={`badge ${getRiskBadgeClass(filing.legalRisks)}`}
+                    className={`badge rounded-pill px-3 py-2 ${getRiskBadgeClass(
+                      filing.legalRisk
+                    )}`}
+                    style={{ fontSize: "0.8rem", opacity: 0.9 }}
                   >
-                    {filing.legalRisks}
+                    Risk: {filing.legalRisk}
                   </span>
-                  <span>{expandedId === filing.id ? "▼" : "▶"}</span>
                 </div>
+
               </div>
 
               {expandedId === filing.id && (
-                <div className="mt-3 pt-3 border-top">
+                <div className="mt-3 border-top pt-3">
                   <p className="text-muted">{filing.description}</p>
                 </div>
               )}
@@ -236,7 +229,7 @@ const LegalStatus = ({ userPlan, setActiveComponent }) => {
       </div>
 
       {/* Pagination */}
-      <div className="d-flex justify-content-center align-items-center gap-3 mt-4">
+      <div className="d-flex justify-content-center gap-3 mt-4">
         <button
           className="btn btn-outline-primary btn-sm"
           disabled={currentPage === 1}
@@ -244,9 +237,11 @@ const LegalStatus = ({ userPlan, setActiveComponent }) => {
         >
           Previous
         </button>
+
         <strong>
           Page {currentPage} of {totalPages}
         </strong>
+
         <button
           className="btn btn-outline-primary btn-sm"
           disabled={currentPage === totalPages}

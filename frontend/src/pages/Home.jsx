@@ -14,7 +14,7 @@ const Home = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   // Mock: get user plan from localStorage or backend
-  const user = JSON.parse(localStorage.getItem("user")) || { plan: "Basic" }; 
+  const user = JSON.parse(localStorage.getItem("user"));
   // plan can be "Basic", "Pro", "Enterprise"
 
   const renderComponent = () => {
@@ -26,8 +26,10 @@ const Home = () => {
       case 'Filling Tracker':
         return <FillingTracker />;
       case 'Legal Status':
-        return <LegalStatus userPlan={user.plan} setActiveComponent={setActiveComponent} />;
-      case 'Upgrade Plan': 
+        return <LegalStatus userRole={user?.role}
+          userPlan={user?.plan}
+          setActiveComponent={setActiveComponent} />;
+      case 'Upgrade Plan':
         return <Pricing />;
       default:
         return <Dashboard setActiveComponent={setActiveComponent} />;

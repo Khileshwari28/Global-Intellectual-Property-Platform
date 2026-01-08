@@ -5,6 +5,7 @@ import intern.backend.entity.IPAsset;
 import intern.backend.repository.IPAssetRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDate;
@@ -198,7 +199,7 @@ public class IPService {
     //================FilingTracker============
     public List<FilingTrackerDTO> getFilingTracker() {
 
-        List<IPAsset> assets = repository.findAll();
+        List<IPAsset> assets = repository.findByIsTrackedTrue();
         List<FilingTrackerDTO> list = new ArrayList<>();
 
         for (IPAsset asset : assets) {
@@ -336,6 +337,18 @@ public class IPService {
 
         return dto;
     }
+
+    //=======Track Patents/Trademarks=========
+
+
+    @Transactional
+    public void trackIP(Long id) {
+        int updated = repository.markAsTracked(id);
+        if (updated == 0) {
+            throw new RuntimeException("IP not found");
+        }
+    }
+
 
 
 }

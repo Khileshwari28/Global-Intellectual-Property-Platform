@@ -6,7 +6,8 @@ import {
   PointElement,
   LineElement,
   Tooltip,
-  Legend
+  Legend,
+  Filler
 } from "chart.js";
 import { VIZ_IDS } from "./vizConfig";
 
@@ -15,7 +16,8 @@ ChartJS.register(
   PointElement,
   LineElement,
   Tooltip,
-  Legend
+  Legend,
+  Filler
 );
 
 const IPStatusChart = ({ data = [], vizId = VIZ_IDS.IP_STATUS_DIST }) => {

@@ -10,11 +10,11 @@ const SearchResult = () => {
   const [loading, setLoading] = useState(false);
   const [noData, setNoData] = useState(false);
 
+  // ✅ keep track of tracked IPs (UI state)
+  const [trackedIds, setTrackedIds] = useState(new Set());
 
   // 🔍 SEARCH API
   const handleSearch = async (filters) => {
-    console.log("Search triggered with filters:", filters);
-
     if (!filters) {
       setResults([]);
       return;
@@ -27,38 +27,43 @@ const SearchResult = () => {
     try {
       const response = await fetch("http://localhost:8080/api/ip/search", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(filters)
       });
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
-      }
-
       const data = await response.json();
-
-
       if (Array.isArray(data) && data.length > 0) {
         setResults(data);
       } else {
         setNoData(true);
       }
     } catch (error) {
-      console.error("Search API error:", error);
+      console.error(error);
       setNoData(true);
     } finally {
       setLoading(false);
     }
   };
 
-  // 📄 DETAILS API
+  // 📄 DETAILS
   const handleViewDetails = (id) => {
-  setSelectedIPId(id);
-  setShowModal(true);
-};
+    setSelectedIPId(id);
+    setShowModal(true);
+  };
 
+  // 📌 TRACK
+  const handleTrack = async (id) => {
+    try {
+      await fetch(`http://localhost:8080/api/ip/track/${id}`, {
+        method: "POST"
+      });
+
+      // ✅ mark as tracked in UI
+      setTrackedIds(prev => new Set(prev).add(id));
+    } catch (error) {
+      console.error("Track failed", error);
+    }
+  };
 
   return (
     <div>
@@ -73,31 +78,47 @@ const SearchResult = () => {
       {loading && (
         <div className="text-center my-4">
           <div className="spinner-border text-primary" role="status"></div>
-          <p className="mt-2">Searching patents & trademarks...</p>
         </div>
       )}
 
       {/* 📋 Results */}
       {!loading && results.length > 0 ? (
-        results.map((item) => (
-          <div key={item.id} className="card border-0 shadow-sm mb-3">
-            <div className="card-body d-flex justify-content-between align-items-center">
-              <div>
-                <h5 className="mb-1">{item.title}</h5>
-                <small className="text-muted">
-                  {item.owner} • {item.country}
-                </small>
-              </div>
+        results.map((item) => {
+          const isTracked = trackedIds.has(item.id);
 
-              <button
-                className="btn btn-primary btn-sm"
-                onClick={() => handleViewDetails(item.id)}
-              >
-                View Details
-              </button>
+          return (
+            <div key={item.id} className="card border-0 shadow-sm mb-3">
+              <div className="card-body d-flex justify-content-between align-items-center">
+                <div>
+                  <h5 className="mb-1">{item.title}</h5>
+                  <small className="text-muted">
+                    {item.owner} • {item.country}
+                  </small>
+                </div>
+
+                {/* ✅ BUTTON GROUP WITH SPACING */}
+                <div className="d-flex gap-2">
+                  <button
+                    className="btn btn-primary btn-sm"
+                    onClick={() => handleViewDetails(item.id)}
+                  >
+                    View Details
+                  </button>
+
+                  <button
+                    className={`btn btn-sm ${
+                      isTracked ? "btn-primary" : "btn-outline-success"
+                    }`}
+                    disabled={isTracked}
+                    onClick={() => handleTrack(item.id)}
+                  >
+                    {isTracked ? "Tracked" : "Track"}
+                  </button>
+                </div>
+              </div>
             </div>
-          </div>
-        ))
+          );
+        })
       ) : (
         !loading &&
         noData && (
@@ -109,15 +130,12 @@ const SearchResult = () => {
 
       {/* 📦 Modal */}
       {showModal && (
-  <IPDetailModal
-    ipId={selectedIPId}
-    onClose={() => setShowModal(false)}
-  />
-)}
-
+        <IPDetailModal
+          ipId={selectedIPId}
+          onClose={() => setShowModal(false)}
+        />
+      )}
     </div>
-
-
   );
 };
 

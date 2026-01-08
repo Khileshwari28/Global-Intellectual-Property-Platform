@@ -54,7 +54,7 @@ const KPISummary = () => {
   ];
 
   return (
-    <div className="card border-0 shadow-sm h-100">
+    <div className="card border-0 shadow-sm ">
       <div className="card-body">
         <h5 className="mb-3">Key Insights</h5>
 

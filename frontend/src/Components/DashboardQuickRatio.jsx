@@ -9,54 +9,44 @@ import {
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
-const DashboardQuickRatio = () => {
+const DashboardQuickRatio = ({ summary }) => {
+  const completed = summary?.activeCount || 0;
+  const pending = summary?.pendingCount || 0;
+
+  const total = completed + pending;
+  const percent =
+    total === 0 ? 0 : Math.round((completed / total) * 100);
+
   const data = {
     labels: ["Completed", "Pending"],
     datasets: [
       {
-        data: [236, 12],
+        data: [completed, pending],
         backgroundColor: [
-          "rgba(25, 135, 84, 0.85)",   // green
-          "rgba(255, 193, 7, 0.85)"    // yellow
+          "rgba(25, 135, 84, 0.85)", // green
+          "rgba(255, 193, 7, 0.85)"  // yellow
         ],
         borderWidth: 0,
-        cutout: "72%" // makes it compact & modern
+        cutout: "72%"
       }
     ]
   };
 
-  const options = {
-    plugins: {
-      legend: {
-        position: "bottom",
-        labels: {
-          boxWidth: 10,
-          font: { size: 12 }
-        }
-      }
-    },
-    maintainAspectRatio: false
-  };
-
   return (
-    <div
-      className="card border-0 shadow-sm h-100"
-      style={{
-        background: "rgba(255,255,255,0.65)",
-        backdropFilter: "blur(8px)"
-      }}
-    >
+    <div className="card border-0 shadow-sm h-100">
       <div className="card-body">
         <h6 className="mb-3 text-muted fw-semibold">
           Quick Ratio
         </h6>
 
         <div style={{ height: "180px" }}>
-          <Doughnut data={data} options={options} />
+          <Doughnut data={data} />
         </div>
 
         <div className="text-center mt-2">
-          <div className="fw-bold text-success">95% Completed</div>
+          <div className="fw-bold text-success">
+            {percent}% Completed
+          </div>
           <small className="text-muted">
             Completion vs Pending filings
           </small>

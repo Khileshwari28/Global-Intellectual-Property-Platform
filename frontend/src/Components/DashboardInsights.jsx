@@ -1,50 +1,47 @@
-import React from "react";
+import { Doughnut } from "react-chartjs-2";
 
-const insights = [
-  {
-    icon: "📈",
-    title: "Growth This Year",
-    value: "+18%",
-    note: "Compared to last year",
-    color: "text-success",
-  },
-  {
-    icon: "⏳",
-    title: "Pending IPs",
-    value: "12",
-    note: "Need review",
-    color: "text-warning",
-  },
-  {
-    icon: "🌍",
-    title: "New Countries",
-    value: "4",
-    note: "Added this year",
-    color: "text-primary",
-  },
-];
+const DashboardQuickAction = ({ completed, pending }) => {
+  const total = completed + pending;
+  const percent =
+    total === 0 ? 0 : Math.round((completed / total) * 100);
 
-const DashboardInsights = () => {
+  const data = {
+    labels: ["Completed", "Pending"],
+    datasets: [
+      {
+        data: [completed, pending],
+        backgroundColor: [
+          "rgba(25, 135, 84, 0.85)",
+          "rgba(255, 193, 7, 0.85)"
+        ],
+        borderWidth: 0,
+        cutout: "72%"
+      }
+    ]
+  };
+
   return (
     <div className="card border-0 shadow-sm h-100">
       <div className="card-body">
-        <h6 className="mb-3 text-muted">Key Insights</h6>
+        <h6 className="mb-3 text-muted fw-semibold">
+          Quick Action
+        </h6>
 
-        {insights.map((item, index) => (
-          <div key={index} className="d-flex align-items-start mb-3">
-            <div style={{ fontSize: "22px", marginRight: "10px" }}>
-              {item.icon}
-            </div>
-            <div>
-              <div className="fw-semibold">{item.title}</div>
-              <div className={`fw-bold ${item.color}`}>{item.value}</div>
-              <small className="text-muted">{item.note}</small>
-            </div>
+        <div style={{ height: "180px" }}>
+          <Doughnut data={data} />
+        </div>
+
+        <div className="text-center mt-2">
+          <div className="fw-bold text-success">
+            {percent}% Completed
           </div>
-        ))}
+          <small className="text-muted">
+            Filing completion overview
+          </small>
+        </div>
       </div>
     </div>
   );
 };
 
-export default DashboardInsights;
+export default DashboardQuickAction;

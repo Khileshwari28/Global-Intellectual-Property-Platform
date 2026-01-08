@@ -31,7 +31,20 @@ public class IPAsset {
     private String grantDate;
     private String pdfLink;
 
+    @Column(name = "is_tracked")
+    private Boolean isTracked = false;
+
+
+
     public IPAsset() {}
+
+    public Boolean getIsTracked() {
+        return isTracked;
+    }
+
+    public void setIsTracked(Boolean isTracked) {
+        this.isTracked = isTracked;
+    }
 
     public Long getId() { return id; }
     public String getTitle() { return title; }
