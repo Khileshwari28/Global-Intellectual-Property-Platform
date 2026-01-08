@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from "react";
 import IPMap from "./IPMap";
 import IPSidePanel from "./IPSidePanel";
-import IPTrendChart from "./charts/IPTrendChart";
-import IPTypeTrendChart from "./charts/IPTypeTrendChart";
-import IPStatusChart from "./charts/IPStatusChart";
+import DashboardInsights from "./DashboardInsights";
+import DashboardAlerts from "./DashboardAlerts";
 import { VIZ_IDS } from "./charts/vizConfig";
-import KPISummary from "./KPISummary";
+import DashboardQuickRatio from "./DashboardQuickRatio";
 
 import {
   fetchFilingTrend,
@@ -137,71 +136,22 @@ useEffect(() => {
         </div>
       </div>
 
-
-
-      {/* 📊 Landscape Visualizations (Improved Layout) */}
+         {/* 🔍 Insights + Alerts + Quick Ratio */}
       <div className="row mb-4">
-        {/* LEFT SIDE – Line + Bar charts */}
-        <div className="col-lg-8">
-          <div className="row g-3">
-            {/* IP Filings Trend */}
-            <div className="col-12">
-              <div className="card border-0 shadow-sm">
-                <div className="card-body">
-                  <h5>IP Filings Trend</h5>
-                  <IPTrendChart
-                    data={filingTrendData}
-                    years={years}
-                    selectedYear={selectedYear}
-                    onYearChange={setSelectedYear}
-                  />
-
-
-
-                </div>
-              </div>
-            </div>
-
-            {/* Patent vs Trademark */}
-            <div className="col-12">
-              <div className="card border-0 shadow-sm">
-                <div className="card-body">
-                  <h5>Patent vs Trademark Trend</h5>
-                  <IPTypeTrendChart
-                    data={ipTypeTrendData}
-                    vizId={VIZ_IDS.IP_TYPE_TREND}
-                  />
-
-                </div>
-              </div>
-            </div>
-          </div>
+        <div className="col-lg-4">
+          <DashboardInsights />
         </div>
 
-        {/* RIGHT SIDE – Radar Chart + KPI Summary */}
         <div className="col-lg-4">
-          <div className="row g-3">
-            {/* Radar Chart */}
-            <div className="col-12">
-              <div className="card border-0 shadow-sm">
-                <div className="card-body">
-                  <h5>IP Status Distribution</h5>
-                  <IPStatusChart
-                    data={ipStatusData}
-                    vizId={VIZ_IDS.IP_STATUS_DIST}
-                  />
+          <DashboardAlerts />
+        </div>
 
-                </div>
-              </div>
-            </div>
-
-            {/* KPI Summary */}
-            <div className="col-12">
-              <KPISummary />
-            </div>
-          </div>
+        <div className="col-lg-4">
+          <DashboardQuickRatio />
         </div>
       </div>
+
+     
 
       {/* Quick Actions */}
       <div className="mb-4">

@@ -1,172 +1,262 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 
+import IPTrendChart from "./charts/IPTrendChart";
+import IPTypeTrendChart from "./charts/IPTypeTrendChart";
+import IPStatusChart from "./charts/IPStatusChart";
+import { VIZ_IDS } from "./charts/vizConfig";
+import KPISummary from "./KPISummary";
+
 const LegalStatus = ({ userPlan, setActiveComponent }) => {
-    const [expandedId, setExpandedId] = useState(null);
-    const [filings, setFilings] = useState([]);
-    const [summary, setSummary] = useState({ totalFilings: 0, activeCount: 0, pendingCount: 0, riskLevel: "Low" });
-    const ITEMS_PER_PAGE = 5;
-    const [currentPage, setCurrentPage] = useState(1);
+  const [expandedId, setExpandedId] = useState(null);
+  const [filings, setFilings] = useState([]);
+  const [summary, setSummary] = useState({
+    totalFilings: 0,
+    activeCount: 0,
+    pendingCount: 0,
+    riskLevel: "Low",
+  });
 
-    // fetch data if backend exists
-    useEffect(() => {
-        if (userPlan !== "Basic") {
-            axios.get("http://localhost:8080/api/ip/legal-status")
-                .then(res => setFilings(res.data))
-                .catch(err => console.error(err));
-            axios.get("http://localhost:8080/api/ip/legal-status/summary")
-                .then(res => setSummary(res.data))
-                .catch(err => console.error(err));
-        }
-    }, [userPlan]);
+  const ITEMS_PER_PAGE = 5;
+  const [currentPage, setCurrentPage] = useState(1);
 
-    const indexOfLastItem = currentPage * ITEMS_PER_PAGE;
-    const indexOfFirstItem = indexOfLastItem - ITEMS_PER_PAGE;
-    const currentFilings = filings.slice(indexOfFirstItem, indexOfLastItem);
-    const totalPages = Math.ceil(filings.length / ITEMS_PER_PAGE);
+  /* 🔌 Fetch backend data */
+  useEffect(() => {
+    if (userPlan !== "Basic") {
+      axios
+        .get("http://localhost:8080/api/ip/legal-status")
+        .then((res) => setFilings(res.data))
+        .catch(console.error);
 
-    const getRiskBadgeClass = (risk) => {
-        switch (risk) {
-            case 'Very Low':
-            case 'Low': return 'bg-success';
-            case 'Moderate': return 'bg-warning text-dark';
-            case 'High': return 'bg-danger';
-            default: return 'bg-secondary';
-        }
-    };
-    const getStatusBadgeClass = (status) => {
-        switch (status) {
-            case 'Active':
-            case 'Protected':
-            case 'Registered': return 'bg-success';
-            case 'Pending': return 'bg-warning text-dark';
-            case 'Confidential': return 'bg-secondary';
-            default: return 'bg-secondary';
-        }
-    };
+      axios
+        .get("http://localhost:8080/api/ip/legal-status/summary")
+        .then((res) => setSummary(res.data))
+        .catch(console.error);
+    }
+  }, [userPlan]);
 
-    const handleUpgradeClick = () => setActiveComponent("Upgrade Plan");
+  /* Pagination */
+  const indexOfLastItem = currentPage * ITEMS_PER_PAGE;
+  const indexOfFirstItem = indexOfLastItem - ITEMS_PER_PAGE;
+  const currentFilings = filings.slice(indexOfFirstItem, indexOfLastItem);
+  const totalPages = Math.ceil(filings.length / ITEMS_PER_PAGE);
 
-    return (
-        <div className="position-relative">
-            {userPlan === "Basic" && (
-                <div style={{
-                    position: 'absolute',
-                    inset: 0,
-                    backdropFilter: 'blur(5px)',
-                    backgroundColor: 'rgba(255,255,255,0.6)',
-                    zIndex: 10,
-                    display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    flexDirection: 'column',
-                    textAlign: 'center'
-                }}>
-                    <h4>Upgrade to Pro or Enterprise to access Legal Status</h4>
-                    <button className="btn btn-primary mt-3" onClick={handleUpgradeClick}>Upgrade Now</button>
-                </div>
-            )}
+  /* Badge helpers */
+  const getRiskBadgeClass = (risk) => {
+    switch (risk) {
+      case "Very Low":
+      case "Low":
+        return "bg-success";
+      case "Moderate":
+        return "bg-warning text-dark";
+      case "High":
+        return "bg-danger";
+      default:
+        return "bg-secondary";
+    }
+  };
 
-            <div className="mb-4">
-                <h1 className="h2 mb-2">Legal Status</h1>
-                <p className="text-muted">View and manage the legal status of all your intellectual property filings</p>
-            </div>
+  const getStatusBadgeClass = (status) => {
+    switch (status) {
+      case "Active":
+      case "Protected":
+      case "Registered":
+        return "bg-success";
+      case "Pending":
+        return "bg-warning text-dark";
+      case "Confidential":
+        return "bg-secondary";
+      default:
+        return "bg-secondary";
+    }
+  };
 
-            <div className="row g-3 mb-4">
-                <div className="col-md-6 col-lg-3">
-                    <div className="card border-0 shadow-sm">
-                        <div className="card-body text-center">
-                            <p className="text-muted mb-2" style={{ fontSize: '12px', fontWeight: '600' }}>Total Filings</p>
-                            <h3>{summary.totalFilings}</h3>
-                        </div>
-                    </div>
-                </div>
-                <div className="col-md-6 col-lg-3">
-                    <div className="card border-0 shadow-sm">
-                        <div className="card-body text-center">
-                            <p className="text-muted mb-2" style={{ fontSize: '12px', fontWeight: '600' }}>Active/Protected</p>
-                            <h3>{summary.activeCount}</h3>
-                        </div>
-                    </div>
-                </div>
-                <div className="col-md-6 col-lg-3">
-                    <div className="card border-0 shadow-sm">
-                        <div className="card-body text-center">
-                            <p className="text-muted mb-2" style={{ fontSize: '12px', fontWeight: '600' }}>Pending</p>
-                            <h3>{summary.pendingCount}</h3>
-                        </div>
-                    </div>
-                </div>
-                <div className="col-md-6 col-lg-3">
-                    <div className="card border-0 shadow-sm">
-                        <div className="card-body text-center">
-                            <p className="text-muted mb-2" style={{ fontSize: '12px', fontWeight: '600' }}>Risk Level</p>
-                            <span className="badge bg-success">{summary.riskLevel}</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
+  const handleUpgradeClick = () => setActiveComponent("Upgrade Plan");
 
-            <div className="space-y-3">
-                {currentFilings.map((filing) => (
-                    <div
-                        key={filing.id}
-                        className="card border-0 shadow-sm"
-                        onClick={() => setExpandedId(expandedId === filing.id ? null : filing.id)}
-                        style={{ cursor: 'pointer' }}
-                    >
-                        <div className="card-body">
-                            <div className="d-flex justify-content-between align-items-start">
-                                <div className="flex-grow-1">
-                                    <h5 className="card-title mb-2">{filing.name}</h5>
-                                    <span className="badge bg-secondary me-2" style={{ fontSize: '11px' }}>
-                                        {filing.type}
-                                    </span>
-                                </div>
-                                <div className="d-flex gap-2">
-                                    <span className={`badge ${getStatusBadgeClass(filing.status)}`}>{filing.status}</span>
-                                    <span className={`badge ${getRiskBadgeClass(filing.legalRisks)}`}>{filing.legalRisks}</span>
-                                    <span style={{ marginLeft: '10px' }}>{expandedId === filing.id ? '▼' : '▶'}</span>
-                                </div>
-                            </div>
-
-                            <div className="row text-muted small mt-3">
-                                <div className="col-md-3"><strong>Filing #:</strong> {filing.filingNumber}</div>
-                                <div className="col-md-3"><strong>Jurisdiction:</strong> {filing.jurisdiction}</div>
-                                <div className="col-md-3"><strong>Filed:</strong> {filing.filedDate}</div>
-                                <div className="col-md-3"><strong>Expiry:</strong> {filing.expiryDate}</div>
-                            </div>
-
-                            {expandedId === filing.id && (
-                                <div className="mt-3 pt-3 border-top">
-                                    <p className="text-muted mb-3">{filing.description}</p>
-                                    <h6 className="mb-2">Details</h6>
-                                    <div className="row text-muted small">
-                                        {filing.details && Object.entries(filing.details).map(([key, value]) => (
-                                            <div key={key} className="col-md-6 mb-2">
-                                                <strong className="text-capitalize">{key.replace(/([A-Z])/g, " $1")}:</strong>{" "}{value}
-                                            </div>
-                                        ))}
-                                    </div>
-                                    <div className="d-flex gap-2 mt-3">
-                                        <button className="btn btn-primary btn-sm">Request Certificate</button>
-                                        <button className="btn btn-outline-primary btn-sm">Renew Filing</button>
-                                        <button className="btn btn-outline-primary btn-sm">Download Documents</button>
-                                    </div>
-                                </div>
-                            )}
-                        </div>
-                    </div>
-                ))}
-            </div>
-
-            <div className="d-flex justify-content-center align-items-center gap-3 mt-4">
-                <button className="btn btn-outline-primary btn-sm" disabled={currentPage === 1} onClick={() => setCurrentPage(prev => prev - 1)}>Previous</button>
-                <span style={{ fontWeight: "600" }}>Page {currentPage} of {totalPages}</span>
-                <button className="btn btn-outline-primary btn-sm" disabled={currentPage === totalPages} onClick={() => setCurrentPage(prev => prev + 1)}>Next</button>
-            </div>
+  return (
+    <div className="position-relative">
+      {/* 🔒 Plan Restriction Overlay */}
+      {userPlan === "Basic" && (
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            backdropFilter: "blur(5px)",
+            backgroundColor: "rgba(255,255,255,0.6)",
+            zIndex: 10,
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            flexDirection: "column",
+            textAlign: "center",
+          }}
+        >
+          <h4>Upgrade to Pro or Enterprise to access Legal Status</h4>
+          <button className="btn btn-primary mt-3" onClick={handleUpgradeClick}>
+            Upgrade Now
+          </button>
         </div>
-    );
+      )}
+
+      {/* Header */}
+      <div className="mb-4">
+        <h1 className="h2 mb-2">Legal Status</h1>
+        <p className="text-muted">
+          View and manage the legal status of all your intellectual property
+          filings
+        </p>
+      </div>
+
+      {/* Summary Cards */}
+      <div className="row g-3 mb-4">
+        <div className="col-md-6 col-lg-3">
+          <div className="card border-0 shadow-sm text-center">
+            <div className="card-body">
+              <p className="text-muted small">Total Filings</p>
+              <h3>{summary.totalFilings}</h3>
+            </div>
+          </div>
+        </div>
+
+        <div className="col-md-6 col-lg-3">
+          <div className="card border-0 shadow-sm text-center">
+            <div className="card-body">
+              <p className="text-muted small">Active / Protected</p>
+              <h3>{summary.activeCount}</h3>
+            </div>
+          </div>
+        </div>
+
+        <div className="col-md-6 col-lg-3">
+          <div className="card border-0 shadow-sm text-center">
+            <div className="card-body">
+              <p className="text-muted small">Pending</p>
+              <h3>{summary.pendingCount}</h3>
+            </div>
+          </div>
+        </div>
+
+        <div className="col-md-6 col-lg-3">
+          <div className="card border-0 shadow-sm text-center">
+            <div className="card-body">
+              <p className="text-muted small">Risk Level</p>
+              <span className="badge bg-success px-3 py-2">
+                {summary.riskLevel}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* 📊 Legal Insights & Trends */}
+      <div className="row mb-4">
+        {/* LEFT */}
+        <div className="col-lg-8">
+          <div className="row g-3">
+            <div className="col-12">
+              <div className="card border-0 shadow-sm">
+                <div className="card-body">
+                  <h5>IP Filings Trend</h5>
+                  <IPTrendChart vizId={VIZ_IDS.IP_FILING_TREND} />
+                </div>
+              </div>
+            </div>
+
+            <div className="col-12">
+              <div className="card border-0 shadow-sm">
+                <div className="card-body">
+                  <h5>Patent vs Trademark Trend</h5>
+                  <IPTypeTrendChart vizId={VIZ_IDS.IP_TYPE_TREND} />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* RIGHT */}
+        <div className="col-lg-4">
+          <div className="row g-3">
+            <div className="col-12">
+              <div className="card border-0 shadow-sm">
+                <div className="card-body">
+                  <h5>IP Status Distribution</h5>
+                  <IPStatusChart vizId={VIZ_IDS.IP_STATUS_DIST} />
+                </div>
+              </div>
+            </div>
+
+            <div className="col-12">
+              <KPISummary />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Filings List */}
+      <div className="space-y-3">
+        {currentFilings.map((filing) => (
+          <div
+            key={filing.id}
+            className="card border-0 shadow-sm"
+            onClick={() =>
+              setExpandedId(expandedId === filing.id ? null : filing.id)
+            }
+            style={{ cursor: "pointer" }}
+          >
+            <div className="card-body">
+              <div className="d-flex justify-content-between align-items-start">
+                <div>
+                  <h5 className="mb-2">{filing.name}</h5>
+                  <span className="badge bg-secondary">{filing.type}</span>
+                </div>
+
+                <div className="d-flex gap-2">
+                  <span
+                    className={`badge ${getStatusBadgeClass(filing.status)}`}
+                  >
+                    {filing.status}
+                  </span>
+                  <span
+                    className={`badge ${getRiskBadgeClass(filing.legalRisks)}`}
+                  >
+                    {filing.legalRisks}
+                  </span>
+                  <span>{expandedId === filing.id ? "▼" : "▶"}</span>
+                </div>
+              </div>
+
+              {expandedId === filing.id && (
+                <div className="mt-3 pt-3 border-top">
+                  <p className="text-muted">{filing.description}</p>
+                </div>
+              )}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Pagination */}
+      <div className="d-flex justify-content-center align-items-center gap-3 mt-4">
+        <button
+          className="btn btn-outline-primary btn-sm"
+          disabled={currentPage === 1}
+          onClick={() => setCurrentPage((p) => p - 1)}
+        >
+          Previous
+        </button>
+        <strong>
+          Page {currentPage} of {totalPages}
+        </strong>
+        <button
+          className="btn btn-outline-primary btn-sm"
+          disabled={currentPage === totalPages}
+          onClick={() => setCurrentPage((p) => p + 1)}
+        >
+          Next
+        </button>
+      </div>
+    </div>
+  );
 };
 
 export default LegalStatus;
