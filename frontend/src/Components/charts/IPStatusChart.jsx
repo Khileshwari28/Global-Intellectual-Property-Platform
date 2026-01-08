@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import axios from "axios";
 import { Radar } from "react-chartjs-2";
 import {
   Chart as ChartJS,
@@ -20,7 +21,21 @@ ChartJS.register(
   Filler
 );
 
-const IPStatusChart = ({ data = [], vizId = VIZ_IDS.IP_STATUS_DIST }) => {
+const IPStatusChart = ({ vizId = VIZ_IDS.IP_STATUS_DIST }) => {
+  const [data, setData] = useState([]);
+
+  /* 🔌 FETCH REAL BACKEND DATA */
+  useEffect(() => {
+    axios
+      .get("http://localhost:8080/api/charts/ip-status-distribution")
+      .then(res => setData(res.data))
+      .catch(err => {
+        console.error("IP Status chart error:", err);
+        setData([]);
+      });
+  }, []);
+
+  /* 🔁 FALLBACK (only if API fails / empty DB) */
   const fallbackData = [
     { status: "Completed", count: 136 },
     { status: "Pending", count: 50 },
@@ -29,20 +44,20 @@ const IPStatusChart = ({ data = [], vizId = VIZ_IDS.IP_STATUS_DIST }) => {
 
   const finalData = data.length ? data : fallbackData;
 
+  /* OPTIONAL STATUS NORMALIZATION */
+  const normalizeStatus = (status) =>
+    status === "GRANTED" ? "Completed" : status;
+
   const chartData = {
-    labels: finalData.map(item => item.status),
+    labels: finalData.map(item => normalizeStatus(item.status)),
     datasets: [
       {
         label: "IP Status Distribution",
         data: finalData.map(item => item.count),
-
-        /* ⭐ THIS MAKES IT LOOK LIKE YOUR IMAGE */
         fill: "origin",
-
-        backgroundColor: "rgba(54, 162, 235, 0.45)", // light blue fill
+        backgroundColor: "rgba(54, 162, 235, 0.45)",
         borderColor: "rgba(54, 162, 235, 1)",
         borderWidth: 3,
-
         pointBackgroundColor: "rgba(54, 162, 235, 1)",
         pointBorderColor: "#fff",
         pointRadius: 4,
@@ -56,32 +71,19 @@ const IPStatusChart = ({ data = [], vizId = VIZ_IDS.IP_STATUS_DIST }) => {
     scales: {
       r: {
         beginAtZero: true,
-
-        /* GRID + ANGLES (very important) */
-        grid: {
-          color: "rgba(0,0,0,0.08)"
-        },
-        angleLines: {
-          color: "rgba(0,0,0,0.12)"
-        },
-
+        grid: { color: "rgba(0,0,0,0.08)" },
+        angleLines: { color: "rgba(0,0,0,0.12)" },
         ticks: {
           backdropColor: "transparent",
           stepSize: 50
         },
-
         pointLabels: {
-          font: {
-            size: 12,
-            weight: "600"
-          }
+          font: { size: 12, weight: "600" }
         }
       }
     },
     plugins: {
-      legend: {
-        position: "top"
-      }
+      legend: { position: "top" }
     }
   };
 
