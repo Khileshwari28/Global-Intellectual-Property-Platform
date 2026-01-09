@@ -62,33 +62,34 @@ export default function LoginForm() {
                         <h2 className="form-title">Login</h2>
 
                         {/* 🔁 ROLE TOGGLE */}
-                        <div style={{ marginBottom: "16px", textAlign: "center" }}>
-                            <button
-                                type="button"
-                                onClick={() => setLoginRole("USER")}
-                                className={`btn btn-sm ${
-                                    loginRole === "USER"
-                                        ? "btn-primary"
-                                        : "btn-outline-primary"
-                                }`}
-                            >
-                                User
-                            </button>
+                        <div style={{ marginBottom: "20px" }}>
+                            <div style={{ display: "flex", gap: "12px" }}>
+                                <button
+                                    type="button"
+                                    onClick={() => setLoginRole("USER")}
+                                    className={`btn ${loginRole === "USER"
+                                            ? "btn-primary"
+                                            : "btn-outline-primary"
+                                        }`}
+                                    style={{ flex: 1 }}
+                                >
+                                    User
+                                </button>
 
-                            <span style={{ margin: "0 12px" }} />
-
-                            <button
-                                type="button"
-                                onClick={() => setLoginRole("ADMIN")}
-                                className={`btn btn-sm ${
-                                    loginRole === "ADMIN"
-                                        ? "btn-danger"
-                                        : "btn-outline-danger"
-                                }`}
-                            >
-                                Admin
-                            </button>
+                                <button
+                                    type="button"
+                                    onClick={() => setLoginRole("ADMIN")}
+                                    className={`btn ${loginRole === "ADMIN"
+                                            ? "btn-danger"
+                                            : "btn-outline-danger"
+                                        }`}
+                                    style={{ flex: 1 }}
+                                >
+                                    Admin
+                                </button>
+                            </div>
                         </div>
+
 
                         <form onSubmit={handleSubmit}>
                             <div className="form-group">
