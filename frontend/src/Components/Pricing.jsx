@@ -6,7 +6,7 @@ const RAZORPAY_KEY = "rzp_test_S0yogPh9RsxaZ5";
 
 const plans = [
   {
-    name: "Basic",
+    name: "BASIC",
     role: "BASIC",
     price: 0,
     displayPrice: "₹0",
@@ -16,7 +16,7 @@ const plans = [
     support: "Email Only",
   },
   {
-    name: "Professional",
+    name: "PROFESSIONAL",
     role: "PRO",
     price: 499,
     displayPrice: "₹499",
@@ -27,7 +27,7 @@ const plans = [
     popular: true,
   },
   {
-    name: "Enterprise",
+    name: "ENTERPRISE",
     role: "ENTERPRISE",
     price: 1999,
     displayPrice: "₹1999",
@@ -41,15 +41,17 @@ const plans = [
 export default function Pricing() {
   const navigate = useNavigate();
 
-  const [currentPlan, setCurrentPlan] = useState("Basic");
+  const [currentPlan, setCurrentPlan] = useState("BASIC");
   const [selectedPlan, setSelectedPlan] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [hoveredPlan, setHoveredPlan] = useState(null);
+  const [upgradeSuccess, setUpgradeSuccess] = useState(null);
+
 
   /* Load current plan */
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem("user"));
-    setCurrentPlan(user?.plan || "Basic");
+    setCurrentPlan(user?.plan || "BASIC");
   }, []);
 
   const currentPlanPrice =
@@ -80,6 +82,7 @@ export default function Pricing() {
       name: "Global IP Platform",
       description: selectedPlan.name,
 
+      //updated handler func.
       handler: async function () {
         try {
           const res = await fetch(
@@ -91,6 +94,7 @@ export default function Pricing() {
 
           const subscription = await res.json();
 
+          // updated localStorage
           localStorage.setItem(
             "user",
             JSON.stringify({
@@ -99,20 +103,21 @@ export default function Pricing() {
             })
           );
 
-          setCurrentPlan(
-            user?.plan
-              ? user.plan.charAt(0) + user.plan.slice(1).toLowerCase()
-              : "Basic"
-          );
+          setCurrentPlan(subscription.planName);
+          setUpgradeSuccess(subscription.planName);
 
-          alert(`Payment successful! Upgraded to ${selectedPlan.name}`);
-          
-          navigate("/dashboard");
+          // auto-hide banner
+          setTimeout(() => setUpgradeSuccess(null), 8000);
+
+          // optional redirect
+          // setTimeout(() => navigate("/dashboard"), 2000);
+
         } catch (err) {
           console.error(err);
           alert("Subscription upgrade failed");
         }
-      },
+      }
+
     });
 
     rzp.open();
@@ -121,6 +126,14 @@ export default function Pricing() {
   return (
     <div style={styles.wrapper}>
       <h1 style={styles.heading}>Choose the plan that's right for you</h1>
+      {upgradeSuccess && (
+        <div style={styles.successWrapper}>
+          <div style={styles.successBanner}>
+            🎉 <strong>Hurray!</strong> You have been upgraded to{" "}
+            <strong>{upgradeSuccess}</strong> plan
+          </div>
+        </div>
+      )}
 
       <div style={styles.grid}>
         {plans.map((plan) => {
@@ -284,6 +297,25 @@ const styles = {
     cursor: "pointer",
   },
 
+  successWrapper: {
+    marginBottom: 28,
+  },
+
+  successBanner: {
+    background: "#ecfdf5",
+    border: "1px solid #10b981",
+    color: "#065f46",
+    padding: "16px 20px",
+    borderRadius: 12,
+    fontSize: 15,
+    fontWeight: 500,
+    display: "flex",
+    alignItems: "center",
+    gap: 8,
+    boxShadow: "0 6px 18px rgba(16,185,129,0.15)",
+  },
+
+
   currentBtn: {
     background: "#e5e7eb",
     color: "#374151",
@@ -330,3 +362,4 @@ const styles = {
     padding: "10px 16px",
   },
 };
+
