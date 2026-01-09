@@ -15,6 +15,13 @@ const SearchResult = () => {
 
   // 🔍 SEARCH API
   const handleSearch = async (filters) => {
+    const user = JSON.parse(localStorage.getItem("user"));
+
+  if (!user?.id) {
+    console.error("User not logged in");
+    return;
+  }
+
     if (!filters) {
       setResults([]);
       return;
@@ -28,7 +35,10 @@ const SearchResult = () => {
       const response = await fetch("http://localhost:8080/api/ip/search", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(filters)
+        body: JSON.stringify({
+        ...filters,
+        userId: user.id   // ✅ THIS WAS MISSING
+      })
       });
 
       const data = await response.json();

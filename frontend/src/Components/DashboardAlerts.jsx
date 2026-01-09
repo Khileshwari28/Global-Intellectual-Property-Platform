@@ -2,39 +2,51 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 
 const getBorderClass = (type) => {
-  if (type === "danger") return "border-danger";
-  if (type === "warning") return "border-warning";
-  if (type === "success") return "border-success";
-  return "border-primary";
+  switch (type) {
+    case "danger": return "border-start border-4 border-danger";
+    case "warning": return "border-start border-4 border-warning";
+    case "success": return "border-start border-4 border-success";
+    case "info": return "border-start border-4 border-primary";
+    default: return "border-start border-4 border-secondary";
+  }
 };
 
 const DashboardAlerts = () => {
   const [alerts, setAlerts] = useState([]);
+
+  // ✅ get logged-in user
   const user = JSON.parse(localStorage.getItem("user"));
+ const userUniqueId = user?.id;
 
   useEffect(() => {
-    if (!user?.userId) return;
+    if (!userUniqueId) return;
 
     axios
-      .get(`http://localhost:8080/api/notifications/${user.userId}`)
-      .then(res => setAlerts(res.data))
-      .catch(err => console.error(err));
-  }, [user]);
+      .get(`http://localhost:8080/api/notifications/${userUniqueId}`)
+      .then(res => {
+        // ✅ show only top 3
+        setAlerts(res.data.slice(0, 3));
+      })
+      .catch(err => console.error("Notification error:", err));
+  }, [userUniqueId]);
 
   return (
     <div className="card shadow-sm">
       <div className="card-body">
-        <h6 className="text-muted mb-3">Action Required</h6>
+        <h6 className="text-muted mb-3">Top Notifications</h6>
 
         {alerts.length === 0 && (
-          <small className="text-muted">No alerts</small>
+          <small className="text-muted">No notifications</small>
         )}
 
-        {alerts.map(a => (
-          <div key={a.id} className={`p-3 mb-2 border-start border-4 ${getBorderClass(a.type)}`}>
-            <div className="fw-semibold">{a.message}</div>
+        {alerts.map(alert => (
+          <div
+            key={alert.id}
+            className={`p-3 mb-2 ${getBorderClass(alert.type)}`}
+          >
+            <div className="fw-semibold">{alert.message}</div>
             <small className="text-muted">
-              {new Date(a.timestamp).toLocaleString()}
+              {new Date(alert.timestamp).toLocaleString()}
             </small>
           </div>
         ))}

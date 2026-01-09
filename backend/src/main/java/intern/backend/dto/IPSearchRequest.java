@@ -2,13 +2,24 @@ package intern.backend.dto;
 
 public class IPSearchRequest {
 
+
     private String type;      // Patent / Trademark
     private String keyword;
     private String country;
     private String fromDate;
     private String toDate;
+    private Integer userId;
+
+
 
     public IPSearchRequest() {}
+
+    public Integer getUserId() {
+        return userId;
+    }
+    public void setUserId(Integer userId) {
+        this.userId = userId;
+    }
 
     public String getType() {
         return type;

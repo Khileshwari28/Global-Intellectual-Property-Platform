@@ -17,6 +17,7 @@ import java.util.Map;
 public class IPService {
 
     private final IPAssetRepository repository;
+    private final NotificationService notificationService;
     private final RestTemplate restTemplate = new RestTemplate();
 
     @Value("${ip.api.key}")
@@ -25,9 +26,14 @@ public class IPService {
     @Value("${ip.api.url}")
     private String apiUrl;
 
-    public IPService(IPAssetRepository repository) {
+    public IPService(
+            IPAssetRepository repository,
+            NotificationService notificationService
+    ) {
         this.repository = repository;
+        this.notificationService = notificationService;
     }
+
 
     // ================= SEARCH =================
     public List<IPResultDTO> searchIPs(IPSearchRequest request) {
@@ -121,6 +127,17 @@ public class IPService {
             asset.setPdfLink(pdfLink);
 
             repository.save(asset);
+
+            Integer userId = request.getUserId();
+
+            if (userId != null) {
+                notificationService.createIfNotExists(
+                        userId,
+                        asset,
+                        "New IP added: " + asset.getTitle(),
+                        "info"
+                );
+            }
         }
 
 
@@ -236,6 +253,39 @@ public class IPService {
                     progress == 100 ? "Completed" :
                             progress >= 50 ? "In Progress" : "Pending";
 
+
+            /* 🔔 NOTIFICATION: PATENT GRANTED */
+
+
+            if (asset.getGrantDate() != null) {
+                notificationService.createIfNotExists(
+                        1, // TEMP userId
+                        asset,
+                        "Patent granted: " + asset.getTitle(),
+                        "success"
+                );
+            }
+
+            /* 🔔 NOTIFICATION: STILL PENDING */
+            if (asset.getGrantDate() == null) {
+                notificationService.createIfNotExists(
+                        1,
+                        asset,
+                        "Patent pending: " + asset.getTitle(),
+                        "warning"
+                );
+            }
+
+            if (asset.getExpiryDate() != null) {
+                notificationService.createIfNotExists(
+                        1,
+                        asset,
+                        "Patent nearing expiry: " + asset.getTitle(),
+                        "danger"
+                );
+            }
+
+
             list.add(new FilingTrackerDTO(
                     asset.getId(),
                     asset.getTitle(),
@@ -348,6 +398,7 @@ public class IPService {
             throw new RuntimeException("IP not found");
         }
     }
+
 
 
 

@@ -78,4 +78,5 @@ public class IPAsset {
     public void setPublicationDate(String publicationDate) { this.publicationDate = publicationDate; }
     public void setGrantDate(String grantDate) { this.grantDate = grantDate; }
     public void setPdfLink(String pdfLink) { this.pdfLink = pdfLink; }
+
 }
