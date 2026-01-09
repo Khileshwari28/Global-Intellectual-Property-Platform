@@ -105,7 +105,7 @@ const Dashboard = ({ setActiveComponent }) => {
       </div>
 
 
-      {/* Quick Actions */}
+       {/* Quick Actions */}
       <div className="mb-4">
         <h5 className="mb-3">Quick Actions</h5>
         <div className="row g-2">
@@ -113,14 +113,12 @@ const Dashboard = ({ setActiveComponent }) => {
             <div key={index} className="col-md-6 col-lg-3">
               <button
                 className="btn btn-outline-secondary w-100 py-3"
-                onClick={() => {
-                  if (action.name === "Search Patents") {
-                    setActiveComponent("Search Result");
-                  }
-                }}
+                onClick={() =>
+                  action.name === "Search Patents" &&
+                  setActiveComponent("Search Result")
+                }
               >
-                <div style={{ fontSize: "24px" }}>{action.icon}</div>
-                <div className="fw-medium">{action.name}</div>
+                {action.icon} {action.name}
               </button>
             </div>
           ))}
