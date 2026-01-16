@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
-import Navbar from '../Components/Navbar';
-import Sidebar from '../Components/Sidebar';
+import Navbar from '../Components/layout/Navbar';
+import Sidebar from '../Components/layout/Sidebar';
 
 import Dashboard from '../Components/Dashboard';
 import SearchResult from '../Components/SearchResult';

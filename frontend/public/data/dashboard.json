@@ -1,0 +1,42 @@
+{
+  "stats": [
+    { "label": "Total Filings", "value": 248, "icon": "📑" },
+    { "label": "Pending Review", "value": 12, "icon": "⏳" },
+    { "label": "Completed", "value": 236, "icon": "✅" },
+    { "label": "Success Rate", "value": "95%", "icon": "📈" }
+  ],
+
+  "recentActivities": [
+    {
+      "id": 1,
+      "action": "Trademark Application Submitted",
+      "status": "completed",
+      "time": "2 hours ago"
+    },
+    {
+      "id": 2,
+      "action": "Patent Document Review",
+      "status": "in-progress",
+      "time": "5 hours ago"
+    },
+    {
+      "id": 3,
+      "action": "Design Registration",
+      "status": "pending",
+      "time": "1 day ago"
+    },
+    {
+      "id": 4,
+      "action": "Copyright Filing Completed",
+      "status": "completed",
+      "time": "2 days ago"
+    }
+  ],
+
+  "quickActions": [
+    { "name": "New Filing", "icon": "➕" },
+    { "name": "Search Patents", "icon": "🔍" },
+    { "name": "View Reports", "icon": "📊" },
+    { "name": "Help & Support", "icon": "❓" }
+  ]
+}

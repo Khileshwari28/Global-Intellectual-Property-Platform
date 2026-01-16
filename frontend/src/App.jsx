@@ -1,51 +1,33 @@
-
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
-import BrandingColumn from './Components/BrandingColumn';
-import SignupCard from './Components/SignupCard';
+import Landing from "./pages/Landing";
 import Login from "./pages/Login";
+import Register from "./pages/Register";
 import Home from "./pages/Home";
-import Pricing from './Components/Pricing';
-import ProtectedRoute from './Components/ProtectedRoute';
-import './SignupStyles.css';
+import ProtectedRoute from "./Components/ProtectedRoute";
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
 
-        {/* Signup */}
-        <Route
-          path="/"
-          element={
-            <div className="page-background">
-              <div className="base-document-container">
-                <div className="content-split">
-                  <BrandingColumn />
-                  <SignupCard />
-                </div>
-              </div>
-            </div>
-          }
-        />
+        {/* 🌟 Landing Page */}
+        <Route path="/" element={<Landing />} />
 
-        {/* Login */}
+        {/* Auth Pages */}
         <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
 
-        {/* Pricing (public page, optional) */}
-        {/* <Route path="/pricing" element={<Pricing />} /> */}
-
-        {/* Dashboard (AFTER login) */}
-        <Route path="/dashboard" element={<Home />} />
-      
+        {/* Dashboard (after login) */}
         <Route
           path="/dashboard"
           element={
-            <ProtectedRoute allowedRoles={["PRO", "ENTERPRISE"]}>
+            <ProtectedRoute allowedRoles={["USER", "ADMIN", "PRO", "ENTERPRISE"]}>
               <Home />
-              </ProtectedRoute> 
-           }
-      />
+            </ProtectedRoute>
+          }
+        />
+
       </Routes>
     </BrowserRouter>
   );
