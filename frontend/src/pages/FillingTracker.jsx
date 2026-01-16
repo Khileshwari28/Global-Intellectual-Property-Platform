@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import IPDetailModal from "./IPDetailModal";
+import IPDetailModal from "../Components/ui/IPDetailModal";
 
 const FillingTracker = () => {
 

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import InputField from "./InputField";
+import InputField from "./ui/InputField";
 import { useNavigate } from "react-router-dom";
 
 const initialFormState = {

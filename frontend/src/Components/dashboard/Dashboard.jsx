@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import IPMap from "./IPMap";
-import IPSidePanel from "./IPSidePanel";
+import IPMap from "../map/IPMap";
+import IPSidePanel from "../map/IPSidePanel";
 
-import DashboardAlerts from "./DashboardAlerts";
-import DashboardQuickRatio from "./DashboardQuickRatio";
-import KPISummary from "./KPISummary";
+import DashboardAlerts from "../dashboard/DashboardAlerts";
+import DashboardQuickRatio from "../dashboard/DashboardQuickRatio";
+import KPISummary from "../dashboard/KPISummary";
 
 const Dashboard = ({ setActiveComponent }) => {
   const user = JSON.parse(localStorage.getItem("user"));

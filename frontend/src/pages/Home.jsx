@@ -1,36 +1,48 @@
+import React, { useState } from "react";
 
-import React, { useState } from 'react';
-import Navbar from '../Components/layout/Navbar';
-import Sidebar from '../Components/layout/Sidebar';
+/* Layout */
+import Navbar from "../Components/layout/Navbar";
+import Sidebar from "../Components/layout/Sidebar";
 
-import Dashboard from '../Components/Dashboard';
-import SearchResult from '../Components/SearchResult';
-import FillingTracker from '../Components/FillingTracker';
-import LegalStatus from '../Components/LegalStatus';
-import Pricing from '../Components/Pricing';
+/* Pages / Components */
+import Dashboard from "../Components/dashboard/Dashboard";
+import SearchResult from "./SearchResult";
+import Pricing from "../Components/Pricing";
+
+/* Pages */
+import FillingTracker from "./FillingTracker";
+import LegalStatus from "./LegalStatus";
 
 const Home = () => {
-  const [activeComponent, setActiveComponent] = useState('Dashboard');
+  const [activeComponent, setActiveComponent] = useState("Dashboard");
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  // Mock: get user plan from localStorage or backend
-  const user = JSON.parse(localStorage.getItem("user"));
-  // plan can be "Basic", "Pro", "Enterprise"
+  // ✅ SAFE USER READ (prevents white screen)
+  const user = JSON.parse(localStorage.getItem("user")) || {};
 
   const renderComponent = () => {
     switch (activeComponent) {
-      case 'Dashboard':
+      case "Dashboard":
         return <Dashboard setActiveComponent={setActiveComponent} />;
-      case 'Search Result':
+
+      case "Search Result":
         return <SearchResult />;
-      case 'Filling Tracker':
+
+      case "Filling Tracker":
         return <FillingTracker />;
-      case 'Legal Status':
-        return <LegalStatus userRole={user?.role}
-          userPlan={user?.plan}
-          setActiveComponent={setActiveComponent} />;
-      case 'Upgrade Plan':
+
+      case "Legal Status":
+        return (
+          <LegalStatus
+            userRole={user?.role}
+            userPlan={user?.plan}
+            setActiveComponent={setActiveComponent}
+          />
+        );
+
+      case "Upgrade Plan":
         return <Pricing />;
+
       default:
         return <Dashboard setActiveComponent={setActiveComponent} />;
     }
@@ -41,14 +53,16 @@ const Home = () => {
       <Navbar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
 
       <div className="d-flex min-vh-100">
-        <div className={`sidebar-fixed ${sidebarOpen ? 'open' : ''}`}>
+        {/* Sidebar */}
+        <div className={`sidebar-fixed ${sidebarOpen ? "open" : ""}`}>
           <Sidebar
             activeComponent={activeComponent}
             setActiveComponent={setActiveComponent}
-            userPlan={user.plan} // pass plan to sidebar
+            userPlan={user?.plan}
           />
         </div>
 
+        {/* Overlay */}
         {sidebarOpen && (
           <div
             className="sidebar-overlay open"
@@ -56,6 +70,7 @@ const Home = () => {
           />
         )}
 
+        {/* Main Content */}
         <div className="flex-grow-1 bg-light p-4 content-wrapper">
           {renderComponent()}
         </div>

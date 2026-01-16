@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import ProfileCard from '../ProfileCard';
+import ProfileCard from '../ui/ProfileCard';
 
 const Sidebar = ({ activeComponent, setActiveComponent, userPlan }) => {
     const [isProfileOpen, setProfileOpen] = useState(false);

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { MapContainer, TileLayer, GeoJSON } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
-import { ISO3_TO_ISO2 } from "../Components/countryCodeMap";
+import { ISO3_TO_ISO2 } from "./countryCodeMap";
 
 const IPMap = ({ onCountrySelect }) => {
   const [countries, setCountries] = useState(null);

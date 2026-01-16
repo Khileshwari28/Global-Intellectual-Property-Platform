@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import IPSearch from "./IPSearch";
-import IPDetailModal from "./IPDetailModal";
+import IPSearch from "../Components/IPSearch";
+import IPDetailModal from "../Components/ui/IPDetailModal";
 
 const SearchResult = () => {
   const [results, setResults] = useState([]);

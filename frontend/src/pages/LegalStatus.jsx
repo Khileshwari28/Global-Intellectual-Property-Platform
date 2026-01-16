@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 
-import IPTrendChart from "./charts/IPTrendChart";
-import IPTypeTrendChart from "./charts/IPTypeTrendChart";
-import IPStatusChart from "./charts/IPStatusChart";
-import { VIZ_IDS } from "./charts/vizConfig";
-import KPISummary from "./KPISummary";
+import IPTrendChart from "../Components/charts/IPTrendChart";
+import IPTypeTrendChart from "../Components/charts/IPTypeTrendChart";
+import IPStatusChart from "../Components/charts/IPStatusChart";
+import { VIZ_IDS } from "../Components/charts/vizConfig";
+import KPISummary from "../Components/dashboard/KPISummary";
 
 const LegalStatus = ({ userRole, userPlan, setActiveComponent }) => {
   const [expandedId, setExpandedId] = useState(null);

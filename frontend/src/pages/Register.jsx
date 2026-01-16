@@ -1,6 +1,6 @@
 import BrandingColumn from "../Components/layout/BrandingColumn";
 import SignupCard from "../Components/SignupCard";
-import "../SignupStyles.css";
+import "../styles/SignupStyles.css";
 
 const Register = () => {
   return (
