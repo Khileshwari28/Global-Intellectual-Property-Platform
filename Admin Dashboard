@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard | Global IP Intelligence Platform</title>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f4f6f9;
+      scroll-behavior: smooth;
+    }
+
+    .container {
+      display: flex;
+      min-height: 100vh;
+      flex-wrap: wrap;
+    }
+
+    .sidebar {
+      width: 240px;
+      background: #0a3d62;
+      color: white;
+      padding: 20px;
+    }
+
+    .sidebar h2 {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .sidebar ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    .sidebar ul li {
+      padding: 12px;
+      cursor: pointer;
+    }
+
+    .sidebar ul li:hover {
+      background: #1e5f88;
+    }
+
+    .sidebar ul li a {
+      color: white;
+      text-decoration: none;
+      display: block;
+    }
+
+    .main {
+      flex: 1;
+      padding: 20px;
+      min-width: 0;
+    }
+
+    h1 {
+      margin-bottom: 20px;
+    }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+    }
+
+    .card, .section {
+      background: white;
+      padding: 20px;
+      border-radius: 6px;
+      box-shadow: 0 0 5px rgba(0,0,0,0.1);
+    }
+
+    .section {
+      margin-top: 20px;
+    }
+
+    .table-wrapper {
+      width: 100%;
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 600px;
+    }
+
+    table, th, td {
+      border: 1px solid #ccc;
+    }
+
+    th, td {
+      padding: 10px;
+      text-align: center;
+    }
+
+    th {
+      background: #ecf0f1;
+    }
+
+    button {
+      padding: 6px 10px;
+      border: none;
+      background: #0a3d62;
+      color: white;
+      border-radius: 4px;
+      cursor: pointer;
+      margin: 4px 0;
+    }
+
+    button:hover {
+      background: #1e5f88;
+    }
+
+    .action-buttons {
+      display: flex;
+      gap: 6px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    select, textarea {
+      padding: 6px;
+      width: 100%;
+      max-width: 300px;
+    }
+
+    .message {
+      margin-top: 10px;
+      font-weight: bold;
+    }
+
+    .success {
+      color: green;
+    }
+
+    .error {
+      color: red;
+    }
+
+    .dark {
+      background: #1e272e;
+      color: white;
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        flex-direction: column;
+      }
+
+      .sidebar {
+        width: 100%;
+        text-align: center;
+      }
+
+      .cards {
+        grid-template-columns: 1fr;
+      }
+
+      table {
+        min-width: 100%;
+      }
+
+      .action-buttons {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="container">
+
+  <!-- Sidebar -->
+  <div class="sidebar">
+    <h2>Admin Panel</h2>
+    <ul>
+      <li><a href="#dashboard">Dashboard</a></li>
+      <li><a href="#monitoring">Monitoring</a></li>
+      <li><a href="#users">User Management</a></li>
+      <li><a href="#subscriptions">Subscription Mgmt</a></li>
+      <li><a href="#filings">Filing Mgmt</a></li>
+      <li><a href="#ui">UI Mgmt</a></li>
+    </ul>
+  </div>
+
+  <!-- Main -->
+  <div class="main" id="mainContent">
+
+    <h1 id="dashboard">Admin Dashboard</h1>
+
+    <div class="cards">
+      <div class="card"><h3>Total Users</h3><h2>120</h2></div>
+      <div class="card"><h3>Active Subscriptions</h3><h2>75</h2></div>
+      <div class="card"><h3>Total Filings</h3><h2>540</h2></div>
+      <div class="card"><h3>System Status</h3><h2 style="color:green;">Healthy</h2></div>
+    </div>
+
+    <div class="section" id="monitoring">
+      <h2>API Health Monitoring</h2>
+      <div class="table-wrapper">
+        <table>
+          <tr><th>API Name</th><th>Status</th><th>Response Time</th></tr>
+          <tr><td>WIPO</td><td style="color:green;">Active</td><td>120 ms</td></tr>
+          <tr><td>USPTO</td><td style="color:green;">Active</td><td>140 ms</td></tr>
+          <tr><td>EPO</td><td style="color:red;">Down</td><td>-</td></tr>
+        </table>
+      </div>
+    </div>
+
+    <div class="section" id="users">
+      <h2>User Management</h2>
+      <div class="table-wrapper">
+        <table>
+          <tr><th>Name</th><th>Role</th><th>Status</th><th>Actions</th></tr>
+          <tr>
+            <td>Amit</td><td>User</td><td>Active</td>
+            <td class="action-buttons"><button>Promote</button><button>Disable</button></td>
+          </tr>
+          <tr>
+            <td>Riya</td><td>Analyst</td><td>Disabled</td>
+            <td class="action-buttons"><button>Promote</button><button>Enable</button></td>
+          </tr>
+        </table>
+      </div>
+    </div>
+
+    <div class="section" id="subscriptions">
+      <h2>Subscription Management</h2>
+      <div class="table-wrapper">
+        <table>
+          <tr><th>Plan</th><th>Patent Search</th><th>Filing Tracker</th><th>Analytics</th></tr>
+          <tr>
+            <td>Premium</td>
+            <td><input type="checkbox" checked></td>
+            <td><input type="checkbox" checked></td>
+            <td><input type="checkbox"></td>
+          </tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- FIXED FILING MANAGEMENT -->
+    <div class="section" id="filings">
+      <h2>Filing Management</h2>
+
+      <select id="filingStatus">
+        <option value="">-- Select Status --</option>
+        <option>Application</option>
+        <option>Granted</option>
+        <option>Renewal</option>
+        <option>Expired</option>
+      </select>
+
+      <br><br>
+
+      <textarea id="filingFeedback" rows="3"
+        placeholder="Feedback to subscriber..."></textarea>
+
+      <br><br>
+
+      <button onclick="updateFiling()">Update Filing</button>
+
+      <div id="filingMessage" class="message"></div>
+    </div>
+
+    <div class="section" id="ui">
+      <h2>UI Management</h2>
+      <button onclick="toggleTheme()">Toggle Dark Mode</button>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  function toggleTheme() {
+    document.getElementById("mainContent").classList.toggle("dark");
+  }
+
+  function updateFiling() {
+    const status = document.getElementById("filingStatus").value;
+    const feedback = document.getElementById("filingFeedback").value.trim();
+    const message = document.getElementById("filingMessage");
+
+    if (!status || !feedback) {
+      message.textContent = "Please select filing status and enter feedback.";
+      message.className = "message error";
+      return;
+    }
+
+    message.textContent = "Filing updated successfully and feedback sent.";
+    message.className = "message success";
+
+    // Optional reset
+    document.getElementById("filingStatus").value = "";
+    document.getElementById("filingFeedback").value = "";
+  }
+</script>
+
+</body>
+</html>
