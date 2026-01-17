@@ -1,0 +1,432 @@
+:root {
+  --primary: #2563eb;
+  --bg-light: #f8fafc;
+  --border: #e2e8f0;
+  --text-main: #1e293b;
+  --text-muted: #64748b;
+}
+
+.um-container {
+  display: flex;
+  height: 100vh;
+  background: var(--bg-light);
+  font-family: 'Inter', sans-serif;
+}
+
+/* Sidebar */
+.um-sidebar {
+  width: 320px;
+  background: white;
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar-header {
+  padding: 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid var(--border);
+}
+
+.user-nav-item {
+  padding: 16px 24px;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.user-nav-item:hover { background: #f1f5f9; }
+.user-nav-item.active { background: #eff6ff; border-right: 3px solid var(--primary); }
+
+.nav-avatar {
+  width: 40px;
+  height: 40px;
+  background: var(--primary);
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 12px;
+  font-weight: bold;
+}
+
+/* Main Content */
+.um-content {
+  flex: 1;
+  padding: 40px;
+  overflow-y: auto;
+}
+
+.profile-card, .permissions-card {
+  background: white;
+  border-radius: 12px;
+  padding: 32px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  margin-bottom: 24px;
+  max-width: 800px;
+}
+
+.profile-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 32px;
+}
+
+.profile-info-group { display: flex; gap: 20px; align-items: center; }
+
+.profile-main-avatar {
+  width: 80px;
+  height: 80px;
+  background: #cbd5e1;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  color: white;
+}
+
+.profile-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-bottom: 32px;
+}
+
+.input-group label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+}
+
+.input-group input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-size: 1rem;
+}
+
+.input-group input:disabled { background: #f8fafc; color: var(--text-muted); border-color: transparent; }
+
+.full-width { grid-column: span 2; }
+
+/* Buttons */
+.profile-actions { display: flex; gap: 12px; border-top: 1px solid var(--border); padding-top: 24px; }
+
+.btn-edit { background: var(--primary); color: white; padding: 10px 20px; border-radius: 6px; border: none; cursor: pointer; }
+.btn-delete {
+  background: #fff5f5;
+  color: #e53e3e;
+  border: 1px solid #feb2b2;
+  padding: 10px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s;
+}
+
+.btn-delete:hover {
+  background: #c53030;
+  color: white;
+}
+
+.status-badge.pending { color: #d97706; background: #fffbeb; }
+.status-badge.active { color: #059669; background: #ecfdf5; }
+
+.permissions-section {
+  margin-top: 40px;
+  border-top: 1px solid #eee;
+  padding-top: 20px;
+}
+
+.section-desc {
+  color: #64748b;
+  font-size: 0.9rem;
+  margin-bottom: 20px;
+}
+
+.modules-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 15px;
+}
+
+.module-card {
+  padding: 15px;
+  border-radius: 10px;
+  border: 1px solid #e2e8f0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: all 0.3s ease;
+}
+
+.module-card.enabled { border-left: 4px solid #10b981; background: #f0fdf4; }
+.module-card.disabled { border-left: 4px solid #cbd5e1; background: #f8fafc; opacity: 0.7; }
+
+.module-name { font-size: 0.75rem; font-weight: 700; color: #1e293b; }
+
+/* The Toggle Switch Design */
+.switch { position: relative; display: inline-block; width: 40px; height: 20px; }
+.switch input { opacity: 0; width: 0; height: 0; }
+.slider { position: absolute; cursor: pointer; inset: 0; background-color: #ccc; transition: .4s; border-radius: 34px; }
+.slider:before { position: absolute; content: ""; height: 14px; width: 14px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
+input:checked + .slider { background-color: #2563eb; }
+input:checked + .slider:before { transform: translateX(20px); }
+input:disabled + .slider { cursor: not-allowed; opacity: 0.5; }
+
+
+.section-container {
+    padding: 24px;
+    border-bottom: 1px solid #edf2f7;
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+}
+
+.header-actions {
+    display: flex;
+    gap: 8px;
+}
+
+/* Specific small button styles */
+.btn-edit-small, .btn-delete-small, .btn-save-small, .btn-cancel-small {
+    padding: 8px 14px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    border: 1px solid #e2e8f0;
+}
+
+.btn-edit-small { background: white; color: #2563eb; border-color: #2563eb; }
+.btn-delete-small { background: white; color: #dc2626; border-color: #fecaca; }
+.btn-save-small { background: #2563eb; color: white; border: none; }
+.btn-cancel-small { background: #f1f5f9; color: #64748b; border: none; }
+
+.btn-edit-small:hover { background: #eff6ff; }
+.btn-delete-small:hover { background: #fef2f2; }
+
+
+.management-actions-row {
+    display: flex;
+    gap: 15px;
+    padding-top: 15px;
+    border-top: 1px dashed #e2e8f0;
+    margin-top: 10px;
+}
+
+.btn-promote, .btn-status {
+    flex: 1;
+    padding: 10px;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    cursor: pointer;
+    border: 1px solid transparent;
+}
+
+.btn-promote { background: #f0fdf4; color: #166534; border-color: #bbf7d0; }
+.btn-promote:hover { background: #dcfce7; }
+
+.status-disable { background: #fff1f2; color: #9f1239; border-color: #fecdd3; }
+.status-enable { background: #f0f9ff; color: #075985; border-color: #bae6fd; }
+
+.disabled-avatar {
+    background-color: #94a3b8 !important;
+    filter: grayscale(1);
+    opacity: 0.6;
+}
+
+.disabled-avatar::after {
+    content: '✖';
+    font-size: 10px;
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    background: white;
+    color: red;
+    border-radius: 50%;
+    padding: 2px;
+}
+
+/* Modal Overlay */
+.um-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+}
+
+/* Modal Card */
+.um-modal-card {
+    background: white;
+    width: 450px;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+}
+
+.modal-header {
+    padding: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #eee;
+}
+
+.modal-body { padding: 20px; }
+.modal-footer {
+    padding: 15px 20px;
+    background: #f9fafb;
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    border-top: 1px solid #eee;
+}
+
+.row-group {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+.btn-close {
+    background: none;
+    border: none;
+    font-size: 1.2rem;
+    color: #666;
+    cursor: pointer;
+}
+
+.error-text {
+  color: #ef4444;
+  font-size: 0.75rem;
+  margin-top: 4px;
+  font-weight: 500;
+  display: block;
+}
+
+.input-error {
+  border-color: #ef4444 !important;
+  background-color: #fef2f2 !important;
+}
+
+
+/* --- INVITE MEMBER BUTTON STYLING --- */
+.btn-invite-new {
+  width: 100%;
+  padding: 12px 16px;
+  background-color: #4f46e5; /* Using the #4f46e5 from your :root */
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px; /* Space between the plus icon and the text */
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  margin-bottom: 10px; /* Space before the user list starts */
+}
+
+.btn-invite-new:hover {
+  background-color:  #4338ca; /* #4338ca */
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.2);
+}
+
+
+/* --- SIDEBAR HEADER ELEMENTS --- */
+.sidebar-title-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.sidebar-title-row h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  padding: 8px;
+  margin: 0;
+  color: var(--text-main);
+}
+
+/* The User Length Badge (e.g., the "2" next to Team) */
+.user-count-badge {
+  background: #f1f5f9; /* Soft grey background */
+  color: #64748b;    /* Muted slate text */
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+}
+
+/* --- ACTIVE DOT (Online Indicator) --- */
+.active-dot {
+  width: 8px;
+  height: 8px;
+  background-color: #22c55e; /* Success Green */
+  border-radius: 50%;
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  border: 2px solid white; /* Makes it pop against the background */
+  box-shadow: 0 0 0 1px #22c55e20;
+}
+
+/* Optional: Make the active dot pulse slightly */
+.active-dot::after {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: inherit;
+  border-radius: 50%;
+  animation: pulse-dot 2s infinite;
+  opacity: 0.4;
+}
+
+@keyframes pulse-dot {
+  0% { transform: scale(1); opacity: 0.4; }
+  70% { transform: scale(2.5); opacity: 0; }
+  100% { transform: scale(1); opacity: 0; }
+}
+
+/* Ensure the nav item is relative so the dot stays inside it */
+.user-nav-item {
+  position: relative; /* Crucial for the active-dot position */
+}
