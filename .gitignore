@@ -21,6 +21,8 @@ frontend/npm-debug.log*
 frontend/yarn-debug.log*
 frontend/yarn-error.log*
 
+frontend/package-lock.json
+
 #node modules
 frontend/node_modules
 
