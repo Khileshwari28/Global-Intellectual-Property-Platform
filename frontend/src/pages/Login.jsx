@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import photo from "../frontend_img/photo.png";
+
 
 export default function LoginForm() {
     const [error, setError] = useState("");
@@ -54,7 +54,7 @@ export default function LoginForm() {
                     {/* LEFT */}
                     <div
                         className="branding-column"
-                        style={{ backgroundImage: `url(${photo})` }}
+                        style={{ backgroundImage: `url(/img/photo.png)` }}
                     ></div>
 
                     {/* RIGHT */}
@@ -127,7 +127,7 @@ export default function LoginForm() {
                         </form>
 
                         <p className="login-footer">
-                            Don’t have an account? <Link to="/">Register</Link>
+                            Don’t have an account? <Link to="/register">Register</Link>
                         </p>
                     </div>
                 </div>

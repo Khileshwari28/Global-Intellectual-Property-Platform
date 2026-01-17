@@ -1,38 +1,34 @@
-import React, { useState } from "react";
-import IPMap from "./IPMap";
-import IPSidePanel from "./IPSidePanel";
-import DashboardInsights from "./DashboardInsights";
-import DashboardAlerts from "./DashboardAlerts";
-import DashboardQuickRatio from "./DashboardQuickRatio";
-import KPISummary from "./KPISummary";
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+import IPMap from "../map/IPMap";
+import IPSidePanel from "../map/IPSidePanel";
+
+import DashboardAlerts from "../dashboard/DashboardAlerts";
+import DashboardQuickRatio from "../dashboard/DashboardQuickRatio";
+import KPISummary from "../dashboard/KPISummary";
 
 const Dashboard = ({ setActiveComponent }) => {
   const user = JSON.parse(localStorage.getItem("user"));
-  console.log("Dashboard user:", user);
-
+  
   const [selectedCountry, setSelectedCountry] = useState(null);
+  const [stats, setStats] = useState([]);
+  const [recentActivities, setRecentActivities] = useState([]);
+  const [quickActions, setQuickActions] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-
-  const stats = [
-    { label: "Total Filings", value: "248", icon: "📑" },
-    { label: "Pending Review", value: "12", icon: "⏳" },
-    { label: "Completed", value: "236", icon: "✅" },
-    { label: "Success Rate", value: "95%", icon: "📈" },
-  ];
-
-  const recentActivities = [
-    { id: 1, action: "Trademark Application Submitted", status: "completed", time: "2 hours ago" },
-    { id: 2, action: "Patent Document Review", status: "in-progress", time: "5 hours ago" },
-    { id: 3, action: "Design Registration", status: "pending", time: "1 day ago" },
-    { id: 4, action: "Copyright Filing Completed", status: "completed", time: "2 days ago" },
-  ];
-
-  const quickActions = [
-    { name: "New Filing", icon: "➕" },
-    { name: "Search Patents", icon: "🔍" },
-    { name: "View Reports", icon: "📊" },
-    { name: "Help & Support", icon: "❓" },
-  ];
+  useEffect(() => {
+    axios
+      .get("/data/dashboard.json")
+      .then((res) => {
+        setStats(res.data.stats);
+        setRecentActivities(res.data.recentActivities);
+        setQuickActions(res.data.quickActions);
+      })
+      .catch((err) => {
+        console.error("Dashboard data fetch error:", err);
+      })
+      .finally(() => setLoading(false));
+  }, []);
 
   const getStatusBadgeClass = (status) => {
     switch (status) {
@@ -46,6 +42,10 @@ const Dashboard = ({ setActiveComponent }) => {
         return "bg-secondary";
     }
   };
+
+  if (loading) {
+    return <div className="text-center py-5">Loading Dashboard...</div>;
+  }
 
   return (
     <div>
@@ -74,7 +74,7 @@ const Dashboard = ({ setActiveComponent }) => {
         ))}
       </div>
 
-      {/* MAP + SIDE PANEL */}
+      {/* Map + Side Panel */}
       <div className="row mb-4">
         <div className="col-lg-8">
           <div className="card border-0 shadow-sm h-100">
@@ -84,7 +84,6 @@ const Dashboard = ({ setActiveComponent }) => {
             </div>
           </div>
         </div>
-
         <div className="col-lg-4">
           <IPSidePanel country={selectedCountry} />
         </div>
@@ -92,20 +91,12 @@ const Dashboard = ({ setActiveComponent }) => {
 
       {/* Insights */}
       <div className="row mb-4">
-        <div className="col-lg-4">
-          <KPISummary />
-        </div>
-        <div className="col-lg-4">
-          <DashboardAlerts />
-        </div>
-        <div className="col-lg-4">
-          <DashboardQuickRatio />
-
-        </div>
+        <div className="col-lg-4"><KPISummary /></div>
+        <div className="col-lg-4"><DashboardAlerts /></div>
+        <div className="col-lg-4"><DashboardQuickRatio /></div>
       </div>
 
-
-       {/* Quick Actions */}
+      {/* Quick Actions */}
       <div className="mb-4">
         <h5 className="mb-3">Quick Actions</h5>
         <div className="row g-2">
@@ -130,12 +121,15 @@ const Dashboard = ({ setActiveComponent }) => {
         <div className="card-body">
           <h5 className="mb-3">Recent Activity</h5>
           {recentActivities.map((activity) => (
-            <div key={activity.id} className="d-flex justify-content-between py-2 border-bottom">
+            <div
+              key={activity.id}
+              className="d-flex justify-content-between py-2 border-bottom"
+            >
               <div>
                 <div className="fw-medium">{activity.action}</div>
                 <small className="text-muted">{activity.time}</small>
               </div>
-              <span className={`badge   ${getStatusBadgeClass(activity.status)}`}>
+              <span className={`badge ${getStatusBadgeClass(activity.status)}`}>
                 {activity.status}
               </span>
             </div>
