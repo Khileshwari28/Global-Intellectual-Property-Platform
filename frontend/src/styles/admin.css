@@ -1,0 +1,13 @@
+/* Admin-specific tweaks */
+
+.admin-badge {
+  background-color: #bd2130;
+  color: white;
+  font-weight: 600;
+  border-radius: 20px;
+  padding: 6px 14px;
+}
+
+.admin-card {
+  border-left: 4px solid #0056b3;
+}

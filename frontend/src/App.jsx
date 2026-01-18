@@ -63,10 +63,11 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 import Landing from "./pages/Landing";
-import UserProfile from "./Components/UserProfile";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Home from "./pages/Home";
+import AdminHome from "./pages/AdminHome";
+import UserProfile from "./Components/UserProfile";
 import ProtectedRoute from "./Components/ProtectedRoute";
 
 function App() {
@@ -74,34 +75,40 @@ function App() {
     <BrowserRouter>
       <Routes>
 
-        {/* 🌟 Landing Page */}
+        {/* 🌟 Public Pages */}
         <Route path="/" element={<Landing />} />
-        
-        {/* Auth Pages */}
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
 
-        {/* Dashboard (after login) */}
-        
-
-        <Route path="/dashboard" element={<Home />} />
-
-        {/* Dashboard (AFTER login) */}
-        <Route 
+        {/* 👤 User Dashboard (Protected) */}
+        <Route
           path="/dashboard"
           element={
-            <ProtectedRoute allowedRoles={["USER", "ADMIN", "PRO", "ENTERPRISE"]}>
+            <ProtectedRoute allowedRoles={["USER", "PRO", "ENTERPRISE"]}>
               <Home />
             </ProtectedRoute>
           }
         />
 
-        {/* User Profile */}
-        <Route path="/profile" element={<UserProfile />} />
-        
-       
-        {/* Pricing (optional) */}
-        {/* <Route path="/pricing" element={<Pricing />} /> */}
+        {/* 🛡️ Admin Dashboard (ADMIN ONLY) */}
+        <Route
+          path="/admin"
+          element={
+            <ProtectedRoute allowedRoles={["ADMIN"]}>
+              <AdminHome />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* 👤 Profile (Protected for all logged-in users) */}
+        <Route
+          path="/profile"
+          element={
+            <ProtectedRoute allowedRoles={["USER", "ADMIN", "PRO", "ENTERPRISE"]}>
+              <UserProfile />
+            </ProtectedRoute>
+          }
+        />
 
       </Routes>
     </BrowserRouter>
@@ -109,4 +116,3 @@ function App() {
 }
 
 export default App;
-
