@@ -4,6 +4,10 @@ import axios from "axios";
 const AdminUserManagement = () => {
 
     const [users, setUsers] = useState([]);
+    const [message, setMessage] = useState("");
+    const [messageType, setMessageType] = useState(""); // success | error
+    const [showConfirmModal, setShowConfirmModal] = useState(false);
+    const [deleteUserId, setDeleteUserId] = useState(null);
 
     // ✅ Define first
     const loadUsers = () => {
@@ -17,13 +21,30 @@ const AdminUserManagement = () => {
         loadUsers();
     }, []);
 
-    const deleteUser = (id) => {
-        if (!window.confirm("Delete this user?")) return;
+    const deleteUser = () => {
+        axios.delete(`http://localhost:8080/api/admin/users/${deleteUserId}`)
+            .then(() => {
+                setMessage("User deleted successfully");
+                setMessageType("success");
+                loadUsers();
+            })
+            .catch(err => {
+                console.error(err);
+                setMessage("Failed to delete user");
+                setMessageType("error");
+            })
+            .finally(() => {
+                setShowConfirmModal(false);
+                setDeleteUserId(null);
 
-        axios.delete(`http://localhost:8080/api/admin/users/${id}`)
-            .then(() => loadUsers())
-            .catch(err => console.error(err));
+                setTimeout(() => {
+                    setMessage("");
+                    setMessageType("");
+                }, 3000);
+            });
     };
+
+
 
     const updateRole = (id) => {
         axios.put(`http://localhost:8080/api/admin/users/${id}/promote`)
@@ -45,6 +66,15 @@ const AdminUserManagement = () => {
     return (
         <div>
             <h2 className="mb-4">User Management</h2>
+            {message && (
+                <div
+                    className={`alert ${messageType === "success" ? "alert-success" : "alert-danger"
+                        }`}
+                >
+                    {message}
+                </div>
+            )}
+
 
             <div className="card shadow-sm border-0">
                 <div className="card-body p-0">
@@ -91,10 +121,14 @@ const AdminUserManagement = () => {
                                     <td className="d-flex gap-1">
                                         <button
                                             className="btn btn-sm btn-outline-danger"
-                                            onClick={() => deleteUser(user.id)}
+                                            onClick={() => {
+                                                setDeleteUserId(user.id);
+                                                setShowConfirmModal(true);
+                                            }}
                                         >
                                             Delete
                                         </button>
+
 
                                         {user.role !== "ADMIN" && (
                                             <button
@@ -121,6 +155,49 @@ const AdminUserManagement = () => {
                     </table>
                 </div>
             </div>
+
+
+            {showConfirmModal && <div className="modal-backdrop fade show"></div>}
+
+            {showConfirmModal && (
+                <div className="modal show d-block">
+                    <div className="modal-dialog modal-dialog-centered">
+                        <div className="modal-content">
+
+                            <div className="modal-header">
+                                <h5 className="modal-title text-danger">Confirm Deletion</h5>
+                                <button
+                                    className="btn-close"
+                                    onClick={() => setShowConfirmModal(false)}
+                                ></button>
+                            </div>
+
+                            <div className="modal-body">
+                                <p>Are you sure you want to delete this user?</p>
+                                <p className="text-muted small">This action cannot be undone.</p>
+                            </div>
+
+                            <div className="modal-footer">
+                                <button
+                                    className="btn btn-secondary"
+                                    onClick={() => setShowConfirmModal(false)}
+                                >
+                                    Cancel
+                                </button>
+
+                                <button
+                                    className="btn btn-danger"
+                                    onClick={deleteUser}
+                                >
+                                    Yes, Delete
+                                </button>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            )}
+
         </div>
     );
 };

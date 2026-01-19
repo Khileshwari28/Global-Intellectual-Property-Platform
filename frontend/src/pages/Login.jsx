@@ -33,6 +33,11 @@ export default function LoginForm() {
 
                 // ✅ ADMIN or USER → dashboard
                 localStorage.setItem("user", JSON.stringify(user));
+
+                if(loginRole === "ADMIN") {
+                    window.location.href = "/admin";
+                    return;
+                }
                 window.location.href = "/dashboard";
             }
 
