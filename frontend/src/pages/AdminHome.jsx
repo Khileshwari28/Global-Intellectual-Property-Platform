@@ -4,6 +4,7 @@ import AdminSidebar from "../Components/admin/AdminSidebar";
 import AdminDashboard from "../Components/admin/AdminDashboard";
 import AdminFilingManager from "../Components/admin/AdminFilingManager";
 import AdminUserManagement from "../Components/admin/AdminUserManagement";
+import SubscriptionManagement from "../Components/admin/AdminSubscriptionManagement";
 
 const AdminHome = () => {
   const [active, setActive] = useState("Dashboard");
@@ -21,6 +22,8 @@ const AdminHome = () => {
 
           {active === "Users" && <AdminUserManagement />}
 
+          {active === "Subscriptions" && <SubscriptionManagement />}
+          
           {active === "Filings" && <AdminFilingManager />}
         </div>
       </div>
