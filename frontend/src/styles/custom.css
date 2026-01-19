@@ -1067,3 +1067,83 @@ a:hover {
 ::-webkit-scrollbar-thumb:hover {
   background: transparent;
 }
+
+/* ===== LANDING PAGE ===== */
+
+.landing-wrapper {
+  min-height: 100vh;
+  background: linear-gradient(
+    180deg,
+    #f8fafc 0%,
+    #f0f4f8 60%,
+    #eef2f7 100%
+  );
+}
+
+/* Topbar */
+.landing-topbar {
+  height: 70px;
+  background: white;
+  box-shadow: 0 2px 8px rgba(0, 61, 130, 0.08);
+  border-bottom: 1px solid #e3e8ee;
+}
+
+/* Hero */
+.landing-hero {
+  min-height: calc(100vh - 120px);
+}
+
+/* Feature Cards */
+.landing-feature-card {
+  border-left: 4px solid #0056b3;
+  transition: all 0.3s ease;
+}
+
+.landing-feature-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 20px rgba(0, 61, 130, 0.15);
+}
+
+/* Footer */
+.landing-footer {
+  background-color: #f8fafc;
+  border-top: 1px solid #e3e8ee;
+}
+
+/* ===== LANDING TOPBAR BUTTONS ===== */
+
+.landing-topbar .btn {
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  padding: 8px 18px !important;
+  border-radius: 8px !important;
+  transition: all 0.3s ease !important;
+}
+
+/* Login Button */
+.landing-topbar .btn-outline-primary {
+  color: #0056b3 !important;
+  border: 2px solid #0056b3 !important;
+  background-color: #ffffff !important;
+}
+
+.landing-topbar .btn-outline-primary:hover {
+  background-color: #0056b3 !important;
+  color: #ffffff !important;
+  box-shadow: 0 6px 14px rgba(0, 86, 179, 0.25);
+  transform: translateY(-1px);
+}
+
+/* Register Button */
+.landing-topbar .btn-primary {
+  background: linear-gradient(135deg, #0056b3 0%, #003d82 100%) !important;
+  border: none !important;
+  color: #ffffff !important;
+  box-shadow: 0 6px 14px rgba(0, 61, 130, 0.35);
+}
+
+.landing-topbar .btn-primary:hover {
+  background: linear-gradient(135deg, #003d82 0%, #002b5c 100%) !important;
+  box-shadow: 0 10px 20px rgba(0, 61, 130, 0.45);
+  transform: translateY(-2px);
+}

@@ -1,0 +1,41 @@
+/* ===== HERO SECTION ===== */
+
+.landing-hero {
+  padding: 80px 0;
+}
+
+.hero-visual-card {
+  background: white;
+  border-radius: 14px;
+  box-shadow: 0 12px 28px rgba(0, 61, 130, 0.15);
+  border-left: 4px solid #0056b3;
+  max-width: 420px;
+  margin: auto;
+}
+
+.hero-visual-card ul li {
+  font-size: 14px;
+  color: #1a2332;
+  font-weight: 500;
+}
+
+.landing-hero .badge {
+  font-size: 12px;
+  letter-spacing: 0.5px;
+}
+
+
+.landing-feature-card {
+  border-left: 4px solid #0056b3;
+  transition: all 0.3s ease;
+}
+
+.landing-feature-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 20px rgba(0, 61, 130, 0.15);
+}
+
+.landing-footer {
+  background-color: #f8fafc;
+  border-top: 1px solid #e3e8ee;
+}
