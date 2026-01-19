@@ -131,8 +131,6 @@
 
 // export default App;
 
-
-
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 // Pages
@@ -165,22 +163,35 @@ function App() {
         <Route path="/register" element={<Register />} />
         <Route path="/pricing" element={<Pricing />} />
 
-        {/* 👤 User Dashboard */}
-        
-        <Route path="/dashboard" element={<Dashboard />} />
-        
-        {/* 👤 Profile */}
-        <Route path="/profile" element={<ProfileCard />} />
+        {/* 👤 User Dashboard (Protected) */}
+        <Route
+          path="/dashboard"
+          element={
+            <ProtectedRoute allowedRoles={["USER", "PRO", "ENTERPRISE"]}>
+              <Home />
+            </ProtectedRoute>
+          }
+        />
 
-        {/* 🛡️ Admin Section - Nested Routes */}
-       
-        <Route path="/admin" element={<AdminLayout />}>
-          <Route index element={<AdminHome />} /> 
-          <Route path="users" element={<AdminUserManagement />} />
-          <Route path="subscriptions" element={<SubscriptionManagement />} />
-        </Route>
+        {/* 🛡️ Admin Dashboard (ADMIN ONLY) */}
+        <Route
+          path="/admin"
+          element={
+            <ProtectedRoute allowedRoles={["ADMIN"]}>
+              <AdminHome />
+            </ProtectedRoute>
+          }
+        />
 
-        
+        {/* 👤 User Profile (All Logged-in Users) */}
+        <Route
+          path="/profile"
+          element={
+            <ProtectedRoute allowedRoles={["USER", "ADMIN", "PRO", "ENTERPRISE"]}>
+              <UserProfile />
+            </ProtectedRoute>
+          }
+        />
 
       </Routes>
     </BrowserRouter>
