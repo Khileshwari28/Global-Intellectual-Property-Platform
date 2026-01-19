@@ -58,8 +58,6 @@
 
 // export default App;
 
-
-
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 import Landing from "./pages/landing/Landing";
@@ -69,7 +67,6 @@ import Home from "./pages/Home";
 import AdminHome from "./pages/AdminHome";
 import UserProfile from "./Components/UserProfile";
 import ProtectedRoute from "./Components/ProtectedRoute";
-import AdminLayout from "./Components/admin/AdminLayout";
 
 function App() {
   return (
@@ -95,15 +92,13 @@ function App() {
         <Route
           path="/admin"
           element={
-            //<ProtectedRoute allowedRoles={["ADMIN"]}>
-            <AdminHome />
-            //</ProtectedRoute>
+            <ProtectedRoute allowedRoles={["ADMIN"]}>
+              <AdminHome />
+            </ProtectedRoute>
           }
         />
 
-        <Route path="/admin" element={<AdminLayout />} />
-
-        {/* 👤 Profile (Protected for all logged-in users) */}
+        {/* 👤 User Profile (All Logged-in Users) */}
         <Route
           path="/profile"
           element={

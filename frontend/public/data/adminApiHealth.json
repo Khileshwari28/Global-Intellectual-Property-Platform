@@ -1,0 +1,29 @@
+{
+  "lastUpdated": "Just now",
+  "services": [
+    {
+      "name": "Authentication API",
+      "status": "HEALTHY",
+      "responseTime": "120 ms",
+      "lastChecked": "Just now"
+    },
+    {
+      "name": "IP Filing API",
+      "status": "HEALTHY",
+      "responseTime": "180 ms",
+      "lastChecked": "Just now"
+    },
+    {
+      "name": "Subscription API",
+      "status": "DOWN",
+      "responseTime": "Timeout",
+      "lastChecked": "2 mins ago"
+    },
+    {
+      "name": "Notification API",
+      "status": "DEGRADED",
+      "responseTime": "420 ms",
+      "lastChecked": "Just now"
+    }
+  ]
+}
