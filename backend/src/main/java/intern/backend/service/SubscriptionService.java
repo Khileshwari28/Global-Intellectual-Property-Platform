@@ -49,4 +49,10 @@ public class SubscriptionService {
 
         return repository.save(sub);
     }
+
+    /* 🔹 USED BY ADMIN USER MANAGEMENT */
+    public Subscription getSubscriptionByUserId(Long userId) {
+        return repository.findByUserIdAndStatus(userId, "ACTIVE")
+                .orElse(null);
+    }
 }

@@ -18,6 +18,7 @@ public class User {
     private String email;
     private String password;
     private String role;
+    private Boolean enabled = true;
 
 
     @Column(name = "created_at")
@@ -65,5 +66,12 @@ public class User {
     }
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public Boolean getEnabled() {
+        return enabled;
+    }
+    public void setEnabled(Boolean enabled) {
+        this.enabled = enabled;
     }
 }

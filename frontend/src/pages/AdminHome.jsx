@@ -3,6 +3,7 @@ import AdminNavbar from "../Components/admin/AdminNavbar";
 import AdminSidebar from "../Components/admin/AdminSidebar";
 import AdminDashboard from "../Components/admin/AdminDashboard";
 import AdminFilingManager from "../Components/admin/AdminFilingManager";
+import AdminUserManagement from "../Components/admin/AdminUserManagement";
 
 const AdminHome = () => {
   const [active, setActive] = useState("Dashboard");
@@ -18,12 +19,7 @@ const AdminHome = () => {
         <div className="flex-grow-1 bg-light p-4 content-wrapper">
           {active === "Dashboard" && <AdminDashboard />}
 
-          {active === "Users" && (
-            <div>
-              <h4 className="mb-3">User Management</h4>
-              <p className="text-muted">User management page coming soon</p>
-            </div>
-          )}
+          {active === "Users" && <AdminUserManagement />}
 
           {active === "Filings" && <AdminFilingManager />}
         </div>
