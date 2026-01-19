@@ -46,7 +46,7 @@ const Sidebar = ({ activeComponent, setActiveComponent, userPlan }) => {
                             >
                                 <span style={{ fontSize: '18px' }}>{item.icon}</span>
                                 <span>{item.name}</span>
-                                {item.requiresPro && userPlan === "Basic" && <span style={{ marginLeft: 'auto' }}>🔒</span>}
+                                {item.requiresPro && userPlan === "BASIC" && <span style={{ marginLeft: 'auto' }}>🔒</span>}
                             </button>
                         </li>
                     ))}

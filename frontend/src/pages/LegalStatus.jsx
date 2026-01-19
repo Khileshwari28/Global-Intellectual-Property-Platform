@@ -98,7 +98,7 @@ const LegalStatus = ({ userRole, userPlan, setActiveComponent }) => {
             textAlign: "center",
           }}
         >
-          <h4>Upgrade to Pro or Enterprise to access Legal Status</h4>
+          <h4>🚀⬆️ Upgrade to Pro or Enterprise to access Legal Status ⚖️</h4>
 
           <button
             className="btn btn-primary mt-3"

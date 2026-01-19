@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import AdminNavbar from "../Components/admin/AdminNavbar";
 import AdminSidebar from "../Components/admin/AdminSidebar";
+import AdminDashboard from "../Components/admin/AdminDashboard";
+import AdminFilingManager from "../Components/admin/AdminFilingManager";
 
 const AdminHome = () => {
   const [active, setActive] = useState("Dashboard");
@@ -12,10 +14,18 @@ const AdminHome = () => {
       <div className="d-flex min-vh-100">
         <AdminSidebar active={active} setActive={setActive} />
 
+        {/* MIDDLE CONTENT */}
         <div className="flex-grow-1 bg-light p-4 content-wrapper">
-          {active === "Dashboard" && <h4>System Overview</h4>}
-          {active === "Users" && <h4>User Management</h4>}
-          {active === "Filings" && <h4>Filing Approvals</h4>}
+          {active === "Dashboard" && <AdminDashboard />}
+
+          {active === "Users" && (
+            <div>
+              <h4 className="mb-3">User Management</h4>
+              <p className="text-muted">User management page coming soon</p>
+            </div>
+          )}
+
+          {active === "Filings" && <AdminFilingManager />}
         </div>
       </div>
     </>
