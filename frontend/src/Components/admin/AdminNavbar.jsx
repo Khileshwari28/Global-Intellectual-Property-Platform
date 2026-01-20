@@ -14,9 +14,9 @@ const AdminNavbar = () => {
         <div className="navbar-right d-flex align-items-center gap-3">
           <span className="badge bg-danger px-3 py-2">ADMIN</span>
 
-          <button className="btn btn-outline-primary btn-sm">
+          {/* <button className="btn btn-outline-primary btn-sm">
             Logout
-          </button>
+          </button> */}
         </div>
 
       </div>

@@ -22,17 +22,17 @@ const HeroSection = () => {
               trademarks, and filings with real-time analytics, legal status
               tracking, and powerful visual dashboards.
             </p>
-
+            
             <div className="d-flex gap-3">
-              <Link to="/register" className="btn btn-primary btn-lg px-4">
+              <Link to="/register" className="btn btn-primary btn-lg px-4" >
                 Get Started Free
               </Link>
-
+              
               <Link to="/login" className="btn btn-outline-secondary btn-lg px-4">
                 View Dashboard
               </Link>
             </div>
-
+            
             {/* TRUST INFO */}
             <div className="d-flex gap-4 mt-4 text-muted small">
               <div>✔ Secure</div>
@@ -40,7 +40,7 @@ const HeroSection = () => {
               <div>✔ Admin & User Dashboards</div>
             </div>
           </div>
-
+          
           {/* RIGHT VISUAL */}
           <div className="col-lg-6 text-center">
             <div className="hero-visual-card p-4">
