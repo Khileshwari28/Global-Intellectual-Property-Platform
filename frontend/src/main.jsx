@@ -1,16 +1,27 @@
-import React, { StrictMode } from 'react'; // Ensure React is imported if needed, and StrictMode
-import { createRoot } from 'react-dom/client'; 
-import 'bootstrap/dist/css/bootstrap.min.css';
-import './styles/custom.css';
-import App from './App.jsx'; 
+import React, { StrictMode } from "react";
+import { createRoot } from "react-dom/client";
+import "bootstrap/dist/css/bootstrap.min.css";
+import "./styles/custom.css";
 import "./styles/admin.css";
+import App from "./App.jsx";
 
-// 1. IMPORT YOUR GLOBAL STYLES (Use your old index.css or global styles)
-// import './index.css'; 
+import { loadPermissions } from "./utils/permissions";
 
+const root = createRoot(document.getElementById("root"));
 
-createRoot(document.getElementById('root')).render(
-  <StrictMode>
-    <App />
-  </StrictMode>
-);
+async function startApp() {
+  try {
+    await loadPermissions(); // 🔴 This loads backend permissions
+    console.log("Permissions loaded successfully");
+  } catch (error) {
+    console.error("Failed to load permissions:", error);
+  }
+
+  root.render(
+    <StrictMode>
+      <App />
+    </StrictMode>
+  );
+}
+
+startApp();

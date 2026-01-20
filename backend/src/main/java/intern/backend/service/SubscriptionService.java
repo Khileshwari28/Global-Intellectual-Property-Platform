@@ -12,6 +12,8 @@ public class SubscriptionService {
 
     @Autowired
     private SubscriptionRepository repository;
+    @Autowired
+    private NotificationService notificationService;
 
     /* 🔹 AUTO BASIC PLAN ON LOGIN */
     public Subscription ensureBasicSubscription(Long userId) {
@@ -47,7 +49,22 @@ public class SubscriptionService {
         sub.setEndDate(LocalDateTime.now().plusMonths(months));
         sub.setStatus("ACTIVE");
 
-        return repository.save(sub);
+        Subscription saved = repository.save(sub);
+
+        // 🔔 NOTIFICATION
+        notificationService.createIfNotExists(
+                userId.intValue(),
+                null,
+                "Your subscription has been upgraded to " + newPlan,
+                "SUBSCRIPTION"
+        );
+
+        notificationService.createSubscriptionNotification(
+                userId.intValue(),
+                "Your subscription has been upgraded to " + newPlan.toUpperCase()
+        );
+
+        return saved;
     }
 
     /* 🔹 USED BY ADMIN USER MANAGEMENT */

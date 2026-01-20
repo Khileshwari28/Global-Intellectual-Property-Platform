@@ -11,6 +11,9 @@ import {
   Filler
 } from "chart.js";
 import { VIZ_IDS } from "./vizConfig";
+import { hasAccess } from "../../utils/permissions";
+
+
 
 ChartJS.register(
   RadialLinearScale,
@@ -24,6 +27,14 @@ ChartJS.register(
 const IPStatusChart = ({ vizId = VIZ_IDS.IP_STATUS_DIST }) => {
   const [data, setData] = useState([]);
 
+  // 🔐 Get user plan
+  const user = JSON.parse(localStorage.getItem("user"));
+  const plan = user?.plan;
+
+  // 🔐 Permission check
+  const canSeeCharts = hasAccess(plan, "canSeeCharts");
+
+
   /* 🔌 FETCH REAL BACKEND DATA */
   useEffect(() => {
     axios
@@ -33,7 +44,30 @@ const IPStatusChart = ({ vizId = VIZ_IDS.IP_STATUS_DIST }) => {
         console.error("IP Status chart error:", err);
         setData([]);
       });
-  }, []);
+  }, [canSeeCharts]);
+
+   /* 🔒 LOCKED UI */
+  if (!canSeeCharts) {
+    return (
+      <div
+        className="d-flex justify-content-center align-items-center"
+        style={{
+          height: "300px",
+          background: "rgba(255,255,255,0.7)",
+          border: "1px dashed #ccc",
+          borderRadius: "6px",
+          textAlign: "center"
+        }}
+      >
+        <div>
+          <h6>🔒 Chart Locked</h6>
+          <small className="text-muted">
+            Upgrade your plan to view analytics charts.
+          </small>
+        </div>
+      </div>
+    );
+  }
 
   /* 🔁 FALLBACK (only if API fails / empty DB) */
   const fallbackData = [

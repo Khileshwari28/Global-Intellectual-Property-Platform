@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import { hasAccess } from "../../utils/permissions";
+
 
 const getBorderClass = (type) => {
   switch (type) {
@@ -16,7 +18,10 @@ const DashboardAlerts = () => {
 
   // ✅ get logged-in user
   const user = JSON.parse(localStorage.getItem("user"));
+  const plan = user?.plan;
  const userUniqueId = user?.id;
+
+ 
 
   useEffect(() => {
     if (!userUniqueId) return;
@@ -29,6 +34,30 @@ const DashboardAlerts = () => {
       })
       .catch(err => console.error("Notification error:", err));
   }, [userUniqueId]);
+
+  
+
+  if (!hasAccess(plan, "canNotify")) {
+    return (
+      <div
+        className="d-flex justify-content-center align-items-center"
+        style={{
+          height: "300px",
+          background: "rgba(255,255,255,0.7)",
+          border: "1px dashed #ccc",
+          borderRadius: "6px",
+          textAlign: "center"
+        }}
+      >
+        <div>
+          <h6>🔒 Notifications Locked</h6>
+          <small className="text-muted">
+            Upgrade your plan to access analytics charts.
+          </small>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="card shadow-sm">

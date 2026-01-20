@@ -18,7 +18,8 @@ public class NotificationController {
     }
 
     // ✅ Fetch only (NO generation)
-    @GetMapping("/user_id")
+    //@GetMapping("/user_id")
+    @GetMapping("/{userId}")
     public List<Notification> getNotifications(@PathVariable Integer userId) {
         return service.getNotifications(userId);
     }

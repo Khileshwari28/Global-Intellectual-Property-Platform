@@ -49,4 +49,15 @@ public class NotificationService {
         return notificationRepo.findByUserIdOrderByTimestampDesc(userId);
     }
 
+    public void createSubscriptionNotification(Integer userId, String message) {
+        Notification n = new Notification();
+        n.setUserId(userId);
+        n.setIpAssetId(0); // 0 = system generated
+        n.setMessage(message);
+        n.setType("SUBSCRIPTION");
+        n.setTimestamp(new Date());
+        notificationRepo.save(n);
+    }
+
+
 }

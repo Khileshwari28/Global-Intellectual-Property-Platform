@@ -1,3 +1,72 @@
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+
+// Pages
+import Landing from "./pages/landing/Landing";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
+import Home from "./pages/Home";
+import AdminHome from "./pages/AdminHome";
+
+// Components
+import UserProfile from "./Components/UserProfile";
+import ProtectedRoute from "./Components/ProtectedRoute";
+import AdminLayout from "./Components/admin/AdminLayout";
+import Dashboard from "./Components/dashboard/Dashboard";
+import ProfileCard from "./Components/ui/ProfileCard";
+
+// Admin Sub-pages (Make sure these are imported correctly)
+import AdminUserManagement from "./Components/admin/AdminUserManagement";
+import SubscriptionManagement from "./Components/admin/AdminSubscriptionManagement";
+import Pricing from "./Components/Pricing";
+
+function App() {
+  return (
+    <BrowserRouter>
+      <Routes>
+        
+        {/* 🌟 Public Pages */}
+        <Route path="/" element={<Landing />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/pricing" element={<Pricing />} />
+
+        {/* 👤 User Dashboard (Protected) */}
+        <Route
+          path="/dashboard"
+          element={
+            <ProtectedRoute allowedRoles={["USER", "PROFESSIONAL", "ENTERPRISE"]}>
+              <Home />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* 🛡️ Admin Dashboard (ADMIN ONLY) */}
+        <Route
+          path="/admin"
+          element={
+            //<ProtectedRoute allowedRoles={["ADMIN"]}>
+              <AdminHome />
+            //</ProtectedRoute>
+          }
+        />
+
+        {/* 👤 User Profile (All Logged-in Users) */}
+        <Route
+          path="/profile"
+          element={
+            <ProtectedRoute allowedRoles={["USER", "ADMIN", "PROFESSIONAL", "ENTERPRISE"]}>
+              <UserProfile />
+            </ProtectedRoute>
+          }
+        />
+
+      </Routes>
+    </BrowserRouter>
+  );
+}
+
+export default App;
+
 
 // // import { BrowserRouter, Routes, Route } from "react-router-dom";
 
@@ -130,72 +199,3 @@
 // }
 
 // export default App;
-
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-
-// Pages
-import Landing from "./pages/landing/Landing";
-import Login from "./pages/Login";
-import Register from "./pages/Register";
-import Home from "./pages/Home";
-import AdminHome from "./pages/AdminHome";
-
-// Components
-import UserProfile from "./Components/UserProfile";
-import ProtectedRoute from "./Components/ProtectedRoute";
-import AdminLayout from "./Components/admin/AdminLayout";
-import Dashboard from "./Components/dashboard/Dashboard";
-import ProfileCard from "./Components/ui/ProfileCard";
-
-// Admin Sub-pages (Make sure these are imported correctly)
-import AdminUserManagement from "./Components/admin/AdminUserManagement";
-import SubscriptionManagement from "./Components/admin/AdminSubscriptionManagement";
-import Pricing from "./Components/Pricing";
-
-function App() {
-  return (
-    <BrowserRouter>
-      <Routes>
-        
-        {/* 🌟 Public Pages */}
-        <Route path="/" element={<Landing />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/pricing" element={<Pricing />} />
-
-        {/* 👤 User Dashboard (Protected) */}
-        <Route
-          path="/dashboard"
-          element={
-            <ProtectedRoute allowedRoles={["USER", "PRO", "ENTERPRISE"]}>
-              <Home />
-            </ProtectedRoute>
-          }
-        />
-
-        {/* 🛡️ Admin Dashboard (ADMIN ONLY) */}
-        <Route
-          path="/admin"
-          element={
-            <ProtectedRoute allowedRoles={["ADMIN"]}>
-              <AdminHome />
-            </ProtectedRoute>
-          }
-        />
-
-        {/* 👤 User Profile (All Logged-in Users) */}
-        <Route
-          path="/profile"
-          element={
-            <ProtectedRoute allowedRoles={["USER", "ADMIN", "PRO", "ENTERPRISE"]}>
-              <UserProfile />
-            </ProtectedRoute>
-          }
-        />
-
-      </Routes>
-    </BrowserRouter>
-  );
-}
-
-export default App;

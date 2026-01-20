@@ -11,6 +11,9 @@ import {
   Filler
 } from "chart.js";
 import axios from "axios";
+import { hasAccess } from "../../utils/permissions";
+
+
 
 ChartJS.register(
   CategoryScale,
@@ -33,6 +36,13 @@ const IPTrendChart = () => {
   const [selectedYear, setSelectedYear] = useState(2025);
   const [years, setYears] = useState([]);
   const [data, setData] = useState([]);
+  // 🔐 Get user plan
+    const user = JSON.parse(localStorage.getItem("user"));
+    const plan = user?.plan;
+  
+    // 🔐 Permission check
+    const canSeeCharts = hasAccess(plan, "canSeeCharts");
+
 
   // 🔹 fetch available years
   useEffect(() => {
@@ -44,7 +54,7 @@ const IPTrendChart = () => {
         }
       })
       .catch(console.error);
-  }, []);
+  }, [canSeeCharts]);
 
   // 🔹 fetch month-wise data when year changes
   useEffect(() => {
@@ -56,9 +66,34 @@ const IPTrendChart = () => {
       .catch(console.error);
   }, [selectedYear]);
 
+  // 🔒 LOCKED UI
+  if (!canSeeCharts) {
+    return (
+      <div
+        className="d-flex justify-content-center align-items-center"
+        style={{
+          height: "300px",
+          background: "rgba(255,255,255,0.7)",
+          border: "1px dashed #ccc",
+          borderRadius: "6px",
+          textAlign: "center"
+        }}
+      >
+        <div>
+          <h6>🔒 Charts Locked</h6>
+          <small className="text-muted">
+            Upgrade your plan to access analytics charts.
+          </small>
+        </div>
+      </div>
+    );
+  }
+
   if (!data.length) {
     return <p className="text-muted">No data available</p>;
   }
+
+  
 
   const chartData = {
     labels: data.map(d => MONTH_MAP[d.label]),
