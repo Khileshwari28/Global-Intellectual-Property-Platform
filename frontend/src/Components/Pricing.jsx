@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 /* Razorpay TEST Key */
 const RAZORPAY_KEY = "rzp_test_S0yogPh9RsxaZ5";
@@ -11,7 +12,7 @@ const plans = [
     price: 0,
     displayPrice: "₹0",
     credits: "100 Credits",
-    track: "Standard Search",
+    //track: "Standard Search",
     updates: "Manual",
     support: "Email Only",
   },
@@ -21,7 +22,7 @@ const plans = [
     price: 499,
     displayPrice: "₹499",
     credits: "5,000 Credits",
-    track: "Legal Status Access",
+    //track: "Legal Status Access",
     updates: "Real-time",
     support: "24/7 Priority",
     popular: true,
@@ -32,11 +33,74 @@ const plans = [
     price: 1999,
     displayPrice: "₹1999",
     credits: "Unlimited",
-    track: "Legal Status Access",
+    //track: "Legal Status Access",
     updates: "Instant Push",
     support: "Dedicated Mgr",
   },
 ];
+
+const FEATURE_LABELS = {
+  canLegalStatus: "Legal Status Access",
+  canTrack: "Filing Tracker",
+  canSeeMaps: "IP Distribution Maps",
+  canSeeCharts: "Analytics Charts",
+  canNotify: "Real-time Notifications",
+};
+
+/* Feature name mapping (must match backend keys) */
+const TrackDropdown = ({ planRole, permissions }) => {
+  const [open, setOpen] = useState(false);
+
+  const planPerms = permissions[planRole] || {};
+
+  const enabledFeatures = Object.keys(planPerms)
+    .filter(key => planPerms[key] === true)
+    .map(key => FEATURE_LABELS[key])
+    .filter(Boolean);
+
+  return (
+    <div style={{ position: "relative" }}>
+      <button
+        className="btn btn-sm btn-outline-primary"
+        onClick={() => setOpen(!open)}
+      >
+        View
+      </button>
+
+      {open && (
+        <div
+          style={{
+            position: "absolute",
+            top: "110%",
+            right: 0,
+            background: "#fff",
+            border: "1px solid #e5e7eb",
+            borderRadius: 8,
+            minWidth: 220,
+            padding: 8,
+            boxShadow: "0 8px 20px rgba(0,0,0,0.15)",
+            zIndex: 1000,
+          }}
+        >
+          {enabledFeatures.length === 0 ? (
+            <div className="text-muted small">
+              🚫 No premium features
+            </div>
+          ) : (
+            enabledFeatures.map((f, i) => (
+              <div key={i} style={{ fontSize: 13, padding: "4px 0" }}>
+                ✅ {f}
+              </div>
+            ))
+          )}
+        </div>
+      )}
+    </div>
+  );
+};
+
+
+
 
 export default function Pricing() {
   const navigate = useNavigate();
@@ -47,11 +111,37 @@ export default function Pricing() {
   const [hoveredPlan, setHoveredPlan] = useState(null);
   const [upgradeSuccess, setUpgradeSuccess] = useState(null);
 
+  // 🔥 Permissions from DB
+  const [permissions, setPermissions] = useState({});
+
+  /* Load current user plan */
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem("user"));
-    if (user?.plan) {
-      setCurrentPlan(user.plan);
-    }
+    if (user?.plan) setCurrentPlan(user.plan);
+  }, []);
+
+
+  /* Load permissions from backend */
+  useEffect(() => {
+    axios.get("http://localhost:8080/api/permissions")
+      .then(res => {
+        /*
+          Backend format:
+          [
+            { planName: "BASIC", featureKey: "canTrack", enabled: true },
+            ...
+          ]
+        */
+
+        const formatted = {};
+        res.data.forEach(p => {
+          if (!formatted[p.planName]) formatted[p.planName] = {};
+          formatted[p.planName][p.featureKey] = p.enabled;
+        });
+
+        setPermissions(formatted);
+      })
+      .catch(console.error);
   }, []);
 
   const currentPlanData = plans.find((p) => p.role === currentPlan);
@@ -114,6 +204,8 @@ export default function Pricing() {
     rzp.open();
   };
 
+  
+
   return (
     <div style={styles.wrapper}>
       <h1 style={styles.heading}>Choose the plan that's right for you</h1>
@@ -151,7 +243,13 @@ export default function Pricing() {
               <div style={styles.body}>
                 <Item label="Monthly price" value={plan.displayPrice} />
                 <Item label="API Credits" value={plan.credits} />
-                <Item label="Track" value={plan.track} />
+
+                {/* Track Dropdown */}
+                <div style={styles.item}>
+                  <span style={styles.label}>Track</span>
+                  <TrackDropdown planRole={plan.role} permissions={permissions} />
+                </div>
+
                 <Item label="Data Updates" value={plan.updates} />
                 <Item label="Support" value={plan.support} />
               </div>
