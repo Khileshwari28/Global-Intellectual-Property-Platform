@@ -18,7 +18,7 @@ const plans = [
   },
   {
     name: "PROFESSIONAL",
-    role: "PROFESSIONAL", 
+    role: "PROFESSIONAL",
     price: 499,
     displayPrice: "₹499",
     credits: "5,000 Credits",
@@ -54,8 +54,8 @@ const TrackDropdown = ({ planRole, permissions }) => {
   const planPerms = permissions[planRole] || {};
 
   const enabledFeatures = Object.keys(planPerms)
-    .filter(key => planPerms[key] === true)
-    .map(key => FEATURE_LABELS[key])
+    .filter((key) => planPerms[key] === true)
+    .map((key) => FEATURE_LABELS[key])
     .filter(Boolean);
 
   return (
@@ -66,7 +66,7 @@ const TrackDropdown = ({ planRole, permissions }) => {
       >
         View
       </button>
-
+      
       {open && (
         <div
           style={{
@@ -83,9 +83,7 @@ const TrackDropdown = ({ planRole, permissions }) => {
           }}
         >
           {enabledFeatures.length === 0 ? (
-            <div className="text-muted small">
-              🚫 No premium features
-            </div>
+            <div className="text-muted small">🚫 No premium features</div>
           ) : (
             enabledFeatures.map((f, i) => (
               <div key={i} style={{ fontSize: 13, padding: "4px 0" }}>
@@ -98,9 +96,6 @@ const TrackDropdown = ({ planRole, permissions }) => {
     </div>
   );
 };
-
-
-
 
 export default function Pricing() {
   const navigate = useNavigate();
@@ -120,11 +115,11 @@ export default function Pricing() {
     if (user?.plan) setCurrentPlan(user.plan);
   }, []);
 
-
   /* Load permissions from backend */
   useEffect(() => {
-    axios.get("http://localhost:8080/api/permissions")
-      .then(res => {
+    axios
+      .get("http://localhost:8080/api/permissions")
+      .then((res) => {
         /*
           Backend format:
           [
@@ -134,7 +129,7 @@ export default function Pricing() {
         */
 
         const formatted = {};
-        res.data.forEach(p => {
+        res.data.forEach((p) => {
           if (!formatted[p.planName]) formatted[p.planName] = {};
           formatted[p.planName][p.featureKey] = p.enabled;
         });
@@ -155,7 +150,7 @@ export default function Pricing() {
   const confirmUpgrade = () => {
     setShowModal(false);
     const user = JSON.parse(localStorage.getItem("user"));
-    
+
     if (!user?.id) {
       alert("Please login to proceed.");
       return;
@@ -172,7 +167,7 @@ export default function Pricing() {
 
         const res = await fetch(
           `http://localhost:8080/api/subscription/upgrade?userId=${user.id}&plan=${selectedPlan.role}`,
-          { method: "POST" }
+          { method: "POST" },
         ).catch(() => null);
 
         let newPlanRole = selectedPlan.role;
@@ -204,16 +199,15 @@ export default function Pricing() {
     rzp.open();
   };
 
-  
-
   return (
     <div style={styles.wrapper}>
       <h1 style={styles.heading}>Choose the plan that's right for you</h1>
-      
+
       {upgradeSuccess && (
         <div style={styles.successWrapper}>
           <div style={styles.successBanner}>
-            🎉 <strong>Success!</strong> Upgraded to <strong>{upgradeSuccess}</strong>. Redirecting...
+            🎉 <strong>Success!</strong> Upgraded to{" "}
+            <strong>{upgradeSuccess}</strong>. Redirecting...
           </div>
         </div>
       )}
@@ -239,7 +233,7 @@ export default function Pricing() {
               {plan.popular && <div style={styles.popular}>Most Popular</div>}
 
               <h2 style={{ marginTop: 10 }}>{plan.name}</h2>
-              
+
               <div style={styles.body}>
                 <Item label="Monthly price" value={plan.displayPrice} />
                 <Item label="API Credits" value={plan.credits} />
@@ -247,7 +241,10 @@ export default function Pricing() {
                 {/* Track Dropdown */}
                 <div style={styles.item}>
                   <span style={styles.label}>Track</span>
-                  <TrackDropdown planRole={plan.role} permissions={permissions} />
+                  <TrackDropdown
+                    planRole={plan.role}
+                    permissions={permissions}
+                  />
                 </div>
 
                 <Item label="Data Updates" value={plan.updates} />
@@ -263,7 +260,11 @@ export default function Pricing() {
                 }}
                 onClick={() => handleSelect(plan)}
               >
-                {isCurrent ? "Current Plan" : isDowngrade ? "Locked" : `Select ${plan.name}`}
+                {isCurrent
+                  ? "Current Plan"
+                  : isDowngrade
+                    ? "Downgraded"
+                    : `Select ${plan.name}`}
               </button>
             </div>
           );
@@ -288,10 +289,16 @@ function ConfirmModal({ plan, onCancel, onConfirm }) {
     <div style={styles.modalBackdrop}>
       <div style={styles.modal}>
         <h3 style={{ marginTop: 0 }}>Confirm Upgrade</h3>
-        <p>Upgrade to <strong>{plan.name}</strong> for {plan.displayPrice}?</p>
+        <p>
+          Upgrade to <strong>{plan.name}</strong> for {plan.displayPrice}?
+        </p>
         <div style={styles.modalActions}>
-          <button onClick={onCancel} style={styles.cancelBtn}>Cancel</button>
-          <button onClick={onConfirm} style={styles.confirmBtn}>Confirm & Pay</button>
+          <button onClick={onCancel} style={styles.cancelBtn}>
+            Cancel
+          </button>
+          <button onClick={onConfirm} style={styles.confirmBtn}>
+            Confirm & Pay
+          </button>
         </div>
       </div>
     </div>
@@ -308,28 +315,103 @@ const Item = ({ label, value }) => (
 /* --- RESTORED PREMIUM STYLES --- */
 
 const styles = {
-  wrapper: { padding: "60px 20px", fontFamily: "'Inter', sans-serif", maxWidth: 1200, margin: "0 auto" },
-  heading: { fontSize: 32, marginBottom: 40, textAlign: "center", fontWeight: 700, color: "#0f172a" },
-  grid: { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))", gap: 30 },
-  card: { border: "1px solid #e2e8f0", borderRadius: 24, padding: 32, background: "#fff", position: "relative", transition: "all 0.3s ease", display: "flex", flexDirection: "column" },
-  hovered: { border: "2px solid #2563eb", transform: "translateY(-10px)", boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.1)" },
-  current: { background: "#f8fafc", border: "2px solid #2563eb", boxShadow: "0 10px 15px -3px rgba(37, 99, 235, 0.1)" },
-  disabledCard: { opacity: 0.5 },
-  popular: { position: "absolute", top: -14, left: "50%", transform: "translateX(-50%)", background: "#2563eb", color: "#fff", padding: "6px 18px", borderRadius: 20, fontSize: 12, fontWeight: 700 },
-  body: { margin: "24px 0", flexGrow: 1 },
-  item: { display: "flex", justifyContent: "space-between", padding: "14px 0", borderBottom: "1px solid #f1f5f9" },
-  label: { color: "#64748b", fontSize: 14 },
-  value: { fontWeight: 600, color: "#1e293b", fontSize: 14 },
-  button: { padding: "16px", borderRadius: 14, border: "none", background: "#2563eb", color: "#fff", cursor: "pointer", fontWeight: 700, fontSize: 16 },
+  wrapper: {
+    padding: "20px", // Reduced padding from 60px
+    fontFamily: "'Inter', sans-serif",
+    maxWidth: "100%", // Let it fill the dashboard space
+    margin: "0 auto",
+  },
+  heading: {
+    fontSize: 24, // Smaller heading
+    marginBottom: 24,
+    textAlign: "center",
+    fontWeight: 700,
+    color: "#0f172a",
+  },
+  grid: {
+    display: "grid",
+    /* Changed minmax from 300px to 220px to prevent early wrapping */
+    gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
+    gap: 16, // Tighter gap
+    alignItems: "stretch",
+  },
+  card: {
+    border: "1px solid #e2e8f0",
+    borderRadius: 16, // Slightly smaller radius
+    padding: "20px", // Reduced internal padding from 32px
+    background: "#fff",
+    position: "relative",
+    transition: "all 0.3s ease",
+    display: "flex",
+    flexDirection: "column",
+    fontSize: "13px", // Slightly smaller base font
+  },
+  body: {
+    margin: "16px 0", // Tighter margins
+    flexGrow: 1,
+  },
+  item: {
+    display: "flex",
+    justifyContent: "space-between",
+    padding: "10px 0", // Thinner rows
+    borderBottom: "1px solid #f1f5f9",
+  },
+  button: {
+    padding: "12px", // Smaller button
+    borderRadius: 10,
+    border: "none",
+    background: "#2563eb",
+    color: "#fff",
+    cursor: "pointer",
+    fontWeight: 700,
+    fontSize: 14, // Smaller font
+  },
   currentBtn: { background: "#10b981", cursor: "default" },
   disabledBtn: { background: "#94a3b8", cursor: "not-allowed" },
-  successWrapper: { display: "flex", justifyContent: "center", marginBottom: 32 },
-  successBanner: { background: "#f0fdf4", border: "1px solid #bbf7d0", color: "#15803d", padding: "16px 24px", borderRadius: 16, fontWeight: 500 },
-  modalBackdrop: { position: "fixed", inset: 0, background: "rgba(15, 23, 42, 0.7)", backdropFilter: "blur(4px)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000 },
+  successWrapper: {
+    display: "flex",
+    justifyContent: "center",
+    marginBottom: 32,
+  },
+  successBanner: {
+    background: "#f0fdf4",
+    border: "1px solid #bbf7d0",
+    color: "#15803d",
+    padding: "16px 24px",
+    borderRadius: 16,
+    fontWeight: 500,
+  },
+  modalBackdrop: {
+    position: "fixed",
+    inset: 0,
+    background: "rgba(15, 23, 42, 0.7)",
+    backdropFilter: "blur(4px)",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    zIndex: 1000,
+  },
   modal: { background: "#fff", padding: 32, borderRadius: 20, width: 360 },
   modalActions: { display: "flex", gap: 12, marginTop: 24 },
-  cancelBtn: { flex: 1, background: "#f1f5f9", border: "none", padding: "12px", borderRadius: 10, cursor: "pointer", fontWeight: 600 },
-  confirmBtn: { flex: 1, background: "#2563eb", color: "#fff", border: "none", padding: "12px", borderRadius: 10, cursor: "pointer", fontWeight: 600 },
+  cancelBtn: {
+    flex: 1,
+    background: "#f1f5f9",
+    border: "none",
+    padding: "12px",
+    borderRadius: 10,
+    cursor: "pointer",
+    fontWeight: 600,
+  },
+  confirmBtn: {
+    flex: 1,
+    background: "#2563eb",
+    color: "#fff",
+    border: "none",
+    padding: "12px",
+    borderRadius: 10,
+    cursor: "pointer",
+    fontWeight: 600,
+  },
 };
 
 // // import React, { useEffect, useState } from "react";
@@ -380,7 +462,6 @@ const styles = {
 // //   const [showModal, setShowModal] = useState(false);
 // //   const [hoveredPlan, setHoveredPlan] = useState(null);
 // //   const [upgradeSuccess, setUpgradeSuccess] = useState(null);
-
 
 // //   /* Load current plan */
 // //   useEffect(() => {
@@ -490,7 +571,7 @@ const styles = {
 // //               {plan.popular && <div style={styles.popular}>Most Popular</div>}
 
 // //               <h2>{plan.name}</h2>
-              
+
 // //               <div style={styles.body}>
 // //                 <Item label="Monthly price" value={plan.displayPrice} />
 // //                 <Item label="API Credits" value={plan.credits} />
@@ -649,7 +730,6 @@ const styles = {
 // //     boxShadow: "0 6px 18px rgba(16,185,129,0.15)",
 // //   },
 
-
 // //   currentBtn: {
 // //     background: "#e5e7eb",
 // //     color: "#374151",
@@ -716,7 +796,7 @@ const styles = {
 //   },
 //   {
 //     name: "Professional",
-//     role: "PRO", 
+//     role: "PRO",
 //     price: 499,
 //     displayPrice: "₹499",
 //     credits: "5,000 Credits",
@@ -794,7 +874,7 @@ const styles = {
 //           );
 
 //           if (!res.ok) throw new Error("Backend update failed");
-          
+
 //           const data = await res.json();
 //           // Assuming backend returns { planName: "PRO" } or similar
 //           const newPlanRole = data.planName || selectedPlan.role;
@@ -832,7 +912,7 @@ const styles = {
 //   return (
 //     <div style={styles.wrapper}>
 //       <h1 style={styles.heading}>Choose the plan that's right for you</h1>
-      
+
 //       {upgradeSuccess && (
 //         <div style={styles.successWrapper}>
 //           <div style={styles.successBanner}>
@@ -862,7 +942,7 @@ const styles = {
 //               {plan.popular && <div style={styles.popular}>Most Popular</div>}
 
 //               <h2 style={{ marginTop: 10 }}>{plan.name}</h2>
-              
+
 //               <div style={styles.body}>
 //                 <Item label="Monthly price" value={plan.displayPrice} />
 //                 <Item label="API Credits" value={plan.credits} />
