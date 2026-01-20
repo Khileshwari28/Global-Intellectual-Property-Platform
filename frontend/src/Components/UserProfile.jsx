@@ -1,358 +1,461 @@
-import React, { useState } from 'react';
-import { FaPencilAlt, FaTrash, FaUserPlus, FaCheckCircle, FaShieldAlt, FaSave, FaTimes, FaUserEdit, FaLock, FaArrowUp, FaBan } from 'react-icons/fa';
-import '../styles/UserManagement.css'; 
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import {
+  FaSignOutAlt,
+  FaChevronRight,
+  FaHeadset,
+  FaTimes,
+  FaCheckCircle,
+  FaUserShield,
+  FaLock,
+  FaBuilding,
+  FaEdit,
+  FaSave,
+  FaPen,
+} from "react-icons/fa";
 
-/* --- SUBSCRIPTION MODULE PERMISSIONS --- 
-   This defines which plan is allowed to have which features enabled.
-*/
-const PLAN_PERMISSIONS = {
-  BASIC: {
-    apiHealth: false,
-    activityTrends: true,
-    filingMgmt: true,
-    uiCustomization: false,
-    maxUsers: 2
-  },
-  PRO: {
-    apiHealth: true,
-    activityTrends: true,
-    filingMgmt: true,
-    uiCustomization: true,
-    maxUsers: 10
-  },
-  ENTERPRISE: {
-    apiHealth: true,
-    activityTrends: true,
-    filingMgmt: true,
-    uiCustomization: true,
-    maxUsers: 100
-  }
-};
+const UserProfile = () => {
+  const navigate = useNavigate();
+  const [isEditing, setIsEditing] = useState(false);
+  const [showContactForm, setShowContactForm] = useState(false);
+  const [showPassForm, setShowPassForm] = useState(false);
 
-const dummyUsers = [
-  { 
-    id: 1, firstName: 'Manika', lastName: 'Sethi', company: 'Legal IP Solutions', email: 'manika@example.com', role: 'Admin', status: 'Active', plan: 'PRO',
-    modules: { apiHealth: true, activityTrends: true, filingMgmt: true, uiCustomization: true }
-  },
-  { 
-    id: 2, firstName: 'Arjun', lastName: 'Varma', company: 'IP Tech', email: 'arjun@example.com', role: 'Editor', status: 'Active', plan: 'BASIC',
-    modules: { apiHealth: false, activityTrends: true, filingMgmt: false, uiCustomization: false }
-  }
-];
+  const [userData, setUserData] = useState({
+    name: "Manika Sethi",
+    userId: "USR-88219",
+    email: "manika.sethi@legalipsolutions.com",
+    company: "Legal IP Solutions",
+    tier: "Enterprise",
+  });
 
-const UserManagement = () => {
-  const [users, setUsers] = useState(dummyUsers);
-  const [activeUser, setActiveUser] = useState(dummyUsers[0]);
-  const [isEditingProfile, setIsEditingProfile] = useState(false);
-  const [isEditingSubscription, setIsEditingSubscription] = useState(false);
-
-  const [showInviteModal, setShowInviteModal] = useState(false);
-  const [inviteData, setInviteData] = useState({ firstName: '', lastName: '', email: '', role: 'Viewer' });
-  const [formErrors, setFormErrors] = useState({});
-
-  const validateForm = () => {
-    let errors = {};
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-    if (!inviteData.firstName.trim()) errors.firstName = "First name is required";
-    if (!inviteData.lastName.trim()) errors.lastName = "Last name is required";
-    if (!inviteData.email.trim()) {
-      errors.email = "Email is required";
-    } else if (!emailRegex.test(inviteData.email)) {
-      errors.email = "Please enter a valid email address";
-    }
-    
-    if (users.some(u => u.email.toLowerCase() === inviteData.email.toLowerCase())) {
-      errors.email = "A member with this email already exists";
-    }
-
-    setFormErrors(errors);
-    return Object.keys(errors).length === 0;
-  };
-
-  const handleInviteSubmit = (e) => {
-    e.preventDefault();
-
-    // ENFORCE SUBSCRIPTION LIMIT
-    const loggedInUser = JSON.parse(localStorage.getItem("user")) || activeUser;
-    const planLimit = PLAN_PERMISSIONS[loggedInUser.plan]?.maxUsers || 3;
-
-    if (users.length >= planLimit) {
-      alert(`Limit reached! Your ${loggedInUser.plan} plan only allows ${planLimit} members. Please upgrade your plan.`);
-      setShowInviteModal(false);
-      return;
-    }
-    
-    if (validateForm()) {
-      const newUser = {
-        ...inviteData,
-        id: Date.now(),
-        status: 'Active',
-        plan: 'BASIC', // New invites start on Basic
-        company: activeUser?.company || 'My Company', 
-        modules: { apiHealth: false, activityTrends: true, filingMgmt: false, uiCustomization: false }
-      };
-      
-      setUsers([...users, newUser]);
-      setActiveUser(newUser); 
-      setShowInviteModal(false); 
-      setInviteData({ firstName: '', lastName: '', email: '', role: 'Viewer' });
-      setFormErrors({});
-      alert("Invitation sent successfully!");
-    }
-  };
-
-  const handlePromote = () => {
-    const roles = ['Viewer', 'Editor', 'Admin'];
-    const nextRole = roles[(roles.indexOf(activeUser.role) + 1) % roles.length];
-    setActiveUser({ ...activeUser, role: nextRole });
-  };
-
-  const handleToggleStatus = () => {
-    const nextStatus = activeUser.status === 'Active' ? 'Disabled' : 'Active';
-    setActiveUser({ ...activeUser, status: nextStatus });
-  };
-
-  const handleInputChange = (e) => {
+  const handleChange = (e) => {
     const { name, value } = e.target;
-    setActiveUser({ ...activeUser, [name]: value });
-  };
-
-  // ENFORCE MODULE ACCESS BASED ON PLAN
-  const toggleModule = (moduleKey) => {
-    if (!isEditingSubscription) return;
-
-    const isAllowedByPlan = PLAN_PERMISSIONS[activeUser.plan][moduleKey];
-
-    if (!isAllowedByPlan) {
-      alert(`The ${activeUser.plan} plan does not include access to ${moduleKey.replace(/([A-Z])/g, ' $1').toUpperCase()}. Please upgrade this user's plan.`);
-      return;
-    }
-
-    setActiveUser(prev => ({
-      ...prev,
-      modules: { ...prev.modules, [moduleKey]: !prev.modules[moduleKey] }
-    }));
-  };
-  
-  const saveProfile = () => {
-    setUsers(users.map(u => u.id === activeUser.id ? activeUser : u));
-    setIsEditingProfile(false);
-  };
-  
-  const saveSubscription = () => {
-    setUsers(users.map(u => u.id === activeUser.id ? activeUser : u));
-    setIsEditingSubscription(false);
-  };
-
-  const handleDelete = (id) => {
-    if (window.confirm("Are you sure you want to remove this member?")) {
-      const updated = users.filter(user => user.id !== id);
-      setUsers(updated);
-      setActiveUser(updated.length > 0 ? updated[0] : null);
-    }
+    setUserData((prev) => ({ ...prev, [name]: value }));
   };
 
   return (
-    <div className="um-container">
-      {showInviteModal && (
-        <div className="um-modal-overlay">
-          <div className="um-modal-card">
-            <div className="modal-header">
-              <h3>Invite Team Member</h3>
-              <button className="btn-close" onClick={() => setShowInviteModal(false)}><FaTimes /></button>
-            </div>
-            <form onSubmit={handleInviteSubmit} noValidate>
-              <div className="modal-body">
-                <div className="row-group">
-                  <div className="input-group">
-                    <label>First Name</label>
-                    <input 
-                      type="text" 
-                      className={formErrors.firstName ? 'input-error' : ''}
-                      value={inviteData.firstName} 
-                      onChange={(e) => setInviteData({...inviteData, firstName: e.target.value})} 
-                    />
-                    {formErrors.firstName && <span className="error-text">{formErrors.firstName}</span>}
-                  </div>
-                  <div className="input-group">
-                    <label>Last Name</label>
-                    <input 
-                      type="text" 
-                      className={formErrors.lastName ? 'input-error' : ''}
-                      value={inviteData.lastName} 
-                      onChange={(e) => setInviteData({...inviteData, lastName: e.target.value})} 
-                    />
-                    {formErrors.lastName && <span className="error-text">{formErrors.lastName}</span>}
-                  </div>
-                </div>
-                <div className="input-group full-width">
-                  <label>Email Address</label>
-                  <input 
-                    type="email" 
-                    className={formErrors.email ? 'input-error' : ''}
-                    value={inviteData.email} 
-                    onChange={(e) => setInviteData({...inviteData, email: e.target.value})} 
+    <div style={styles.pageContainer}>
+      {/* --- HEADER --- */}
+      <div style={styles.header}>
+        <div style={styles.profileInfo}>
+          <div style={styles.avatar}>{userData.name[0]}</div>
+          <div>
+            <h1 style={styles.userName}>{userData.name}</h1>
+            <p style={styles.userSub}>
+              <FaBuilding size={12} /> {userData.company}
+            </p>
+          </div>
+        </div>
+        <button onClick={() => navigate("/login")} style={styles.logoutBtn}>
+          <FaSignOutAlt /> Logout
+        </button>
+      </div>
+
+      <div style={styles.grid}>
+        {/* LEFT COLUMN */}
+        <div style={styles.leftCol}>
+          {/* SUPPORT & ASSISTANCE (REMOVED HELP CENTER) */}
+          <div style={styles.card}>
+            <h3 style={styles.cardLabel}>
+              <FaHeadset style={{ marginRight: "8px" }} /> SUPPORT & ASSISTANCE
+            </h3>
+            {!showContactForm ? (
+              <>
+                <h2 style={styles.cardTitle}>Need technical help?</h2>
+                <p style={styles.cardText}>
+                  Our IP experts are available 24/7 to assist with your queries.
+                </p>
+                <button
+                  onClick={() => setShowContactForm(true)}
+                  style={styles.primaryBtn}
+                >
+                  <FaUserShield /> Contact Support
+                </button>
+              </>
+            ) : (
+              <div style={styles.formContainer}>
+                <div style={styles.flexBetween}>
+                  <span style={styles.formSmallLabel}>MESSAGE SUPPORT</span>
+                  <FaTimes
+                    onClick={() => setShowContactForm(false)}
+                    style={{ cursor: "pointer", color: "#94a3b8" }}
                   />
-                  {formErrors.email && <span className="error-text">{formErrors.email}</span>}
                 </div>
-                <div className="input-group full-width">
-                  <label>Initial Role</label>
-                  <select value={inviteData.role} onChange={(e) => setInviteData({...inviteData, role: e.target.value})}>
-                    <option value="Viewer">Viewer</option>
-                    <option value="Editor">Editor</option>
-                    <option value="Admin">Admin</option>
-                  </select>
+                <textarea
+                  placeholder="How can we help?"
+                  style={styles.textArea}
+                />
+                <button
+                  onClick={() => setShowContactForm(false)}
+                  style={styles.primaryBtn}
+                >
+                  Send Message
+                </button>
+              </div>
+            )}
+          </div>
+
+          {/* SECURITY */}
+          <div style={styles.card}>
+            <h3 style={styles.cardLabel}>
+              <FaLock style={{ marginRight: "8px" }} /> SECURITY
+            </h3>
+            {!showPassForm ? (
+              <button
+                onClick={() => setShowPassForm(true)}
+                style={styles.passTrigger}
+              >
+                Update Password <FaChevronRight size={10} />
+              </button>
+            ) : (
+              <div style={styles.formContainer}>
+                <label style={styles.miniLabel}>CURRENT PASSWORD</label>
+                <input
+                  type="password"
+                  style={styles.miniInput}
+                  placeholder="••••••••"
+                />
+                <label style={styles.miniLabel}>NEW PASSWORD</label>
+                <input
+                  type="password"
+                  style={styles.miniInput}
+                  placeholder="Enter new password"
+                />
+                <div style={{ display: "flex", gap: "8px", marginTop: "10px" }}>
+                  <button
+                    onClick={() => setShowPassForm(false)}
+                    style={styles.smallSaveBtn}
+                  >
+                    Update
+                  </button>
+                  <button
+                    onClick={() => setShowPassForm(false)}
+                    style={styles.smallCancelBtn}
+                  >
+                    Cancel
+                  </button>
                 </div>
               </div>
-              <div className="modal-footer">
-                <button type="button" className="btn-cancel-small" onClick={() => setShowInviteModal(false)}>Cancel</button>
-                <button type="submit" className="btn-save-small">Send Invitation</button>
-              </div>
-            </form>
+            )}
           </div>
         </div>
-      )}
-      
-      <aside className="um-sidebar">
-        <div className="sidebar-header-container">
-          <div className="sidebar-title-row">
-            <h2>Team</h2>
-            <span className="user-count-badge">{users.length}</span>
-          </div>
-          <button className="btn-invite-new" onClick={() => { setFormErrors({}); setShowInviteModal(true); }}>
-            <FaUserPlus className="me-2" />
-            <span>Add Member</span>
-          </button>
-        </div>
-        
-        <div className="user-list">
-          {users.map((user) => (
-            <div 
-              key={user.id} 
-              className={`user-nav-item ${activeUser?.id === user.id ? 'active' : ''}`} 
-              onClick={() => { setActiveUser(user); setIsEditingProfile(false); setIsEditingSubscription(false); }}
-            >
-              <div className={`nav-avatar ${user.status === 'Disabled' ? 'disabled-avatar' : ''}`}>
-                {user.firstName[0]}
-              </div>
-              <div className="nav-details">
-                <span className="nav-name">{user.firstName} {user.lastName}</span>
-                <span className="nav-role-text">{user.role}</span>
-              </div>
-              {user.status === 'Active' && <div className="active-dot"></div>}
-            </div>
-          ))}
-        </div>
-      </aside>
 
-      <main className="um-content">
-        {activeUser && (
-          <div className="profile-card animate-fade-in">
-            <div className="section-container">
-                <div className="section-header">
-                    <div className="profile-info-group">
-                        <div className={`profile-main-avatar ${activeUser.status === 'Disabled' ? 'disabled-avatar' : ''}`}>
-                          {activeUser.firstName[0]}
-                        </div>
-                        <div>
-                            <h1>{activeUser.firstName}'s Profile</h1>
-                            <p className="subtext text-uppercase fw-bold">{activeUser.role} Level Access • <span style={{color: 'var(--primary)'}}>{activeUser.plan} PLAN</span></p>
-                        </div>
-                    </div>
-                    <div className="header-actions">
-                        {!isEditingProfile ? (
-                            <>
-                                <button className="btn-edit-small" onClick={() => setIsEditingProfile(true)}><FaUserEdit /> Edit</button>
-                                <button className="btn-delete-small" onClick={() => handleDelete(activeUser.id)}><FaTrash /> Remove</button>
-                            </>
-                        ) : (
-                            <div className="btn-group">
-                                <button className="btn-save-small" onClick={saveProfile}><FaSave /> Save Changes</button>
-                                <button className="btn-cancel-small" onClick={() => setIsEditingProfile(false)}><FaTimes /></button>
-                            </div>
-                        )}
-                    </div>
-                </div>
-
-                <div className="profile-grid">
-                    <div className="input-group">
-                        <label>First Name</label>
-                        <input name="firstName" value={activeUser.firstName} onChange={handleInputChange} disabled={!isEditingProfile} className={isEditingProfile ? 'editable' : ''} />
-                    </div>
-                    <div className="input-group">
-                        <label>Last Name</label>
-                        <input name="lastName" value={activeUser.lastName} onChange={handleInputChange} disabled={!isEditingProfile} className={isEditingProfile ? 'editable' : ''} />
-                    </div>
-                    <div className="input-group full-width">
-                        <label>Email Address</label>
-                        <input name="email" value={activeUser.email} onChange={handleInputChange} disabled={!isEditingProfile} className={isEditingProfile ? 'editable' : ''} />
-                    </div>
-
-                    {isEditingProfile && (
-                      <div className="management-actions-row full-width">
-                        <button className="btn-promote" onClick={handlePromote}>
-                          <FaArrowUp /> Promote to {activeUser.role === 'Admin' ? 'Viewer' : activeUser.role === 'Viewer' ? 'Editor' : 'Admin'}
-                        </button>
-                        <button className={`btn-status ${activeUser.status === 'Active' ? 'status-disable' : 'status-enable'}`} onClick={handleToggleStatus}>
-                          {activeUser.status === 'Active' ? <><FaBan /> Disable Account</> : <><FaCheckCircle /> Enable Account</>}
-                        </button>
-                      </div>
-                    )}
-                </div>
+        {/* RIGHT COLUMN */}
+        <div style={styles.rightCol}>
+          {/* REGISTRATION DETAILS */}
+          <div style={styles.card}>
+            <div style={styles.flexBetween}>
+              <h3 style={styles.cardLabel}>REGISTRATION DETAILS</h3>
+              <button
+                onClick={() => setIsEditing(!isEditing)}
+                style={
+                  isEditing ? styles.saveDetailsBtn : styles.editDetailsBtn
+                }
+              >
+                {isEditing ? (
+                  <>
+                    <FaSave /> Save Changes
+                  </>
+                ) : (
+                  <>
+                    <FaEdit /> Update Profile
+                  </>
+                )}
+              </button>
             </div>
 
-            <div className="section-container permission-section-bg">
-                <div className="section-header">
-                    <div>
-                        <h3><FaShieldAlt /> Module Access Control</h3>
-                        <p className="subtext">Based on <strong>{activeUser.plan}</strong> subscription columns</p>
-                    </div>
-                    <div className="header-actions">
-                        {!isEditingSubscription ? (
-                            <button className="btn-edit-small" onClick={() => setIsEditingSubscription(true)}><FaLock /> Edit Permissions</button>
-                        ) : (
-                            <div className="btn-group">
-                                <button className="btn-save-small" onClick={saveSubscription}><FaSave /> Update Access</button>
-                                <button className="btn-cancel-small" onClick={() => setIsEditingSubscription(false)}><FaTimes /></button>
-                            </div>
-                        )}
-                    </div>
+            <div style={styles.infoGrid}>
+              <div style={isEditing ? styles.infoItemEditing : styles.infoItem}>
+                <div style={styles.flexBetween}>
+                  <label style={styles.infoLabel}>FULL NAME</label>
+                  {!isEditing && <FaPen size={10} color="#3b82f6" />}
                 </div>
-                
-                <div className="modules-grid">
-                    {Object.keys(activeUser.modules).map((module) => {
-                        const isDisabledByPlan = !PLAN_PERMISSIONS[activeUser.plan][module];
-                        
-                        return (
-                          <div 
-                            key={module} 
-                            className={`module-card ${activeUser.modules[module] ? 'enabled' : 'disabled'} ${isDisabledByPlan ? 'locked-by-plan' : ''}`}
-                            title={isDisabledByPlan ? "Upgrade plan to unlock this feature" : ""}
-                          >
-                              <span className="module-name">
-                                {module.replace(/([A-Z])/g, ' $1').toUpperCase()}
-                                {isDisabledByPlan && <FaLock style={{marginLeft: '8px', fontSize: '0.7rem', color: '#94a3b8'}} />}
-                              </span>
-                              <label className="switch">
-                                  <input 
-                                    type="checkbox" 
-                                    checked={activeUser.modules[module]} 
-                                    onChange={() => toggleModule(module)} 
-                                    disabled={!isEditingSubscription || isDisabledByPlan} 
-                                  />
-                                  <span className="slider round"></span>
-                              </label>
-                          </div>
-                        );
-                    })}
+                {isEditing ? (
+                  <input
+                    name="name"
+                    value={userData.name}
+                    onChange={handleChange}
+                    style={styles.editInput}
+                  />
+                ) : (
+                  <div style={styles.infoValue}>{userData.name}</div>
+                )}
+              </div>
+
+              <div style={styles.infoItemDisabled}>
+                <label style={styles.infoLabel}>USER ID</label>
+                <div style={styles.infoValue}>{userData.userId}</div>
+              </div>
+
+              <div style={isEditing ? styles.infoItemEditing : styles.infoItem}>
+                <div style={styles.flexBetween}>
+                  <label style={styles.infoLabel}>OFFICIAL EMAIL</label>
+                  {!isEditing && <FaPen size={10} color="#3b82f6" />}
                 </div>
+                {isEditing ? (
+                  <input
+                    name="email"
+                    value={userData.email}
+                    onChange={handleChange}
+                    style={styles.editInput}
+                  />
+                ) : (
+                  <div style={{ ...styles.infoValue, color: "#1e3a8a" }}>
+                    {userData.email}
+                  </div>
+                )}
+              </div>
+
+              <div style={isEditing ? styles.infoItemEditing : styles.infoItem}>
+                <div style={styles.flexBetween}>
+                  <label style={styles.infoLabel}>FIRM NAME</label>
+                  {!isEditing && <FaPen size={10} color="#3b82f6" />}
+                </div>
+                {isEditing ? (
+                  <input
+                    name="company"
+                    value={userData.company}
+                    onChange={handleChange}
+                    style={styles.editInput}
+                  />
+                ) : (
+                  <div style={styles.infoValue}>{userData.company}</div>
+                )}
+              </div>
+
+              <div style={styles.infoItemDisabled}>
+                <label style={styles.infoLabel}>ACCOUNT TIER</label>
+                <div style={styles.infoValue}>
+                  <FaCheckCircle color="#22c55e" /> {userData.tier}
+                </div>
+              </div>
             </div>
           </div>
-        )}
-      </main>
+        </div>
+      </div>
     </div>
   );
 };
 
-export default UserManagement;
+const styles = {
+  pageContainer: {
+    background: "#f4f7fa",
+    minHeight: "100vh",
+    padding: "40px 60px",
+    fontFamily: "Inter, sans-serif",
+  },
+  header: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: "40px",
+  },
+  profileInfo: { display: "flex", alignItems: "center", gap: "15px" },
+  avatar: {
+    width: "55px",
+    height: "55px",
+    background: "#1e3a8a",
+    borderRadius: "12px",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    color: "white",
+    fontSize: "22px",
+    fontWeight: "bold",
+  },
+  userName: {
+    fontSize: "24px",
+    fontWeight: "800",
+    margin: 0,
+    color: "#1e3a8a",
+  },
+  userSub: {
+    fontSize: "14px",
+    color: "#94a3b8",
+    margin: "4px 0 0 0",
+    display: "flex",
+    alignItems: "center",
+    gap: "5px",
+  },
+  logoutBtn: {
+    background: "#fef2f2",
+    color: "#991b1b",
+    border: "none",
+    padding: "10px 20px",
+    borderRadius: "10px",
+    fontWeight: "bold",
+    display: "flex",
+    alignItems: "center",
+    gap: "8px",
+    cursor: "pointer",
+  },
+  grid: { display: "flex", gap: "30px" },
+  leftCol: { flex: "1 1 350px" },
+  rightCol: { flex: "2 1 600px" },
+  card: {
+    background: "white",
+    borderRadius: "24px",
+    padding: "30px",
+    marginBottom: "25px",
+    boxShadow: "0 4px 20px rgba(0,0,0,0.03)",
+  },
+  cardLabel: {
+    fontSize: "10px",
+    fontWeight: "900",
+    color: "#1e3a8a",
+    letterSpacing: "1px",
+    textTransform: "uppercase",
+    display: "flex",
+    alignItems: "center",
+  },
+  cardTitle: { fontSize: "18px", fontWeight: "700", marginBottom: "8px" },
+  cardText: { color: "#64748b", fontSize: "14px", marginBottom: "25px" },
+  editDetailsBtn: {
+    background: "#1e3a8a",
+    color: "white",
+    border: "none",
+    padding: "8px 16px",
+    borderRadius: "10px",
+    fontSize: "12px",
+    fontWeight: "bold",
+    display: "flex",
+    alignItems: "center",
+    gap: "8px",
+    cursor: "pointer",
+  },
+  saveDetailsBtn: {
+    background: "#22c55e",
+    color: "white",
+    border: "none",
+    padding: "8px 16px",
+    borderRadius: "10px",
+    fontSize: "12px",
+    fontWeight: "bold",
+    display: "flex",
+    alignItems: "center",
+    gap: "8px",
+    cursor: "pointer",
+  },
+  primaryBtn: {
+    width: "100%",
+    padding: "14px",
+    background: "#1e3a8a",
+    color: "white",
+    border: "none",
+    borderRadius: "12px",
+    fontWeight: "bold",
+    cursor: "pointer",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: "10px",
+  },
+  infoGrid: {
+    display: "grid",
+    gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
+    gap: "16px",
+    marginTop: "10px",
+  },
+  infoItem: {
+    background: "#f8fafc",
+    padding: "18px",
+    borderRadius: "16px",
+    border: "1px solid #f1f5f9",
+    transition: "0.2s",
+  },
+  infoItemEditing: {
+    background: "#eff6ff",
+    padding: "18px",
+    borderRadius: "16px",
+    border: "1px solid #3b82f6",
+    transition: "0.2s",
+  },
+  infoItemDisabled: {
+    background: "#f1f5f9",
+    padding: "18px",
+    borderRadius: "16px",
+    border: "1px solid #e2e8f0",
+    opacity: 0.7,
+  },
+  infoLabel: {
+    fontSize: "9px",
+    fontWeight: "900",
+    color: "#94a3b8",
+    marginBottom: "8px",
+    display: "block",
+  },
+  infoValue: {
+    fontSize: "14px",
+    fontWeight: "700",
+    color: "#1e293b",
+    display: "flex",
+    alignItems: "center",
+    gap: "8px",
+  },
+  editInput: {
+    width: "100%",
+    padding: "4px 0",
+    border: "none",
+    borderBottom: "2px solid #3b82f6",
+    background: "transparent",
+    outline: "none",
+    fontSize: "14px",
+    fontWeight: "700",
+    color: "#1e3a8a",
+  },
+  passTrigger: {
+    width: "100%",
+    padding: "15px 20px",
+    borderRadius: "14px",
+    border: "1px solid #f1f5f9",
+    textAlign: "left",
+    background: "white",
+    fontWeight: "700",
+    color: "#1e3a8a",
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    cursor: "pointer",
+  },
+  formContainer: { display: "flex", flexDirection: "column", gap: "8px" },
+  miniLabel: { fontSize: "9px", fontWeight: "900", color: "#94a3b8" },
+  miniInput: {
+    padding: "12px",
+    borderRadius: "10px",
+    border: "1px solid #e2e8f0",
+    outline: "none",
+    fontSize: "14px",
+  },
+  smallSaveBtn: {
+    padding: "10px 20px",
+    background: "#1e3a8a",
+    color: "white",
+    border: "none",
+    borderRadius: "8px",
+    fontWeight: "bold",
+    cursor: "pointer",
+  },
+  smallCancelBtn: {
+    background: "none",
+    border: "none",
+    color: "#64748b",
+    fontSize: "12px",
+    cursor: "pointer",
+  },
+  textArea: {
+    padding: "12px",
+    borderRadius: "10px",
+    border: "1px solid #e2e8f0",
+    minHeight: "80px",
+    marginBottom: "10px",
+  },
+  flexBetween: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: "10px",
+  },
+  formSmallLabel: { fontSize: "9px", fontWeight: "900", color: "#1e3a8a" },
+};
+
+export default UserProfile;
