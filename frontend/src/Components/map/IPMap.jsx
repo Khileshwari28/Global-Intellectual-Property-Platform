@@ -2,9 +2,18 @@ import React, { useEffect, useState } from "react";
 import { MapContainer, TileLayer, GeoJSON } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import { ISO3_TO_ISO2 } from "./countryCodeMap";
+import { hasAccess } from "../../utils/permissions";
+
+
 
 const IPMap = ({ onCountrySelect }) => {
   const [countries, setCountries] = useState(null);
+
+  const user = JSON.parse(localStorage.getItem("user"));
+  const plan = user?.plan;
+
+  const canUseMap = hasAccess(plan, "canSeeMaps");
+
 
   // Load world countries GeoJSON
   useEffect(() => {
@@ -29,22 +38,27 @@ const IPMap = ({ onCountrySelect }) => {
   const iso2 = ISO3_TO_ISO2[iso3];   // IN, US, TZ
 
   layer.on({
-    click: () => {
-      if (!iso2) {
-        console.warn("No ISO-2 mapping for:", iso3);
-        return; // ⛔ do not call backend
-      }
+      click: () => {
+        if (!canUseMap) {
+          alert("🔒 Upgrade your plan to access the IP Map");
+          return;
+        }
 
-      console.log("Map clicked:", iso3, "→", iso2);
-      onCountrySelect(iso2);
-    },
-    mouseover: () => {
-      layer.setStyle({ fillColor: "#0d6efd", fillOpacity: 0.4 });
-    },
-    mouseout: () => {
-      layer.setStyle(countryStyle);
-    },
-  });
+        if (!iso2) {
+          console.warn("No ISO-2 mapping for:", iso3);
+          return; // ⛔ do not call backend
+        }
+
+        console.log("Map clicked:", iso3, "→", iso2);
+        onCountrySelect(iso2);
+      },
+      mouseover: () => {
+        layer.setStyle({ fillColor: "#0d6efd", fillOpacity: 0.4 });
+      },
+      mouseout: () => {
+        layer.setStyle(countryStyle);
+      },
+    });
 };
 
   return (

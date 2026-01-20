@@ -1,5 +1,6 @@
 package intern.backend.controller;
 
+import intern.backend.service.NotificationService;
 import org.springframework.web.bind.annotation.PostMapping;
 
 import intern.backend.entity.Subscription;
@@ -14,6 +15,7 @@ public class SubscriptionController {
 
     @Autowired
     private SubscriptionService subscriptionService;
+    
 
     @PostMapping("/upgrade")
     public Subscription upgrade(

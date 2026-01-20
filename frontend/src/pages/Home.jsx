@@ -29,7 +29,10 @@ const Home = () => {
         return <SearchResult />;
 
       case "Filling Tracker":
-        return <FillingTracker />;
+        return (
+        <FillingTracker 
+            setActiveComponent={setActiveComponent}
+         />);
 
       case "Legal Status":
         return (

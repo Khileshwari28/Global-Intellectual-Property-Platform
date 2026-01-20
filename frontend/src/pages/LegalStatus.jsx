@@ -6,6 +6,10 @@ import IPTypeTrendChart from "../Components/charts/IPTypeTrendChart";
 import IPStatusChart from "../Components/charts/IPStatusChart";
 import { VIZ_IDS } from "../Components/charts/vizConfig";
 import KPISummary from "../Components/dashboard/KPISummary";
+import { hasAccess } from "../utils/permissions";
+
+
+
 
 const LegalStatus = ({ userRole, userPlan, setActiveComponent }) => {
   const [expandedId, setExpandedId] = useState(null);
@@ -21,19 +25,27 @@ const LegalStatus = ({ userRole, userPlan, setActiveComponent }) => {
   const [currentPage, setCurrentPage] = useState(1);
 
   /* ✅ NORMALIZE */
-  const role = (userRole || "").toUpperCase();
+  // const role = (userRole || "").toUpperCase();
   const plan = (userPlan || "").toUpperCase();
 
-  /* ✅ FINAL ACCESS RULE (ADMIN OVERRIDE) */
-  const hasAccess =
-    role === "ADMIN" ||
-    (role === "USER" &&
-      (plan === "PROFESSIONAL" || plan === "ENTERPRISE"));
 
 
-  /* 🔌 Fetch data ONLY if access allowed */
+  const [permission, setPermission] = useState([]);
   useEffect(() => {
-    if (!hasAccess) return;
+    if (!plan) return;
+
+    axios
+      .get(`http://localhost:8080/api/permissions/${plan}`)
+      .then(res => setPermission(res.data))
+      .catch(err => console.error("Permission fetch error:", err));
+  }, [plan]);
+
+
+  const canView = hasAccess(plan, "canLegalStatus");
+
+  /* Fetch data only if access allowed */
+  useEffect(() => {
+    if (!canView) return;
 
     axios
       .get("http://localhost:8080/api/ip/legal-status")
@@ -44,7 +56,9 @@ const LegalStatus = ({ userRole, userPlan, setActiveComponent }) => {
       .get("http://localhost:8080/api/ip/legal-status/summary")
       .then(res => setSummary(res.data))
       .catch(console.error);
-  }, [hasAccess]);
+  }, [canView]);
+
+
 
   /* Pagination */
   const indexOfLastItem = currentPage * ITEMS_PER_PAGE;
@@ -83,7 +97,8 @@ const LegalStatus = ({ userRole, userPlan, setActiveComponent }) => {
     <div className="position-relative">
 
       {/* 🔒 RESTRICTED OVERLAY (same design) */}
-      {!hasAccess && (
+      {/* 🔒 Restricted Overlay */}
+      {!canView && (
         <div
           style={{
             position: "absolute",
@@ -98,8 +113,7 @@ const LegalStatus = ({ userRole, userPlan, setActiveComponent }) => {
             textAlign: "center",
           }}
         >
-          <h4>🚀⬆️ Upgrade to Pro or Enterprise to access Legal Status ⚖️</h4>
-
+          <h4>🚀⬆️ Upgrade to access Legal Status ⚖️</h4>
           <button
             className="btn btn-primary mt-3"
             onClick={() => setActiveComponent("Upgrade Plan")}
