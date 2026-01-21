@@ -62,3 +62,20 @@
   background-color: #f8fafc;
   border-top: 1px solid #e3e8ee;
 }
+
+/* ===== PRICING PREVIEW BUTTON FIX ===== */
+
+.landing-pricing .btn-primary,
+.landing-pricing .btn-primary:hover,
+.landing-pricing .btn-primary:focus {
+  color: #ffffff !important;
+}
+
+.landing-pricing .btn-outline-primary {
+  color: #0056b3 !important;
+}
+
+.landing-pricing .btn-outline-primary:hover {
+  color: #ffffff !important;
+}
+

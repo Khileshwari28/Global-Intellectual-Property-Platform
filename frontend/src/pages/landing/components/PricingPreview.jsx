@@ -36,7 +36,7 @@ const plans = [
 
 const PricingPreview = () => {
   return (
-    <section className="py-5">
+    <section className="py-5 landing-pricing">
       <div className="container">
 
         {/* Header */}
