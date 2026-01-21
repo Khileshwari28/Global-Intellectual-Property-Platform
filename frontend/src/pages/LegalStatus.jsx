@@ -9,8 +9,6 @@ import KPISummary from "../Components/dashboard/KPISummary";
 import { hasAccess } from "../utils/permissions";
 
 
-
-
 const LegalStatus = ({ userRole, userPlan, setActiveComponent }) => {
   const [expandedId, setExpandedId] = useState(null);
   const [filings, setFilings] = useState([]);

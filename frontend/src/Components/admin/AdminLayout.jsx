@@ -48,6 +48,7 @@ const AdminLayout = () => {
       <div style={layoutStyles.mainContent}>
         <div style={layoutStyles.pageWrapper}>
           <Outlet />
+          
         </div>
       </div>
     </div>

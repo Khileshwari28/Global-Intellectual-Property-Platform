@@ -266,6 +266,7 @@ export default function Pricing() {
                     ? "Downgraded"
                     : `Select ${plan.name}`}
               </button>
+              
             </div>
           );
         })}

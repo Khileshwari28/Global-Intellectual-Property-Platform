@@ -5,6 +5,7 @@ const AdminNavbar = () => {
     <div className="navbar-top">
       <div className="d-flex align-items-center navbar-container">
 
+
         {/* LEFT */}
         <div className="navbar-left d-flex align-items-center gap-2">
           <h3 className="m-0 fw-bold">Admin Panel</h3>

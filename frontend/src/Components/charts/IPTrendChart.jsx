@@ -39,9 +39,10 @@ const IPTrendChart = () => {
   // 🔐 Get user plan
     const user = JSON.parse(localStorage.getItem("user"));
     const plan = user?.plan;
+    const role = user?.role;
   
     // 🔐 Permission check
-    const canSeeCharts = hasAccess(plan, "canSeeCharts");
+    const canSeeCharts = role === "ADMIN" || hasAccess(plan, "canSeeCharts");
 
 
   // 🔹 fetch available years

@@ -15,7 +15,7 @@ public class SubscriptionController {
 
     @Autowired
     private SubscriptionService subscriptionService;
-    
+
 
     @PostMapping("/upgrade")
     public Subscription upgrade(

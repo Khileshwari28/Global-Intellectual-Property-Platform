@@ -28,9 +28,10 @@ const IPTypeTrendChart = ({ vizId = VIZ_IDS.IP_TYPE_TREND }) => {
   // 🔐 Get user plan
       const user = JSON.parse(localStorage.getItem("user"));
       const plan = user?.plan;
+      const role = user?.role;
     
       // 🔐 Permission check
-      const canSeeCharts = hasAccess(plan, "canSeeCharts");
+      const canSeeCharts = role === "ADMIN" || hasAccess(plan, "canSeeCharts");
   
 
 

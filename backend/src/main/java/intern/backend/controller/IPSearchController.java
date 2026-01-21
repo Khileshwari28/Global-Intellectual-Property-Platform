@@ -5,7 +5,9 @@ import intern.backend.service.IPService;
 import org.springframework.web.bind.annotation.*;
 
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/ip")
@@ -17,6 +19,7 @@ public class IPSearchController {
     public IPSearchController(IPService ipService) {
         this.ipService = ipService;
     }
+
 
     // 🔍 SEARCH API (used by IPSearch form)
     @PostMapping("/search")
@@ -59,6 +62,8 @@ public class IPSearchController {
     public void trackIP(@PathVariable Long id) {
         ipService.trackIP(id);
     }
+
+
 
 
 }

@@ -11,8 +11,9 @@ const IPMap = ({ onCountrySelect }) => {
 
   const user = JSON.parse(localStorage.getItem("user"));
   const plan = user?.plan;
+  const role = user?.role;
 
-  const canUseMap = hasAccess(plan, "canSeeMaps");
+  const canUseMap = role === "ADMIN" || hasAccess(plan, "canSeeMaps");
 
 
   // Load world countries GeoJSON

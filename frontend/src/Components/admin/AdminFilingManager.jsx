@@ -70,18 +70,6 @@ const AdminFilingManager = () => {
                 </span>
               </div>
 
-              {/* <div className="row small text-muted mb-3">
-                <div className="col-md-4">
-                  <strong>Jurisdiction:</strong> {filing.jurisdiction}
-                </div>
-                <div className="col-md-4">
-                  <strong>Created By:</strong> User ID {filing.userId}
-                </div>
-                <div className="col-md-4">
-                  <strong>Created At:</strong> {filing.createdAt}
-                </div>
-              </div> */}
-
               <div className="row small text-muted mb-3">
                 <div className="col-md-3">
                   <strong>User:</strong> {filing.userName}

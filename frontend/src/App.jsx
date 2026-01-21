@@ -28,13 +28,13 @@ function App() {
         <Route path="/" element={<Landing />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
-        <Route path="/pricing" element={<Pricing />} />
+        {/* <Route path="/pricing" element={<Pricing />} /> */}
 
         {/* 👤 User Dashboard (Protected) */}
         <Route
           path="/dashboard"
           element={
-            <ProtectedRoute allowedRoles={["USER", "PROFESSIONAL", "ENTERPRISE"]}>
+            <ProtectedRoute allowedRoles={["USER"]}>
               <Home />
             </ProtectedRoute>
           }
@@ -44,9 +44,9 @@ function App() {
         <Route
           path="/admin"
           element={
-            //<ProtectedRoute allowedRoles={["ADMIN"]}>
+            <ProtectedRoute allowedRoles={["ADMIN"]}>
               <AdminHome />
-            //</ProtectedRoute>
+            </ProtectedRoute>
           }
         />
 
