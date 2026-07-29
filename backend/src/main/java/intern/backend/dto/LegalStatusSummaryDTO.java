@@ -38,4 +38,9 @@ public class LegalStatusSummaryDTO {
         this.riskLevel = riskLevel;
     }
 
+    private long rejectedCount;
+
+    public long getRejectedCount() { return rejectedCount; }
+    public void setRejectedCount(long rejectedCount) { this.rejectedCount = rejectedCount; }
+
 }

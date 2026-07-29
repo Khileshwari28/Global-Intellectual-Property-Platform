@@ -1,39 +1,50 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import { hasAccess } from "../../utils/permissions";
 
-const Navbar = ({ sidebarOpen, setSidebarOpen }) => {
+const Navbar = ({ sidebarOpen, setSidebarOpen, setActiveComponent }) => {
   const navigate = useNavigate();
 
   const user = JSON.parse(localStorage.getItem("user"));
+  const userUniqueId = user?.id;
+  const plan = user?.plan;
+
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
 
-  const notifications = [
-    {
-      id: 1,
-      message: "Patent filing for US2024/567890 approved",
-      time: "2 hours ago",
-      type: "success",
-    },
-    {
-      id: 2,
-      message: "Trademark renewal reminder for TM2022/456789",
-      time: "1 day ago",
-      type: "warning",
-    },
-    {
-      id: 3,
-      message: "New copyright protection added",
-      time: "3 days ago",
-      type: "info",
-    },
-    {
-      id: 4,
-      message: "Legal status update: Case resolved",
-      time: "1 week ago",
-      type: "success",
-    },
-  ];
+  const [notifications, setNotifications] = useState([]);
+  const [loadingNotifs, setLoadingNotifs] = useState(false);
+  const [notifError, setNotifError] = useState(null);
+
+  const canNotify = hasAccess(plan, "canNotify");
+
+  useEffect(() => {
+    if (!userUniqueId || !canNotify) return;
+
+    setLoadingNotifs(true);
+    axios
+      .get(`http://localhost:8080/api/notifications/${userUniqueId}`)
+      .then((res) => {
+        setNotifications(res.data);
+        setNotifError(null);
+      })
+      .catch((err) => {
+        console.error("Notification error:", err);
+        setNotifError("Failed to load notifications");
+      })
+      .finally(() => setLoadingNotifs(false));
+  }, [userUniqueId, canNotify]);
+
+  const getNotifIcon = (type) => {
+    switch (type) {
+      case "success": return "✓";
+      case "warning": return "⚠️";
+      case "danger": return "⛔";
+      case "info": return "ℹ️";
+      default: return "🔔";
+    }
+  };
 
   const toggleProfile = () => {
     setIsProfileOpen(!isProfileOpen);
@@ -41,6 +52,12 @@ const Navbar = ({ sidebarOpen, setSidebarOpen }) => {
 
   const toggleNotifications = () => {
     setIsNotificationsOpen(!isNotificationsOpen);
+  };
+
+  const handleClearAll = () => {
+    setNotifications([]);
+    // optionally: call a backend endpoint here to persist "cleared" state
+    // axios.put(`http://localhost:8080/api/notifications/${userUniqueId}/clear`)
   };
 
   const handleLogout = () => {
@@ -68,42 +85,92 @@ const Navbar = ({ sidebarOpen, setSidebarOpen }) => {
                 title="Notifications"
               >
                 🔔
-                <span className="notification-badge">
-                  {notifications.length}
-                </span>
+                {canNotify && notifications.length > 0 && (
+                  <span className="notification-badge">
+                    {notifications.length}
+                  </span>
+                )}
               </button>
 
               {isNotificationsOpen && (
                 <div className="notifications-dropdown">
                   <div className="notifications-header">
                     <h5>Notifications</h5>
-                    <button className="btn-clear-all">Clear All</button>
+                    {canNotify && notifications.length > 0 && (
+                      <button className="btn-clear-all" onClick={handleClearAll}>
+                        Clear All
+                      </button>
+                    )}
                   </div>
 
-                  <div className="notifications-list">
-                    {notifications.map((notif) => (
-                      <div
-                        key={notif.id}
-                        className={`notification-item type-${notif.type}`}
-                      >
-                        <div className="notif-content">
-                          <p className="notif-message">{notif.message}</p>
-                          <span className="notif-time">{notif.time}</span>
-                        </div>
-                        <span className="notif-icon">
-                          {notif.type === "success" && "✓"}
-                          {notif.type === "warning" && "⚠️"}
-                          {notif.type === "info" && "ℹ️"}
-                        </span>
+                  {!canNotify ? (
+                    <div
+                      className="d-flex justify-content-center align-items-center text-center"
+                      style={{ padding: "24px 16px" }}
+                    >
+                      <div>
+                        <h6 className="mb-1">🔒 Notifications Locked</h6>
+                        <small className="text-muted">
+                          Upgrade your plan to access notifications.
+                        </small>
                       </div>
-                    ))}
-                  </div>
+                    </div>
+                  ) : (
+                    <>
+                      <div className="notifications-list">
+                        {loadingNotifs && (
+                          <p className="text-muted text-center p-3 mb-0">
+                            Loading...
+                          </p>
+                        )}
 
-                  <div className="notifications-footer">
-                    <button className="btn-view-all">
-                      View All Notifications →
-                    </button>
-                  </div>
+                        {!loadingNotifs && notifError && (
+                          <p className="text-danger text-center p-3 mb-0">
+                            {notifError}
+                          </p>
+                        )}
+
+                        {!loadingNotifs && !notifError && notifications.length === 0 && (
+                          <p className="text-muted text-center p-3 mb-0">
+                            No notifications
+                          </p>
+                        )}
+
+                        {!loadingNotifs &&
+                          !notifError &&
+                          notifications.map((notif) => (
+                            <div
+                              key={notif.id}
+                              className={`notification-item type-${notif.type}`}
+                            >
+                              <div className="notif-content">
+                                <p className="notif-message">{notif.message}</p>
+                                <span className="notif-time">
+                                  {new Date(notif.timestamp).toLocaleString()}
+                                </span>
+                              </div>
+                              <span className="notif-icon">
+                                {getNotifIcon(notif.type)}
+                              </span>
+                            </div>
+                          ))}
+                      </div>
+
+                      {notifications.length > 0 && (
+                        <div className="notifications-footer">
+                          <button
+                            className="btn-view-all"
+                            onClick={() => {
+                              setActiveComponent("Notifications");
+                              setIsNotificationsOpen(false);
+                            }}
+                          >
+                            View All Notifications →
+                          </button>
+                        </div>
+                      )}
+                    </>
+                  )}
                 </div>
               )}
             </div>
@@ -146,17 +213,12 @@ const Navbar = ({ sidebarOpen, setSidebarOpen }) => {
                     <button
                       className="dropdown-item"
                       onClick={() => {
-                        navigate("/profile"); // path to your User Profile page
-                        setIsProfileOpen(false); // close the dropdown
+                        setActiveComponent("Profile");
+                        setIsProfileOpen(false);
                       }}
                     >
                       📋 My Profile
                     </button>
-
-                    <button className="dropdown-item">
-                      🔐 Change Password
-                    </button>
-                    <button className="dropdown-item">📞 Support</button>
                   </div>
 
                   <div className="profile-dropdown-divider"></div>

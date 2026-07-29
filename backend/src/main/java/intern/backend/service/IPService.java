@@ -2,7 +2,9 @@ package intern.backend.service;
 
 import intern.backend.dto.*;
 import intern.backend.entity.IPAsset;
+import intern.backend.entity.TrackedAsset;
 import intern.backend.repository.IPAssetRepository;
+import intern.backend.repository.TrackedAssetRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,6 +20,7 @@ public class IPService {
 
     private final IPAssetRepository repository;
     private final NotificationService notificationService;
+    private final TrackedAssetRepository trackedAssetRepository;
     private final RestTemplate restTemplate = new RestTemplate();
 
     @Value("${ip.api.key}")
@@ -28,11 +31,15 @@ public class IPService {
 
     public IPService(
             IPAssetRepository repository,
-            NotificationService notificationService
+            NotificationService notificationService,
+            TrackedAssetRepository trackedAssetRepository
     ) {
         this.repository = repository;
         this.notificationService = notificationService;
+        this.trackedAssetRepository = trackedAssetRepository;
     }
+
+
 
 
     // ================= SEARCH =================
@@ -400,6 +407,51 @@ public class IPService {
     }
 
 
+
+    // track an asset for a specific user
+    @Transactional
+    public void trackAssetForUser(Integer userId, Long assetId) {
+        if (trackedAssetRepository.findByUserIdAndAssetId(userId, assetId).isPresent()) {
+            return; // already tracked, do nothing
+        }
+
+        IPAsset asset = repository.findById(assetId)
+                .orElseThrow(() -> new RuntimeException("IP not found"));
+
+        TrackedAsset tracked = new TrackedAsset();
+        tracked.setUserId(userId);
+        tracked.setAsset(asset);
+        tracked.setTrackedAt(java.time.LocalDateTime.now());
+        trackedAssetRepository.save(tracked);
+    }
+
+    // get only what THIS user tracked
+    public List<LegalStatusDTO> getTrackedAssetsForUser(Integer userId) {
+        List<TrackedAsset> tracked = trackedAssetRepository.findByUserIdOrderByTrackedAtDesc(userId);
+
+        List<LegalStatusDTO> list = new ArrayList<>();
+        for (TrackedAsset t : tracked) {
+            IPAsset ip = t.getAsset();
+
+            LegalStatusDTO dto = new LegalStatusDTO();
+            dto.setId(ip.getId());
+            dto.setName(ip.getTitle());
+            dto.setType(ip.getType());
+            dto.setJurisdiction(ip.getCountry());
+            dto.setDescription(ip.getDescription());
+            dto.setFiledDate(ip.getFilingDate() != null ? ip.getFilingDate().toString() : "N/A");
+            dto.setExpiryDate(ip.getExpiryDate());
+            dto.setFilingNumber(ip.getCountry() + "/" + ip.getId());
+
+            String status = (ip.getGrantDate() != null && !ip.getGrantDate().isBlank())
+                    ? "Registered" : "Pending";
+            dto.setStatus(status);
+            dto.setLegalRisk("Low");
+
+            list.add(dto);
+        }
+        return list;
+    }
 
 
 }

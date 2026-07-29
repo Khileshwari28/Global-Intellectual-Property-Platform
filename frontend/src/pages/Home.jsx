@@ -8,6 +8,7 @@ import Sidebar from "../Components/layout/Sidebar";
 import Dashboard from "../Components/dashboard/Dashboard";
 import SearchResult from "./SearchResult";
 import Pricing from "../Components/Pricing";
+import UserProfile from "../Components/UserProfile";
 
 /* Pages */
 import FillingTracker from "./FillingTracker";
@@ -30,9 +31,9 @@ const Home = () => {
 
       case "Filling Tracker":
         return (
-        <FillingTracker 
+          <FillingTracker
             setActiveComponent={setActiveComponent}
-         />);
+          />);
 
       case "Legal Status":
         return (
@@ -42,6 +43,9 @@ const Home = () => {
             setActiveComponent={setActiveComponent}
           />
         );
+
+      case "Profile":
+        return <UserProfile />;
 
       case "Upgrade Plan":
         return <Pricing />;
@@ -53,7 +57,11 @@ const Home = () => {
 
   return (
     <>
-      <Navbar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
+      <Navbar
+        sidebarOpen={sidebarOpen}
+        setSidebarOpen={setSidebarOpen}
+        setActiveComponent={setActiveComponent}
+      />
 
       <div className="d-flex min-vh-100">
         {/* Sidebar */}

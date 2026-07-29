@@ -11,4 +11,6 @@ public interface UserFilingRepository extends JpaRepository<UserFiling, Long> {
 
     // ADMIN
     List<UserFiling> findAllByOrderByCreatedAtDesc();
+
+    long countByUserIdAndStatusIgnoreCase(Integer userId, String status);
 }

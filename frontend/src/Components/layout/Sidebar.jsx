@@ -18,13 +18,14 @@ const Sidebar = ({ activeComponent, setActiveComponent, userPlan }) => {
     navigate("/login");
   };
 
-  const menuItems = [
-    { name: "Dashboard", icon: "📊" },
-    { name: "Search Result", icon: "🔍" },
-    { name: "Filling Tracker", icon: "📋" },
-    { name: "Legal Status", icon: "⚖️", requiresPro: true },
-    { name: "Upgrade Plan", icon: "🚀" },
-  ];
+const menuItems = [
+  { name: "Dashboard", icon: "📊" },
+  { name: "Search Result", icon: "🔍" },
+  { name: "Filling Tracker", icon: "📋" , requiresPro: true},
+  { name: "Legal Status", icon: "⚖️", requiresPro: true },
+  { name: "Profile", icon: "👤" },
+  { name: "Upgrade Plan", icon: "🚀" },
+];
 
   return (
     <div

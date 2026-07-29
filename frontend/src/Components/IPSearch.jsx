@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import "../styles/IPSearch.css";
+import countryList from "react-select-country-list";
+
 
 const IPSearch = ({ onSearch }) => {
   const [searchType, setSearchType] = useState("Patent");
@@ -7,6 +9,7 @@ const IPSearch = ({ onSearch }) => {
   const [country, setCountry] = useState("");
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
+  const countries = countryList().getData();
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -66,8 +69,12 @@ const IPSearch = ({ onSearch }) => {
                 onChange={(e) => setCountry(e.target.value)}
               >
                 <option value="">All Countries</option>
-                <option value="US">United States</option>
-                <option value="IN">India</option>
+
+                {countries.map((item) => (
+                  <option key={item.value} value={item.value}>
+                    {item.label}
+                  </option>
+                ))}
               </select>
             </div>
 

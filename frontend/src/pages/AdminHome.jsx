@@ -9,7 +9,8 @@ import AdminDashboard from "../Components/admin/AdminDashboard";
 import AdminFilingManager from "../Components/admin/AdminFilingManager";
 import AdminUserManagement from "../Components/admin/AdminUserManagement";
 import SubscriptionManagement from "../Components/admin/AdminSubscriptionManagement";
-import AdminApiHealth from "../Components/admin/AdminApiHealth"; // ✅ FIXED CASE
+import AdminApiHealth from "../Components/admin/AdminApiHealth";
+import AdminProfile from "../Components/admin/AdminProfile";
 
 const AdminHome = () => {
   const [active, setActive] = useState("Dashboard");
@@ -17,7 +18,7 @@ const AdminHome = () => {
   return (
     <>
       {/* TOP NAVBAR */}
-      <AdminNavbar />
+      <AdminNavbar setActiveComponent={setActive} />
 
       <div className="d-flex min-vh-100">
         {/* SIDEBAR */}
@@ -38,8 +39,11 @@ const AdminHome = () => {
           {active === "Users" && <AdminUserManagement />}
 
           {active === "Subscriptions" && <SubscriptionManagement />}
-          
+
           {active === "Filings" && <AdminFilingManager />}
+
+          {/* PROFILE */}
+          {active === "AdminProfile" && <AdminProfile />}
 
         </div>
       </div>

@@ -1,5 +1,6 @@
 package intern.backend.service;
 
+import intern.backend.dto.LegalStatusSummaryDTO;
 import intern.backend.entity.User;
 import intern.backend.entity.UserFiling;
 import intern.backend.repository.UserFilingRepository;
@@ -69,5 +70,43 @@ public class UserFilingService {
                 .orElseThrow(() -> new RuntimeException("Filing not found"));
         filing.setStatus(status);
         repo.save(filing);
+    }
+
+    public LegalStatusSummaryDTO getSummaryForUser(Integer userId) {
+
+        List<UserFiling> filings = repo.findByUserIdOrderByCreatedAtDesc(userId);
+
+        long total = filings.size();
+
+        long activeCount = filings.stream()
+                .filter(f -> f.getStatus() != null)
+                .filter(f -> f.getStatus().equalsIgnoreCase("COMPLETED"))
+                .count();
+
+        long pendingCount = filings.stream()
+                .filter(f -> f.getStatus() != null)
+                .filter(f -> f.getStatus().equalsIgnoreCase("APPROVED")
+                        || f.getStatus().equalsIgnoreCase("GRANTED")
+                        || f.getStatus().equalsIgnoreCase("PENDING")) // see note above
+                .count();
+
+        long rejectedCount = filings.stream()
+                .filter(f -> f.getStatus() != null)
+                .filter(f -> f.getStatus().equalsIgnoreCase("REJECTED")
+                        || f.getStatus().equalsIgnoreCase("REVOKED"))
+                .count();
+
+        LegalStatusSummaryDTO dto = new LegalStatusSummaryDTO();
+        dto.setTotalFilings(total);
+        dto.setActiveCount(activeCount);
+        dto.setPendingCount(pendingCount);
+        dto.setRejectedCount(rejectedCount);
+        dto.setRiskLevel("Low");
+        return dto;
+    }
+
+    public UserFiling getFilingById(Long id) {
+        return repo.findById(id)
+                .orElseThrow(() -> new RuntimeException("Filing not found"));
     }
 }

@@ -1,21 +1,47 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 
-const IPDetailModal = ({ ipId, onClose }) => {
+const IPDetailModal = ({ ipId, source, onClose }) => {
 
   const [ip, setIp] = useState(null);
 
   useEffect(() => {
-    if (ipId) {
-      axios
-        .get(`http://localhost:8080/api/ip/${ipId}`)
-        .then((res) => setIp(res.data))
-        .catch((err) => console.error(err));
-    }
-  }, [ipId]);
+    if (!ipId) return;
+
+    const url = source === "user"
+      ? `http://localhost:8080/api/user-filings/${ipId}`
+      : `http://localhost:8080/api/ip/${ipId}`;
+
+    axios
+      .get(url)
+      .then((res) => {
+        const data = res.data;
+
+        if (source === "user") {
+          // Normalize UserFiling shape into the same fields the JSX expects
+          setIp({
+            title: data.keyword,
+            type: data.assetType,
+            owner: null,               // no equivalent on UserFiling
+            country: data.jurisdiction,
+            issuingAuthority: null,    // no equivalent on UserFiling
+            filingDate: data.createdAt
+              ? new Date(data.createdAt).toLocaleDateString()
+              : null,
+            grantDate: null,           // no equivalent on UserFiling
+            pdfLink: null,             // no equivalent on UserFiling
+            description: data.description,
+            status: data.status,
+          });
+        } else {
+          // IPDetailDTO already matches the JSX field names directly
+          setIp(data);
+        }
+      })
+      .catch((err) => console.error(err));
+  }, [ipId, source]);
 
   if (!ip) return null;
-
   return (
     <>
       {/* Modal */}

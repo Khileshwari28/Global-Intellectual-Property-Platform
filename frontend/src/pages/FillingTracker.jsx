@@ -10,6 +10,7 @@ const FillingTracker = ({ setActiveComponent }) => {
     const [selectedIPId, setSelectedIPId] = useState(null);
     const [showModal, setShowModal] = useState(false);
     const [userFilings, setUserFilings] = useState([]);
+    const [selectedSource, setSelectedSource] = useState(null);
 
     const [showNewFilingModal, setShowNewFilingModal] = useState(false);
     const [newFilingData, setNewFilingData] = useState({
@@ -74,7 +75,12 @@ const FillingTracker = ({ setActiveComponent }) => {
     const indexOfLastItem = currentPage * ITEMS_PER_PAGE;
     const indexOfFirstItem = indexOfLastItem - ITEMS_PER_PAGE;
 
-    const combinedData = [...userFilings, ...trackers];
+    const combinedData = [
+    ...userFilings.map(f => ({ ...f, source: "user" })),
+    ...trackers.map(t => ({ ...t, source: "ip" })),
+];
+
+
     const currentTrackers = combinedData.slice(indexOfFirstItem, indexOfLastItem);
     const totalPages = Math.ceil(combinedData.length / ITEMS_PER_PAGE);
     
@@ -203,9 +209,10 @@ const FillingTracker = ({ setActiveComponent }) => {
                                 <button
                                     className="btn btn-outline-primary btn-sm"
                                     onClick={() => {
-                                        setSelectedIPId(tracker.id);
-                                        setShowModal(true);
-                                    }}
+    setSelectedIPId(tracker.id);
+    setSelectedSource(tracker.source); // new state: useState(null)
+    setShowModal(true);
+}}
                                 >
                                     View Details
                                 </button>
@@ -246,6 +253,7 @@ const FillingTracker = ({ setActiveComponent }) => {
             {showModal && (
                 <IPDetailModal
                     ipId={selectedIPId}
+                    source={selectedSource} // pass the source to the modal
                     onClose={() => setShowModal(false)}
                 />
             )}

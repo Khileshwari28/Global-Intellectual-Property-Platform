@@ -1,461 +1,944 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState } from "react";
+import axios from "axios";
 import {
-  FaSignOutAlt,
-  FaChevronRight,
-  FaHeadset,
-  FaTimes,
-  FaCheckCircle,
-  FaUserShield,
-  FaLock,
+  FaUserCircle,
+  FaEnvelope,
   FaBuilding,
-  FaEdit,
+  FaPhone,
+  FaMapMarkerAlt,
+  FaLock,
+  FaCrown,
   FaSave,
-  FaPen,
+  FaEdit,
+  FaHeadset,
+  FaInfoCircle,
+  FaEye,
+  FaEyeSlash,
+  FaCheckCircle,
+  FaExclamationCircle,
 } from "react-icons/fa";
 
 const UserProfile = () => {
-  const navigate = useNavigate();
-  const [isEditing, setIsEditing] = useState(false);
-  const [showContactForm, setShowContactForm] = useState(false);
-  const [showPassForm, setShowPassForm] = useState(false);
+  const loggedUser = JSON.parse(localStorage.getItem("user"));
 
-  const [userData, setUserData] = useState({
-    name: "Manika Sethi",
-    userId: "USR-88219",
-    email: "manika.sethi@legalipsolutions.com",
-    company: "Legal IP Solutions",
-    tier: "Enterprise",
+  const [editing, setEditing] = useState(false);
+  const [activeTab, setActiveTab] = useState("account"); // account | personal | security | support
+
+  const [profile, setProfile] = useState({
+    username: loggedUser?.username || "No details provided",
+    email: loggedUser?.email || "No details provided",
+    role: loggedUser?.role || "USER",
+    id: loggedUser?.id || "N/A",
+    plan: loggedUser?.plan || "Basic",
+
+    company: "",
+    phone: "",
+    address: "",
+    city: "",
+    state: "",
+    country: "",
   });
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setUserData((prev) => ({ ...prev, [name]: value }));
+  const [passwords, setPasswords] = useState({
+    currentPassword: "",
+    newPassword: "",
+    confirmPassword: "",
+  });
+
+  const [showPassword, setShowPassword] = useState({
+    current: false,
+    new: false,
+    confirm: false,
+  });
+
+  const [message, setMessage] = useState("");
+  const [messageType, setMessageType] = useState(""); // success | error
+
+  const toggleShowPassword = (field) => {
+    setShowPassword((prev) => ({ ...prev, [field]: !prev[field] }));
   };
 
-  return (
-    <div style={styles.pageContainer}>
-      {/* --- HEADER --- */}
-      <div style={styles.header}>
-        <div style={styles.profileInfo}>
-          <div style={styles.avatar}>{userData.name[0]}</div>
-          <div>
-            <h1 style={styles.userName}>{userData.name}</h1>
-            <p style={styles.userSub}>
-              <FaBuilding size={12} /> {userData.company}
-            </p>
-          </div>
-        </div>
-        <button onClick={() => navigate("/login")} style={styles.logoutBtn}>
-          <FaSignOutAlt /> Logout
-        </button>
-      </div>
+  const showMessage = (text, type) => {
+    setMessage(text);
+    setMessageType(type);
+    setTimeout(() => {
+      setMessage("");
+      setMessageType("");
+    }, 3500);
+  };
 
-      <div style={styles.grid}>
-        {/* LEFT COLUMN */}
-        <div style={styles.leftCol}>
-          {/* SUPPORT & ASSISTANCE (REMOVED HELP CENTER) */}
-          <div style={styles.card}>
-            <h3 style={styles.cardLabel}>
-              <FaHeadset style={{ marginRight: "8px" }} /> SUPPORT & ASSISTANCE
-            </h3>
-            {!showContactForm ? (
+  const handleChange = (e) => {
+    setProfile({
+      ...profile,
+      [e.target.name]: e.target.value,
+    });
+  };
+
+  const handlePassword = (e) => {
+    setPasswords({
+      ...passwords,
+      [e.target.name]: e.target.value,
+    });
+  };
+
+  const saveProfile = () => {
+    alert("Profile Updated Successfully");
+    setEditing(false);
+
+    // Later connect backend
+  };
+
+  const updatePassword = () => {
+    if (!passwords.currentPassword || !passwords.newPassword || !passwords.confirmPassword) {
+      showMessage("Please fill in all three password fields", "error");
+      return;
+    }
+
+    if (passwords.newPassword !== passwords.confirmPassword) {
+      showMessage("New password and confirmation do not match", "error");
+      return;
+    }
+
+    // Matches UserController: PUT /api/users/{id}/change-password
+    axios
+      .put(`http://localhost:8080/api/users/${profile.id}/change-password`, {
+        currentPassword: passwords.currentPassword,
+        newPassword: passwords.newPassword,
+      })
+      .then(() => {
+        showMessage("Password updated successfully", "success");
+        setPasswords({ currentPassword: "", newPassword: "", confirmPassword: "" });
+        setShowPassword({ current: false, new: false, confirm: false });
+      })
+      .catch((err) => {
+        // Surfaces the backend's own message when it has one (e.g. "Current password is incorrect"),
+        // otherwise falls back to a sensible default.
+        const backendMessage = err.response?.data?.message;
+        showMessage(backendMessage || "Current password is incorrect", "error");
+      });
+  };
+
+  const [showSupportForm, setShowSupportForm] = useState(false);
+  const [supportQuery, setSupportQuery] = useState({ subject: "", message: "" });
+  const [sendingQuery, setSendingQuery] = useState(false);
+
+  const handleSupportChange = (e) => {
+    setSupportQuery({ ...supportQuery, [e.target.name]: e.target.value });
+  };
+
+  const submitSupportQuery = () => {
+    if (!supportQuery.subject.trim() || !supportQuery.message.trim()) {
+      showMessage("Please fill in both subject and message", "error");
+      return;
+    }
+
+    setSendingQuery(true);
+
+    // NOTE: adjust this URL to match your real support-ticket endpoint.
+    axios
+      .post(`http://localhost:8080/api/users/${profile.id}/support`, {
+        subject: supportQuery.subject,
+        message: supportQuery.message,
+      })
+      .then(() => {
+        showMessage("Your query has been sent to the admin", "success");
+        setSupportQuery({ subject: "", message: "" });
+        setShowSupportForm(false);
+      })
+      .catch((err) => {
+        const backendMessage = err.response?.data?.message;
+        showMessage(backendMessage || "Could not send your query, please try again", "error");
+      })
+      .finally(() => setSendingQuery(false));
+  };
+
+  const tabs = [
+    { key: "account", label: "Account", icon: <FaUserCircle /> },
+    { key: "personal", label: "Personal Info", icon: <FaBuilding /> },
+    { key: "security", label: "Security", icon: <FaLock /> },
+    { key: "support", label: "Support", icon: <FaHeadset /> },
+  ];
+
+  return (
+    <div style={styles.page} className="up-page">
+      <style>{RESPONSIVE_CSS}</style>
+
+      <div style={styles.shell} className="up-shell">
+        {/* HEADER */}
+        <div style={styles.header} className="up-header">
+          <div style={styles.userBox} className="up-userbox">
+            <div style={styles.avatar} className="up-avatar">
+              {profile.username.charAt(0).toUpperCase()}
+            </div>
+
+            <div>
+              <div style={styles.nameRow} className="up-namerow">
+                <h1 style={styles.name} className="up-name">
+                  {profile.username}
+                </h1>
+                <span style={styles.role}>{profile.role}</span>
+                <span style={styles.plan}>
+                  <FaCrown size={11} /> {profile.plan}
+                </span>
+              </div>
+              <p style={styles.email}>
+                <FaEnvelope size={12} /> {profile.email}
+              </p>
+            </div>
+          </div>
+
+          <button style={styles.editBtn} className="up-editbtn" onClick={() => (editing ? saveProfile() : setEditing(true))}>
+            {editing ? (
               <>
-                <h2 style={styles.cardTitle}>Need technical help?</h2>
-                <p style={styles.cardText}>
-                  Our IP experts are available 24/7 to assist with your queries.
-                </p>
-                <button
-                  onClick={() => setShowContactForm(true)}
-                  style={styles.primaryBtn}
-                >
-                  <FaUserShield /> Contact Support
-                </button>
+                <FaSave /> Save
               </>
             ) : (
-              <div style={styles.formContainer}>
-                <div style={styles.flexBetween}>
-                  <span style={styles.formSmallLabel}>MESSAGE SUPPORT</span>
-                  <FaTimes
-                    onClick={() => setShowContactForm(false)}
-                    style={{ cursor: "pointer", color: "#94a3b8" }}
-                  />
-                </div>
-                <textarea
-                  placeholder="How can we help?"
-                  style={styles.textArea}
-                />
-                <button
-                  onClick={() => setShowContactForm(false)}
-                  style={styles.primaryBtn}
-                >
-                  Send Message
-                </button>
-              </div>
+              <>
+                <FaEdit /> Edit Profile
+              </>
             )}
-          </div>
-
-          {/* SECURITY */}
-          <div style={styles.card}>
-            <h3 style={styles.cardLabel}>
-              <FaLock style={{ marginRight: "8px" }} /> SECURITY
-            </h3>
-            {!showPassForm ? (
-              <button
-                onClick={() => setShowPassForm(true)}
-                style={styles.passTrigger}
-              >
-                Update Password <FaChevronRight size={10} />
-              </button>
-            ) : (
-              <div style={styles.formContainer}>
-                <label style={styles.miniLabel}>CURRENT PASSWORD</label>
-                <input
-                  type="password"
-                  style={styles.miniInput}
-                  placeholder="••••••••"
-                />
-                <label style={styles.miniLabel}>NEW PASSWORD</label>
-                <input
-                  type="password"
-                  style={styles.miniInput}
-                  placeholder="Enter new password"
-                />
-                <div style={{ display: "flex", gap: "8px", marginTop: "10px" }}>
-                  <button
-                    onClick={() => setShowPassForm(false)}
-                    style={styles.smallSaveBtn}
-                  >
-                    Update
-                  </button>
-                  <button
-                    onClick={() => setShowPassForm(false)}
-                    style={styles.smallCancelBtn}
-                  >
-                    Cancel
-                  </button>
-                </div>
-              </div>
-            )}
-          </div>
+          </button>
         </div>
 
-        {/* RIGHT COLUMN */}
-        <div style={styles.rightCol}>
-          {/* REGISTRATION DETAILS */}
-          <div style={styles.card}>
-            <div style={styles.flexBetween}>
-              <h3 style={styles.cardLabel}>REGISTRATION DETAILS</h3>
-              <button
-                onClick={() => setIsEditing(!isEditing)}
-                style={
-                  isEditing ? styles.saveDetailsBtn : styles.editDetailsBtn
-                }
-              >
-                {isEditing ? (
-                  <>
-                    <FaSave /> Save Changes
-                  </>
-                ) : (
-                  <>
-                    <FaEdit /> Update Profile
-                  </>
-                )}
+        {/* TABS */}
+        <div style={styles.tabBar} className="up-tabbar">
+          {tabs.map((t) => (
+            <button
+              key={t.key}
+              onClick={() => setActiveTab(t.key)}
+              className="up-tabbtn"
+              style={{
+                ...styles.tabBtn,
+                ...(activeTab === t.key ? styles.tabBtnActive : {}),
+              }}
+            >
+              {t.icon} <span className="up-tablabel">{t.label}</span>
+            </button>
+          ))}
+        </div>
+
+        {/* TAB PANEL */}
+        <div style={styles.panel} className="up-panel">
+          {message && (
+            <div
+              style={{
+                ...styles.banner,
+                ...(messageType === "success" ? styles.bannerSuccess : styles.bannerError),
+              }}
+            >
+              {messageType === "success" ? <FaCheckCircle /> : <FaExclamationCircle />} {message}
+            </div>
+          )}
+
+          {activeTab === "account" && (
+            <div style={styles.twoCol} className="up-twocol">
+              <div>
+                <h2 style={styles.heading} className="up-heading">
+                  <FaUserCircle /> Account Information
+                </h2>
+
+                <div style={styles.infoGrid} className="up-infogrid">
+                  <div style={styles.info} className="up-info">
+                    <label style={styles.label}>User ID</label>
+                    <p style={styles.value} className="up-value">{profile.id}</p>
+                  </div>
+                  <div style={styles.info} className="up-info">
+                    <label style={styles.label}>Role</label>
+                    <p style={styles.value} className="up-value">{profile.role}</p>
+                  </div>
+                  <div style={styles.info} className="up-info">
+                    <label style={styles.label}>Email</label>
+                    <p style={styles.value} className="up-value">{profile.email}</p>
+                  </div>
+                  <div style={styles.info} className="up-info">
+                    <label style={styles.label}>Member Since</label>
+                    <p style={styles.value} className="up-value">July 2026</p>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <h2 style={styles.heading} className="up-heading">
+                  <FaCrown /> Subscription
+                </h2>
+
+                <div style={styles.info} className="up-info">
+                  <label style={styles.label}>Current Plan</label>
+                  <p style={styles.value} className="up-value">{profile.plan}</p>
+                </div>
+
+                <div style={styles.info} className="up-info">
+                  <label style={styles.label}>Status</label>
+                  <p style={{ ...styles.value, color: "#16a34a" }}>Active</p>
+                </div>
+
+                <button style={styles.upgradeBtn}>Upgrade Plan</button>
+              </div>
+            </div>
+          )}
+
+          {activeTab === "personal" && (
+            <div>
+              <h2 style={styles.heading} className="up-heading">
+                <FaBuilding /> Personal Information
+              </h2>
+
+              <div style={styles.formGrid} className="up-formgrid">
+                <div>
+                  <label style={styles.label}>Full Name</label>
+                  {editing ? (
+                    <input
+                      name="username"
+                      value={profile.username}
+                      onChange={handleChange}
+                      style={styles.input}
+                      className="up-input"
+                    />
+                  ) : (
+                    <p style={styles.value} className="up-value">{profile.username}</p>
+                  )}
+                </div>
+
+                <div>
+                  <label style={styles.label}>Company</label>
+                  {editing ? (
+                    <input
+                      name="company"
+                      value={profile.company}
+                      onChange={handleChange}
+                      placeholder="No details provided"
+                      style={styles.input}
+                      className="up-input"
+                    />
+                  ) : (
+                    <p style={styles.value} className="up-value">{profile.company || "No details provided"}</p>
+                  )}
+                </div>
+
+                <div>
+                  <label style={styles.label}>
+                    <FaPhone size={11} /> Phone
+                  </label>
+                  {editing ? (
+                    <input
+                      name="phone"
+                      value={profile.phone}
+                      onChange={handleChange}
+                      placeholder="No details provided"
+                      style={styles.input}
+                      className="up-input"
+                    />
+                  ) : (
+                    <p style={styles.value} className="up-value">{profile.phone || "No details provided"}</p>
+                  )}
+                </div>
+
+                <div>
+                  <label style={styles.label}>
+                    <FaMapMarkerAlt size={11} /> Address
+                  </label>
+                  {editing ? (
+                    <input
+                      name="address"
+                      value={profile.address}
+                      onChange={handleChange}
+                      placeholder="No details provided"
+                      style={styles.input}
+                      className="up-input"
+                    />
+                  ) : (
+                    <p style={styles.value} className="up-value">{profile.address || "No details provided"}</p>
+                  )}
+                </div>
+
+                <div>
+                  <label style={styles.label}>City</label>
+                  {editing ? (
+                    <input
+                      name="city"
+                      value={profile.city}
+                      onChange={handleChange}
+                      placeholder="No details provided"
+                      style={styles.input}
+                      className="up-input"
+                    />
+                  ) : (
+                    <p style={styles.value} className="up-value">{profile.city || "No details provided"}</p>
+                  )}
+                </div>
+
+                <div>
+                  <label style={styles.label}>State</label>
+                  {editing ? (
+                    <input
+                      name="state"
+                      value={profile.state}
+                      onChange={handleChange}
+                      placeholder="No details provided"
+                      style={styles.input}
+                      className="up-input"
+                    />
+                  ) : (
+                    <p style={styles.value} className="up-value">{profile.state || "No details provided"}</p>
+                  )}
+                </div>
+
+                <div>
+                  <label style={styles.label}>Country</label>
+                  {editing ? (
+                    <input
+                      name="country"
+                      value={profile.country}
+                      onChange={handleChange}
+                      placeholder="No details provided"
+                      style={styles.input}
+                      className="up-input"
+                    />
+                  ) : (
+                    <p style={styles.value} className="up-value">{profile.country || "No details provided"}</p>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {activeTab === "security" && (
+            <div>
+              <h2 style={styles.heading} className="up-heading">
+                <FaLock /> Change Password
+              </h2>
+
+              <div style={styles.passwordGrid} className="up-passwordgrid">
+                <div style={styles.inputWrapper}>
+                  <input
+                    type={showPassword.current ? "text" : "password"}
+                    placeholder="Current Password"
+                    name="currentPassword"
+                    value={passwords.currentPassword}
+                    onChange={handlePassword}
+                    style={{ ...styles.input, paddingRight: "40px" }}
+                    className="up-input"
+                  />
+                  <button
+                    type="button"
+                    style={styles.eyeBtn}
+                    onClick={() => toggleShowPassword("current")}
+                    aria-label={showPassword.current ? "Hide password" : "Show password"}
+                  >
+                    {showPassword.current ? <FaEyeSlash /> : <FaEye />}
+                  </button>
+                </div>
+
+                <div style={styles.inputWrapper}>
+                  <input
+                    type={showPassword.new ? "text" : "password"}
+                    placeholder="New Password"
+                    name="newPassword"
+                    value={passwords.newPassword}
+                    onChange={handlePassword}
+                    style={{ ...styles.input, paddingRight: "40px" }}
+                    className="up-input"
+                  />
+                  <button
+                    type="button"
+                    style={styles.eyeBtn}
+                    onClick={() => toggleShowPassword("new")}
+                    aria-label={showPassword.new ? "Hide password" : "Show password"}
+                  >
+                    {showPassword.new ? <FaEyeSlash /> : <FaEye />}
+                  </button>
+                </div>
+
+                <div style={styles.inputWrapper}>
+                  <input
+                    type={showPassword.confirm ? "text" : "password"}
+                    placeholder="Confirm Password"
+                    name="confirmPassword"
+                    value={passwords.confirmPassword}
+                    onChange={handlePassword}
+                    style={{ ...styles.input, paddingRight: "40px" }}
+                    className="up-input"
+                  />
+                  <button
+                    type="button"
+                    style={styles.eyeBtn}
+                    onClick={() => toggleShowPassword("confirm")}
+                    aria-label={showPassword.confirm ? "Hide password" : "Show password"}
+                  >
+                    {showPassword.confirm ? <FaEyeSlash /> : <FaEye />}
+                  </button>
+                </div>
+              </div>
+
+              <button style={styles.passwordBtn} onClick={updatePassword}>
+                Update Password
               </button>
             </div>
+          )}
 
-            <div style={styles.infoGrid}>
-              <div style={isEditing ? styles.infoItemEditing : styles.infoItem}>
-                <div style={styles.flexBetween}>
-                  <label style={styles.infoLabel}>FULL NAME</label>
-                  {!isEditing && <FaPen size={10} color="#3b82f6" />}
+          {activeTab === "support" && (
+            <div>
+              <div style={styles.supportRow} className="up-supportrow">
+                <div>
+                  <h2 style={styles.heading} className="up-heading">
+                    <FaHeadset /> Support
+                  </h2>
+                  <p style={{ ...styles.value, color: "#64748b" }}>
+                    <FaInfoCircle size={12} /> Need help regarding your Intellectual Property account?
+                  </p>
                 </div>
-                {isEditing ? (
-                  <input
-                    name="name"
-                    value={userData.name}
-                    onChange={handleChange}
-                    style={styles.editInput}
-                  />
-                ) : (
-                  <div style={styles.infoValue}>{userData.name}</div>
+                {!showSupportForm && (
+                  <button style={styles.supportBtn} onClick={() => setShowSupportForm(true)}>
+                    Contact Support
+                  </button>
                 )}
               </div>
 
-              <div style={styles.infoItemDisabled}>
-                <label style={styles.infoLabel}>USER ID</label>
-                <div style={styles.infoValue}>{userData.userId}</div>
-              </div>
-
-              <div style={isEditing ? styles.infoItemEditing : styles.infoItem}>
-                <div style={styles.flexBetween}>
-                  <label style={styles.infoLabel}>OFFICIAL EMAIL</label>
-                  {!isEditing && <FaPen size={10} color="#3b82f6" />}
-                </div>
-                {isEditing ? (
-                  <input
-                    name="email"
-                    value={userData.email}
-                    onChange={handleChange}
-                    style={styles.editInput}
-                  />
-                ) : (
-                  <div style={{ ...styles.infoValue, color: "#1e3a8a" }}>
-                    {userData.email}
+              {showSupportForm && (
+                <div style={styles.supportForm}>
+                  <div style={{ marginBottom: "14px" }}>
+                    <label style={styles.label}>Subject</label>
+                    <input
+                      name="subject"
+                      value={supportQuery.subject}
+                      onChange={handleSupportChange}
+                      placeholder="Briefly describe your issue"
+                      style={styles.input}
+                      className="up-input"
+                    />
                   </div>
-                )}
-              </div>
 
-              <div style={isEditing ? styles.infoItemEditing : styles.infoItem}>
-                <div style={styles.flexBetween}>
-                  <label style={styles.infoLabel}>FIRM NAME</label>
-                  {!isEditing && <FaPen size={10} color="#3b82f6" />}
-                </div>
-                {isEditing ? (
-                  <input
-                    name="company"
-                    value={userData.company}
-                    onChange={handleChange}
-                    style={styles.editInput}
-                  />
-                ) : (
-                  <div style={styles.infoValue}>{userData.company}</div>
-                )}
-              </div>
+                  <div style={{ marginBottom: "16px" }}>
+                    <label style={styles.label}>Message</label>
+                    <textarea
+                      name="message"
+                      value={supportQuery.message}
+                      onChange={handleSupportChange}
+                      placeholder="Explain your query in detail so the admin can help you faster"
+                      style={styles.textarea}
+                      className="up-input"
+                      rows={5}
+                    />
+                  </div>
 
-              <div style={styles.infoItemDisabled}>
-                <label style={styles.infoLabel}>ACCOUNT TIER</label>
-                <div style={styles.infoValue}>
-                  <FaCheckCircle color="#22c55e" /> {userData.tier}
+                  <div style={{ display: "flex", gap: "10px" }}>
+                    <button style={styles.supportBtn} onClick={submitSupportQuery} disabled={sendingQuery}>
+                      {sendingQuery ? "Sending..." : "Send Query"}
+                    </button>
+                    <button
+                      style={styles.cancelBtn}
+                      onClick={() => {
+                        setShowSupportForm(false);
+                        setSupportQuery({ subject: "", message: "" });
+                      }}
+                    >
+                      Cancel
+                    </button>
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
-          </div>
+          )}
         </div>
       </div>
     </div>
   );
 };
 
+const RESPONSIVE_CSS = `
+  .up-tabbar { -webkit-overflow-scrolling: touch; }
+  .up-tabbar::-webkit-scrollbar { display: none; }
+
+  /* Tablet */
+  @media (max-width: 900px) {
+    .up-page { padding: 14px !important; }
+    .up-header { padding: 14px 18px !important; }
+    .up-avatar { width: 54px !important; height: 54px !important; font-size: 22px !important; }
+    .up-name { font-size: 18px !important; }
+    .up-panel { padding: 18px !important; }
+    .up-twocol { gap: 20px !important; }
+    .up-formgrid { grid-template-columns: repeat(2, 1fr) !important; }
+    .up-passwordgrid { grid-template-columns: repeat(2, 1fr) !important; }
+  }
+
+  /* Mobile landscape / small tablet — still no page scroll, just tighter */
+  @media (max-width: 700px) {
+    .up-page { padding: 10px !important; }
+    .up-header { flex-direction: column; align-items: flex-start !important; padding: 12px 16px !important; gap: 10px !important; }
+    .up-editbtn { width: 100%; justify-content: center; padding: 8px 14px !important; }
+    .up-tabbar { overflow-x: auto; flex-wrap: nowrap !important; }
+    .up-tabbtn { flex: 0 0 auto !important; padding: 8px 12px !important; font-size: 13px !important; }
+    .up-panel { padding: 14px !important; }
+    .up-heading { margin-bottom: 10px !important; font-size: 14px !important; }
+    .up-twocol { grid-template-columns: 1fr !important; gap: 14px !important; }
+    .up-infogrid { grid-template-columns: 1fr 1fr !important; gap: 10px !important; }
+    .up-info { margin-bottom: 8px !important; }
+    .up-formgrid { grid-template-columns: 1fr 1fr !important; gap: 10px !important; }
+    .up-passwordgrid { grid-template-columns: 1fr !important; gap: 8px !important; margin-bottom: 10px !important; }
+    .up-supportrow { flex-direction: column; align-items: flex-start !important; gap: 10px !important; }
+    .up-value { font-size: 13px !important; }
+    .up-input { padding: 8px 10px !important; font-size: 13px !important; }
+  }
+
+  /* Small phone */
+  @media (max-width: 460px) {
+    .up-userbox { gap: 10px !important; }
+    .up-avatar { width: 44px !important; height: 44px !important; font-size: 18px !important; }
+    .up-name { font-size: 16px !important; }
+    .up-namerow { gap: 6px !important; }
+    .up-infogrid { grid-template-columns: 1fr !important; }
+    .up-formgrid { grid-template-columns: 1fr !important; }
+    .up-tablabel { display: none; }
+    .up-tabbtn { padding: 8px !important; }
+  }
+`;
+
 const styles = {
-  pageContainer: {
-    background: "#f4f7fa",
-    minHeight: "100vh",
-    padding: "40px 60px",
-    fontFamily: "Inter, sans-serif",
+  page: {
+    padding: "20px",
+    paddingTop: "28px",
+    background: "#f5f7fb",
+    height: "100vh",
+    width: "100%",
+    fontFamily: "Arial",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "flex-start",
+    overflow: "hidden",
+    boxSizing: "border-box",
   },
+
+  shell: {
+    width: "100%",
+    maxWidth: "1100px",
+    height: "100%",
+    display: "flex",
+    flexDirection: "column",
+  },
+
   header: {
     display: "flex",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: "40px",
+    marginBottom: "14px",
+    background: "#fff",
+    borderRadius: "10px",
+    padding: "16px 22px",
+    boxShadow: "0 2px 10px rgba(0,0,0,.05)",
+    border: "1px solid #eef0f4",
+    flexWrap: "wrap",
+    gap: "14px",
+    flexShrink: 0,
   },
-  profileInfo: { display: "flex", alignItems: "center", gap: "15px" },
+
+  userBox: {
+    display: "flex",
+    gap: "18px",
+    alignItems: "center",
+  },
+
   avatar: {
-    width: "55px",
-    height: "55px",
-    background: "#1e3a8a",
-    borderRadius: "12px",
+    width: "64px",
+    height: "64px",
+    borderRadius: "10px",
+    background: "#1e40af",
+    color: "#fff",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    fontSize: "26px",
+    fontWeight: "bold",
+    flexShrink: 0,
+  },
+
+  nameRow: {
+    display: "flex",
+    alignItems: "center",
+    gap: "10px",
+    flexWrap: "wrap",
+  },
+
+  name: {
+    margin: 0,
+    color: "#1e3a8a",
+    fontSize: "21px",
+  },
+
+  email: {
+    color: "#666",
+    margin: "6px 0 0",
+    fontSize: "13.5px",
+    display: "flex",
+    alignItems: "center",
+    gap: "6px",
+  },
+
+  role: {
+    background: "#e0ecff",
+    color: "#1e40af",
+    padding: "4px 10px",
+    borderRadius: "6px",
+    fontSize: "12px",
+    fontWeight: "bold",
+  },
+
+  plan: {
+    background: "#fef3c7",
+    color: "#92400e",
+    padding: "4px 10px",
+    borderRadius: "6px",
+    fontSize: "12px",
+    fontWeight: "bold",
+    display: "inline-flex",
+    alignItems: "center",
+    gap: "6px",
+  },
+
+  editBtn: {
+    background: "#1e40af",
+    color: "#fff",
+    border: "none",
+    padding: "10px 20px",
+    borderRadius: "8px",
+    cursor: "pointer",
+    display: "flex",
+    gap: "8px",
+    alignItems: "center",
+    fontWeight: "bold",
+    fontSize: "14px",
+  },
+
+  tabBar: {
+    display: "flex",
+    gap: "6px",
+    background: "#fff",
+    borderRadius: "10px",
+    padding: "6px",
+    marginBottom: "14px",
+    boxShadow: "0 2px 10px rgba(0,0,0,.04)",
+    border: "1px solid #eef0f4",
+    flexWrap: "wrap",
+    flexShrink: 0,
+  },
+
+  tabBtn: {
+    flex: "1 1 auto",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    color: "white",
-    fontSize: "22px",
-    fontWeight: "bold",
-  },
-  userName: {
-    fontSize: "24px",
-    fontWeight: "800",
-    margin: 0,
-    color: "#1e3a8a",
-  },
-  userSub: {
+    gap: "8px",
+    border: "none",
+    background: "transparent",
+    color: "#64748b",
+    padding: "10px 16px",
+    borderRadius: "7px",
+    fontWeight: "600",
     fontSize: "14px",
+    cursor: "pointer",
+    whiteSpace: "nowrap",
+  },
+
+  tabBtnActive: {
+    background: "#1e40af",
+    color: "#fff",
+  },
+
+  panel: {
+    background: "#fff",
+    borderRadius: "10px",
+    padding: "24px 28px",
+    boxShadow: "0 2px 10px rgba(0,0,0,.05)",
+    border: "1px solid #eef0f4",
+    maxHeight: "calc(100vh - 190px)",
+    overflowY: "auto",
+  },
+
+  heading: {
+    color: "#1e40af",
+    marginBottom: "18px",
+    marginTop: 0,
+    display: "flex",
+    gap: "10px",
+    alignItems: "center",
+    fontSize: "16px",
+  },
+
+  twoCol: {
+    display: "grid",
+    gridTemplateColumns: "1fr 1fr",
+    gap: "30px",
+  },
+
+  infoGrid: {
+    display: "grid",
+    gridTemplateColumns: "1fr 1fr",
+    gap: "16px",
+  },
+
+  info: {
+    marginBottom: "14px",
+  },
+
+  label: {
+    fontSize: "12px",
     color: "#94a3b8",
-    margin: "4px 0 0 0",
+    fontWeight: "600",
     display: "flex",
     alignItems: "center",
     gap: "5px",
+    marginBottom: "4px",
   },
-  logoutBtn: {
-    background: "#fef2f2",
-    color: "#991b1b",
-    border: "none",
-    padding: "10px 20px",
-    borderRadius: "10px",
-    fontWeight: "bold",
+
+  value: {
+    margin: 0,
+    fontSize: "14.5px",
+    color: "#1e293b",
+    fontWeight: "500",
     display: "flex",
     alignItems: "center",
-    gap: "8px",
-    cursor: "pointer",
+    gap: "6px",
   },
-  grid: { display: "flex", gap: "30px" },
-  leftCol: { flex: "1 1 350px" },
-  rightCol: { flex: "2 1 600px" },
-  card: {
-    background: "white",
-    borderRadius: "24px",
-    padding: "30px",
-    marginBottom: "25px",
-    boxShadow: "0 4px 20px rgba(0,0,0,0.03)",
+
+  formGrid: {
+    display: "grid",
+    gridTemplateColumns: "repeat(3,1fr)",
+    gap: "16px",
   },
-  cardLabel: {
-    fontSize: "10px",
-    fontWeight: "900",
-    color: "#1e3a8a",
-    letterSpacing: "1px",
-    textTransform: "uppercase",
-    display: "flex",
-    alignItems: "center",
-  },
-  cardTitle: { fontSize: "18px", fontWeight: "700", marginBottom: "8px" },
-  cardText: { color: "#64748b", fontSize: "14px", marginBottom: "25px" },
-  editDetailsBtn: {
-    background: "#1e3a8a",
-    color: "white",
-    border: "none",
-    padding: "8px 16px",
-    borderRadius: "10px",
-    fontSize: "12px",
-    fontWeight: "bold",
-    display: "flex",
-    alignItems: "center",
-    gap: "8px",
-    cursor: "pointer",
-  },
-  saveDetailsBtn: {
-    background: "#22c55e",
-    color: "white",
-    border: "none",
-    padding: "8px 16px",
-    borderRadius: "10px",
-    fontSize: "12px",
-    fontWeight: "bold",
-    display: "flex",
-    alignItems: "center",
-    gap: "8px",
-    cursor: "pointer",
-  },
-  primaryBtn: {
+
+  input: {
     width: "100%",
-    padding: "14px",
-    background: "#1e3a8a",
-    color: "white",
+    padding: "10px 12px",
+    borderRadius: "7px",
+    border: "1px solid #ddd",
+    marginTop: "6px",
+    fontSize: "14px",
+    boxSizing: "border-box",
+  },
+
+  inputWrapper: {
+    position: "relative",
+    display: "flex",
+    alignItems: "center",
+  },
+
+  eyeBtn: {
+    position: "absolute",
+    right: "10px",
+    top: "calc(50% + 3px)",
+    transform: "translateY(-50%)",
+    background: "transparent",
     border: "none",
-    borderRadius: "12px",
-    fontWeight: "bold",
+    color: "#94a3b8",
     cursor: "pointer",
+    padding: "4px",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    gap: "10px",
-  },
-  infoGrid: {
-    display: "grid",
-    gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
-    gap: "16px",
-    marginTop: "10px",
-  },
-  infoItem: {
-    background: "#f8fafc",
-    padding: "18px",
-    borderRadius: "16px",
-    border: "1px solid #f1f5f9",
-    transition: "0.2s",
-  },
-  infoItemEditing: {
-    background: "#eff6ff",
-    padding: "18px",
-    borderRadius: "16px",
-    border: "1px solid #3b82f6",
-    transition: "0.2s",
-  },
-  infoItemDisabled: {
-    background: "#f1f5f9",
-    padding: "18px",
-    borderRadius: "16px",
-    border: "1px solid #e2e8f0",
-    opacity: 0.7,
-  },
-  infoLabel: {
-    fontSize: "9px",
-    fontWeight: "900",
-    color: "#94a3b8",
-    marginBottom: "8px",
-    display: "block",
-  },
-  infoValue: {
     fontSize: "14px",
-    fontWeight: "700",
-    color: "#1e293b",
+  },
+
+  banner: {
     display: "flex",
     alignItems: "center",
     gap: "8px",
+    padding: "10px 14px",
+    borderRadius: "7px",
+    fontSize: "13.5px",
+    fontWeight: "600",
+    marginBottom: "16px",
   },
-  editInput: {
-    width: "100%",
-    padding: "4px 0",
+
+  bannerSuccess: {
+    background: "#dcfce7",
+    color: "#166534",
+    border: "1px solid #bbf7d0",
+  },
+
+  bannerError: {
+    background: "#fee2e2",
+    color: "#991b1b",
+    border: "1px solid #fecaca",
+  },
+
+  upgradeBtn: {
+    marginTop: "8px",
+    background: "#f59e0b",
+    color: "#fff",
     border: "none",
-    borderBottom: "2px solid #3b82f6",
-    background: "transparent",
-    outline: "none",
-    fontSize: "14px",
-    fontWeight: "700",
-    color: "#1e3a8a",
-  },
-  passTrigger: {
-    width: "100%",
-    padding: "15px 20px",
-    borderRadius: "14px",
-    border: "1px solid #f1f5f9",
-    textAlign: "left",
-    background: "white",
-    fontWeight: "700",
-    color: "#1e3a8a",
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
+    padding: "11px",
+    borderRadius: "7px",
     cursor: "pointer",
-  },
-  formContainer: { display: "flex", flexDirection: "column", gap: "8px" },
-  miniLabel: { fontSize: "9px", fontWeight: "900", color: "#94a3b8" },
-  miniInput: {
-    padding: "12px",
-    borderRadius: "10px",
-    border: "1px solid #e2e8f0",
-    outline: "none",
-    fontSize: "14px",
-  },
-  smallSaveBtn: {
-    padding: "10px 20px",
-    background: "#1e3a8a",
-    color: "white",
-    border: "none",
-    borderRadius: "8px",
+    width: "100%",
     fontWeight: "bold",
-    cursor: "pointer",
+    fontSize: "14px",
   },
-  smallCancelBtn: {
-    background: "none",
+
+  passwordGrid: {
+    display: "grid",
+    gridTemplateColumns: "repeat(3,1fr)",
+    gap: "14px",
+    marginBottom: "18px",
+  },
+
+  passwordBtn: {
+    background: "#1e40af",
+    color: "#fff",
     border: "none",
-    color: "#64748b",
-    fontSize: "12px",
+    padding: "12px 20px",
+    borderRadius: "7px",
     cursor: "pointer",
+    fontWeight: "bold",
+    fontSize: "14px",
   },
-  textArea: {
-    padding: "12px",
-    borderRadius: "10px",
-    border: "1px solid #e2e8f0",
-    minHeight: "80px",
-    marginBottom: "10px",
-  },
-  flexBetween: {
+
+  supportRow: {
     display: "flex",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: "10px",
+    flexWrap: "wrap",
+    gap: "14px",
   },
-  formSmallLabel: { fontSize: "9px", fontWeight: "900", color: "#1e3a8a" },
+
+  supportForm: {
+    marginTop: "20px",
+    paddingTop: "20px",
+    borderTop: "1px solid #eef0f4",
+  },
+
+  textarea: {
+    width: "100%",
+    padding: "10px 12px",
+    borderRadius: "7px",
+    border: "1px solid #ddd",
+    marginTop: "6px",
+    fontSize: "14px",
+    fontFamily: "Arial",
+    resize: "vertical",
+    boxSizing: "border-box",
+  },
+
+  cancelBtn: {
+    background: "#f1f5f9",
+    color: "#334155",
+    border: "1px solid #e2e8f0",
+    padding: "12px 22px",
+    borderRadius: "7px",
+    cursor: "pointer",
+    fontWeight: "bold",
+    fontSize: "14px",
+  },
+
+  supportBtn: {
+    background: "#22c55e",
+    color: "#fff",
+    border: "none",
+    padding: "12px 22px",
+    borderRadius: "7px",
+    cursor: "pointer",
+    fontWeight: "bold",
+    fontSize: "14px",
+    whiteSpace: "nowrap",
+  },
 };
 
 export default UserProfile;

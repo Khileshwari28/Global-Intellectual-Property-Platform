@@ -12,39 +12,43 @@ export default function LoginForm() {
   };
   
   const handleSubmit = async (e) => {
-    e.preventDefault();
+  e.preventDefault();
 
-    try {
-      const response = await fetch("http://localhost:8080/api/users/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
-      });
+  try {
+    const response = await fetch("http://localhost:8080/api/users/login", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(formData),
+    });
 
-      if (response.status === 200) {
-        const user = await response.json();
-
-        // ❌ USER trying to login as ADMIN
-        if (loginRole === "ADMIN" && user.role !== "ADMIN") {
-          setError("You are not admin");
-          return;
-        }
-
-        // ✅ ADMIN or USER → dashboard
-        localStorage.setItem("user", JSON.stringify(user));
-
-        if (loginRole === "ADMIN") {
-          window.location.href = "/admin";
-          return;
-        }
-        window.location.href = "/dashboard";
-      } else if (response.status === 401) {
-        setError("Invalid email or password");
-      }
-    } catch (err) {
-      console.error(err);
-      setError("Server error");
+    // Wrong credentials
+    if (!response.ok) {
+      const data = await response.json();
+      setError(data.message);
+      return;
     }
+
+    // Successful login
+    const user = await response.json();
+
+    if (loginRole === "ADMIN" && user.role !== "ADMIN") {
+      setError("You are not admin");
+      return;
+    }
+
+    localStorage.setItem("user", JSON.stringify(user));
+
+    if (loginRole === "ADMIN") {
+      window.location.href = "/admin";
+    } else {
+      window.location.href = "/dashboard";
+    }
+  } catch (err) {
+    console.error(err);
+    setError("Server error");
+  }
   };
 
   return (
@@ -155,8 +159,26 @@ export default function LoginForm() {
               </div>
 
               {/* 🔴 ERROR */}
+              {/* 🔴 ERROR */}
               {error && (
-                <p style={{ color: "red", marginBottom: "10px" }}>{error}</p>
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "8px",
+                    backgroundColor: "#fef2f2",
+                    border: "1px solid #fecaca",
+                    color: "#b91c1c",
+                    padding: "10px 14px",
+                    borderRadius: "8px",
+                    fontSize: "14px",
+                    fontWeight: 500,
+                    marginBottom: "16px",
+                  }}
+                >
+                  <span style={{ fontSize: "16px" }}>⚠️</span>
+                  <span>{error}</span>
+                </div>
               )}
 
               <button className="submit-button">Login</button>

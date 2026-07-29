@@ -1,5 +1,6 @@
 package intern.backend.controller;
 
+import intern.backend.dto.LegalStatusSummaryDTO;
 import intern.backend.entity.UserFiling;
 import intern.backend.service.UserFilingService;
 import org.springframework.web.bind.annotation.*;
@@ -30,6 +31,11 @@ public class UserFilingController {
         return service.getUserFilings(userId);
     }
 
+    @GetMapping("/user/{userId}/summary")
+    public LegalStatusSummaryDTO summary(@PathVariable Integer userId) {
+        return service.getSummaryForUser(userId);
+    }
+
     // ADMIN: all filings
     @GetMapping("/admin")
     public List<Map<String, Object>> adminFilings() {
@@ -42,4 +48,11 @@ public class UserFilingController {
                              @RequestParam String status) {
         service.updateStatus(id, status);
     }
+
+    @GetMapping("/{id}")
+    public UserFiling getFilingDetails(@PathVariable Long id) {
+        return service.getFilingById(id);
+    }
+
+
 }

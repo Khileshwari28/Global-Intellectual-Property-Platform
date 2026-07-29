@@ -63,6 +63,18 @@ public class IPSearchController {
         ipService.trackIP(id);
     }
 
+    // user clicks "track" on a search result
+    @PostMapping("/track/{assetId}")
+    public void trackAsset(@PathVariable Long assetId, @RequestParam Integer userId) {
+        ipService.trackAssetForUser(userId, assetId);
+    }
+
+    // bottom section: only what this user tracked
+    @GetMapping("/tracked/{userId}")
+    public List<LegalStatusDTO> getTracked(@PathVariable Integer userId) {
+        return ipService.getTrackedAssetsForUser(userId);
+    }
+
 
 
 
