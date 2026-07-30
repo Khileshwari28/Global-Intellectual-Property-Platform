@@ -3,12 +3,14 @@ package intern.backend.service;
 import intern.backend.entity.IPAsset;
 import intern.backend.entity.Notification;
 import intern.backend.repository.NotificationRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
 import java.util.List;
 
 @Service
+@Transactional
 public class NotificationService {
 
     private final NotificationRepository notificationRepo;
@@ -59,5 +61,8 @@ public class NotificationService {
         notificationRepo.save(n);
     }
 
+    public void clearNotifications(Integer userId) {
+        notificationRepo.deleteByUserId(userId);
+    }
 
 }

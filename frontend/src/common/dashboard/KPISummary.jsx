@@ -1,15 +1,15 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import { getKPIs } from "../../api/ipSearchApi"; // adjust path to your actual api folder
 
 const KPISummary = () => {
   const [kpiData, setKpiData] = useState(null);
 
   useEffect(() => {
-    axios
-      .get("http://localhost:8080/api/ip/kpis")
-      .then((res) => setKpiData(res.data))
-      .catch((err) => console.error("KPI API error:", err));
-  }, []);
+  getKPIs()
+    .then((res) => setKpiData(res.data))
+    .catch((err) => console.error("KPI API error:", err));
+}, []);
 
   if (!kpiData) {
     return (

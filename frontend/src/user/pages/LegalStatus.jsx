@@ -7,7 +7,9 @@ import IPTypeTrendChart from "../../common/charts/IPTypeTrendChart";
 import IPStatusChart from "../../common/charts/IPStatusChart";
 import KPISummary from "../../common/dashboard/KPISummary";
 import { VIZ_IDS } from "../../common/charts/vizConfig";
-
+import { getPermissionsByPlan } from "../../api/subscriptionPermissionApi"; // adjust path to your actual api folder
+import { getTrackedFilings } from "../../api/ipSearchApi"; // adjust path to your actual api folder
+import { getUserFilingsSummary } from "../../api/userFilingApi";
 
 const LegalStatus = ({ userRole, userPlan, setActiveComponent }) => {
   const [expandedId, setExpandedId] = useState(null);
@@ -33,32 +35,27 @@ const LegalStatus = ({ userRole, userPlan, setActiveComponent }) => {
 
   const [permission, setPermission] = useState([]);
   useEffect(() => {
-    if (!plan) return;
-
-    axios
-      .get(`http://localhost:8080/api/permissions/${plan}`)
-      .then(res => setPermission(res.data))
-      .catch(err => console.error("Permission fetch error:", err));
-  }, [plan]);
+  if (!plan) return;
+  getPermissionsByPlan(plan)
+    .then(res => setPermission(res.data))
+    .catch(err => console.error("Permission fetch error:", err));
+}, [plan]);
 
 
   const canView = hasAccess(plan, "canLegalStatus");
 
   /* Fetch data only if access allowed */
   useEffect(() => {
-    if (!canView) return;
-    if (!userId) return;
+  if (!canView || !userId) return;
 
-    axios
-      .get(`http://localhost:8080/api/ip/tracked/${userId}`)
-      .then(res => setFilings(res.data))
-      .catch(console.error);
+  getTrackedFilings(userId)
+    .then(res => setFilings(res.data))
+    .catch(console.error);
 
-    axios
-      .get(`http://localhost:8080/api/user-filings/user/${userId}/summary`)
-      .then(res => setSummary(res.data))
-      .catch(console.error);
-  }, [canView, userId]);
+  getUserFilingsSummary(userId)
+    .then(res => setSummary(res.data))
+    .catch(console.error);
+}, [canView, userId]);
 
 
 

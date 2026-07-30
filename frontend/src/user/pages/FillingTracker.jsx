@@ -2,7 +2,9 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import IPDetailModal from "../../common/components/IPDetailModal";
 import { hasAccess } from "../../common/utils/permissions";
-
+import { getUserFilings } from "../../api/userFilingApi";
+import { createUserFiling } from "../../api/userFilingApi";
+import { getIpFilingsTracker } from "../../api/adminFilingApi";
 
 const FillingTracker = ({ setActiveComponent }) => {
 
@@ -32,20 +34,19 @@ const FillingTracker = ({ setActiveComponent }) => {
 
     /* 🔌 APIs (unchanged from your perfect version) */
     useEffect(() => {
-        if (!canTrack) return;
-        const user = JSON.parse(localStorage.getItem("user"));
-        if (!user?.id) return;
+  if (!canTrack) return;
+  const user = JSON.parse(localStorage.getItem("user"));
+  if (!user?.id) return;
 
-        // User filings
-        axios.get(`http://localhost:8080/api/user-filings/user/${user.id}`)
-            .then(res => setUserFilings(res.data))
-            .catch(err => console.error("User filings error", err));
-        
-        // Old tracker data
-        axios.get("http://localhost:8080/api/ip/filings/tracker")
-            .then(res => setTrackers(res.data))
-            .catch(err => console.error(err));
-    }, [user?.id, canTrack]);
+  getUserFilings(user.id)
+    .then(res => setUserFilings(res.data))
+    .catch(err => console.error("User filings error", err));
+
+  getIpFilingsTracker()
+    .then(res => setTrackers(res.data))
+    .catch(err => console.error(err));
+}, [user?.id, canTrack]);
+
 
 
     const getStatusBadgeClass = (status) => {
@@ -93,26 +94,24 @@ const FillingTracker = ({ setActiveComponent }) => {
 
     // CREATE NEW FILING
     const handleCreateNewFiling = () => {
-        const user = JSON.parse(localStorage.getItem("user"));
-        if (!user?.id) return;
+  const user = JSON.parse(localStorage.getItem("user"));
+  if (!user?.id) return;
 
-        axios.post("http://localhost:8080/api/user-filings/create", {
-            ...newFilingData,
-            userId: user.id
-        })
-            .then(res => {
-                setUserFilings(prev => [res.data, ...prev]);
-                setShowNewFilingModal(false);
-                setNewFilingData({
-                    keyword: "",
-                    assetType: "",
-                    jurisdiction: "",
-                    status: "PENDING",
-                    frequency: "Weekly"
-                });
-            })
-            .catch(err => console.error(err));
-    };
+  createUserFiling({ ...newFilingData, userId: user.id })
+    .then(res => {
+      setUserFilings(prev => [res.data, ...prev]);
+      setShowNewFilingModal(false);
+      setNewFilingData({
+        keyword: "",
+        assetType: "",
+        jurisdiction: "",
+        description: "",
+        status: "PENDING",
+        frequency: "Weekly"
+      });
+    })
+    .catch(err => console.error(err));
+};
 
     return (
         <div className="position-relative">

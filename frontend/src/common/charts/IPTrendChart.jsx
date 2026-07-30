@@ -12,7 +12,7 @@ import {
 } from "chart.js";
 import axios from "axios";
 import { hasAccess } from "../utils/permissions";
-
+import { fetchAvailableYears, fetchFilingTrend } from "../../api/chartApi";
 
 
 ChartJS.register(
@@ -47,25 +47,21 @@ const IPTrendChart = () => {
 
   // 🔹 fetch available years
   useEffect(() => {
-    axios.get("http://localhost:8080/api/charts/ip-filings-years")
-      .then(res => {
-        setYears(res.data);
-        if (res.data.length) {
-          setSelectedYear(res.data[0]); // latest year
-        }
-      })
-      .catch(console.error);
-  }, [canSeeCharts]);
+  fetchAvailableYears()
+    .then(res => {
+      setYears(res.data);
+      if (res.data.length) setSelectedYear(res.data[0]);
+    })
+    .catch(console.error);
+}, [canSeeCharts]);
 
   // 🔹 fetch month-wise data when year changes
-  useEffect(() => {
-    if (!selectedYear) return;
-
-    axios
-      .get(`http://localhost:8080/api/charts/ip-filings-trend/${selectedYear}`)
-      .then(res => setData(res.data))
-      .catch(console.error);
-  }, [selectedYear]);
+ useEffect(() => {
+  if (!selectedYear) return;
+  fetchFilingTrend(selectedYear)
+    .then(res => setData(res.data))
+    .catch(console.error);
+}, [selectedYear]);
 
   // 🔒 LOCKED UI
   if (!canSeeCharts) {

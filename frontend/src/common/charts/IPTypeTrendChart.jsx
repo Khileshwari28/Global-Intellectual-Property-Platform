@@ -11,6 +11,7 @@ import {
 } from "chart.js";
 import { VIZ_IDS } from "./vizConfig";
 import { hasAccess } from "../utils/permissions";
+import { fetchIPTypeTrend } from "../../api/chartApi";
 
 
 
@@ -37,14 +38,13 @@ const IPTypeTrendChart = ({ vizId = VIZ_IDS.IP_TYPE_TREND }) => {
 
   /* 🔌 FETCH REAL DATA */
   useEffect(() => {
-    axios
-      .get("http://localhost:8080/api/charts/ip-type-trend")
-      .then(res => setData(res.data))
-      .catch(err => {
-        console.error("IP Type Trend error:", err);
-        setData([]);
-      });
-  }, [canSeeCharts]);
+  fetchIPTypeTrend()
+    .then(res => setData(res.data))
+    .catch(err => {
+      console.error("IP Type Trend error:", err);
+      setData([]);
+    });
+}, [canSeeCharts]);
 
   // 🔒 LOCKED UI
   if (!canSeeCharts) {

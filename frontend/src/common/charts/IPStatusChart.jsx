@@ -12,6 +12,7 @@ import {
 } from "chart.js";
 import { hasAccess } from "../utils/permissions";
 import { VIZ_IDS } from "./vizConfig";
+import { fetchIPStatusDist } from "../../api/chartApi";
 
 
 
@@ -38,14 +39,13 @@ const IPStatusChart = ({ vizId = VIZ_IDS.IP_STATUS_DIST }) => {
 
   /* 🔌 FETCH REAL BACKEND DATA */
   useEffect(() => {
-    axios
-      .get("http://localhost:8080/api/charts/ip-status-distribution")
-      .then(res => setData(res.data))
-      .catch(err => {
-        console.error("IP Status chart error:", err);
-        setData([]);
-      });
-  }, [canSeeCharts]);
+  fetchIPStatusDist()
+    .then(res => setData(res.data))
+    .catch(err => {
+      console.error("IP Status chart error:", err);
+      setData([]);
+    });
+}, [canSeeCharts]);
 
    /* 🔒 LOCKED UI */
   if (!canSeeCharts) {

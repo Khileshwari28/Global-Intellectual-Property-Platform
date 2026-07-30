@@ -23,4 +23,9 @@ public class NotificationController {
     public List<Notification> getNotifications(@PathVariable Integer userId) {
         return service.getNotifications(userId);
     }
+
+    @PutMapping("/{userId}/clear")
+    public void clearNotifications(@PathVariable Integer userId) {
+        service.clearNotifications(userId);
+    }
 }

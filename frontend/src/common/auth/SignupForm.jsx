@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import InputField from "../components/InputField";
+import { register } from "../../api/userAuthApi";
 
 const initialFormState = {
   firstName: "",
@@ -49,43 +50,28 @@ const SignupForm = () => {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+  e.preventDefault();
+  setErrorMsg("");
+  setSuccessMsg("");
 
-    setErrorMsg("");
-    setSuccessMsg("");
+  if (!validate()) return;
 
-    if (!validate()) return;
+  try {
+    await register({
+      username: formData.firstName + " " + formData.lastName,
+      email: formData.email,
+      password: formData.password,
+      role: "USER",
+    });
 
-    try {
-      const response = await fetch(
-        "http://localhost:8080/api/users/register",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            username: formData.firstName + " " + formData.lastName,
-            email: formData.email,
-            password: formData.password,
-            role: "USER",
-          }),
-        }
-      );
-
-      if (response.ok) {
-        setSuccessMsg("✅ Registration successful! Redirecting to Login Page...");
-        setFormData(initialFormState);
-
-        setTimeout(() => {
-          navigate("/login");
-        }, 1500);
-      } else {
-        setErrorMsg("❌ Registration failed. Please try again.");
-      }
-    } catch (error) {
-      console.error(error);
-      setErrorMsg("❌ Server error. Please try later.");
-    }
-  };
+    setSuccessMsg("✅ Registration successful! Redirecting to Login Page...");
+    setFormData(initialFormState);
+    setTimeout(() => navigate("/login"), 1500);
+  } catch (error) {
+    console.error(error);
+    setErrorMsg(error.response?.data?.message || "❌ Registration failed. Please try again.");
+  }
+};
 
   return (
     <form onSubmit={handleSubmit}>

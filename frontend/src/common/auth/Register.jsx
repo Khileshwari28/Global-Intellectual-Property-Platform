@@ -1,7 +1,7 @@
 import React from "react";
 import BrandingColumn from "../../user/layout/BrandingColumn";
 import SignupCard from "./SignupCard";
-import "../styles/SignupStyles.css"; // see note below
+import "../styles/SignupStyles.css"; 
 
 const Register = () => {
   return (

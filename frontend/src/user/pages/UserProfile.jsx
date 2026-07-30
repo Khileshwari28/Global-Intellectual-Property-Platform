@@ -17,6 +17,8 @@ import {
   FaCheckCircle,
   FaExclamationCircle,
 } from "react-icons/fa";
+import { changePassword } from "../../api/userAuthApi";
+import { getUserSupportQueries, submitSupportQuery as submitSupportQueryApi } from "../../api/supportApi";
 
 const UserProfile = () => {
   const loggedUser = JSON.parse(localStorage.getItem("user"));
@@ -93,26 +95,18 @@ const UserProfile = () => {
       showMessage("Please fill in all three password fields", "error");
       return;
     }
-
     if (passwords.newPassword !== passwords.confirmPassword) {
       showMessage("New password and confirmation do not match", "error");
       return;
     }
 
-    // Matches UserController: PUT /api/users/{id}/change-password
-    axios
-      .put(`http://localhost:8080/api/users/${profile.id}/change-password`, {
-        currentPassword: passwords.currentPassword,
-        newPassword: passwords.newPassword,
-      })
+    changePassword(profile.id, passwords.currentPassword, passwords.newPassword)
       .then(() => {
         showMessage("Password updated successfully", "success");
         setPasswords({ currentPassword: "", newPassword: "", confirmPassword: "" });
         setShowPassword({ current: false, new: false, confirm: false });
       })
       .catch((err) => {
-        // Surfaces the backend's own message when it has one (e.g. "Current password is incorrect"),
-        // otherwise falls back to a sensible default.
         const backendMessage = err.response?.data?.message;
         showMessage(backendMessage || "Current password is incorrect", "error");
       });
@@ -126,8 +120,7 @@ const UserProfile = () => {
   const [loadingQueries, setLoadingQueries] = useState(true);
 
   const fetchMyQueries = () => {
-    axios
-      .get(`http://localhost:8080/api/support/user/${profile.id}`)
+    getUserSupportQueries(profile.id)
       .then((res) => {
         setMyQueries(res.data);
         setLoadingQueries(false);
@@ -155,16 +148,12 @@ const UserProfile = () => {
 
     setSendingQuery(true);
 
-    axios
-      .post(`http://localhost:8080/api/support/user/${profile.id}`, {
-        subject: supportQuery.subject,
-        message: supportQuery.message,
-      })
+    submitSupportQueryApi(profile.id, supportQuery.subject, supportQuery.message)
       .then(() => {
         showMessage("Your query has been sent to the admin", "success");
         setSupportQuery({ subject: "", message: "" });
         setShowSupportForm(false);
-        fetchMyQueries(); // refresh the list so the new query shows up immediately
+        fetchMyQueries();
       })
       .catch((err) => {
         const backendMessage = err.response?.data?.message;
@@ -631,7 +620,7 @@ const UserProfile = () => {
                         </div>
 
                         <div style={styles.queryCard}>
-                          <div style={styles.bubbleRowLeft}>
+                          <div style={styles.bubbleRowRight}>
                             <div style={styles.bubbleUser}>
                               <p style={styles.bubbleText}>{q.message}</p>
                               <span style={styles.bubbleTime}>
@@ -641,7 +630,7 @@ const UserProfile = () => {
                           </div>
 
                           {q.adminReply && (
-                            <div style={styles.bubbleRowRight}>
+                            <div style={styles.bubbleRowLeft}>
                               <div style={styles.bubbleAdmin}>
                                 <p style={styles.bubbleText}>{q.adminReply}</p>
                                 <span style={styles.bubbleTimeLight}>
@@ -1129,18 +1118,18 @@ const styles = {
   },
 
   bubbleUser: {
-    background: "#e2e8f0",
-    color: "#1e293b",
-    padding: "10px 12px",
-    borderRadius: "10px 10px 10px 2px",
-    maxWidth: "85%",
-  },
-
-  bubbleAdmin: {
     background: "#1e40af",
     color: "#fff",
     padding: "10px 12px",
     borderRadius: "10px 10px 2px 10px",
+    maxWidth: "85%",
+  },
+
+  bubbleAdmin: {
+    background: "#e2e8f0",
+    color: "#1e293b",
+    padding: "10px 12px",
+    borderRadius: "10px 10px 10px 2px",
     maxWidth: "85%",
   },
 
@@ -1151,18 +1140,18 @@ const styles = {
   },
 
   bubbleTime: {
-    display: "block",
-    marginTop: "5px",
-    fontSize: "10px",
-    color: "#64748b",
-  },
+  display: "block",
+  marginTop: "5px",
+  fontSize: "10px",
+  color: "#c7dbff",
+},
 
   bubbleTimeLight: {
-    display: "block",
-    marginTop: "5px",
-    fontSize: "10px",
-    color: "#c7dbff",
-  },
+  display: "block",
+  marginTop: "5px",
+  fontSize: "10px",
+  color: "#64748b",
+},
 
   queryListItem: {
     display: "flex",

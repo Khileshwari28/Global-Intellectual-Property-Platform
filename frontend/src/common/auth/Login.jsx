@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import { login } from "../../api/userAuthApi";
 
 export default function LoginForm() {
   const [error, setError] = useState("");
@@ -15,23 +16,8 @@ export default function LoginForm() {
   e.preventDefault();
 
   try {
-    const response = await fetch("http://localhost:8080/api/users/login", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(formData),
-    });
-
-    // Wrong credentials
-    if (!response.ok) {
-      const data = await response.json();
-      setError(data.message);
-      return;
-    }
-
-    // Successful login
-    const user = await response.json();
+    const response = await login(formData);
+    const user = response.data;
 
     if (loginRole === "ADMIN" && user.role !== "ADMIN") {
       setError("You are not admin");
@@ -46,10 +32,11 @@ export default function LoginForm() {
       window.location.href = "/dashboard";
     }
   } catch (err) {
-    console.error(err);
-    setError("Server error");
+    setError(
+      err.response?.data?.message || "Server error"
+    );
   }
-  };
+};
 
   return (
     <div className="page-background">

@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { getMapAssetsByCountry } from "../../api/ipMapApi";
 
 const IPSidePanel = ({ country }) => {
   const [data, setData] = useState([]);
@@ -6,35 +7,25 @@ const IPSidePanel = ({ country }) => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    if (!country) return;
+  if (!country) return;
 
-    const fetchData = async () => {
-      try {
-        console.log("SidePanel fetching for:", country);
-        setLoading(true);
-        setError(null);
+  const fetchData = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const res = await getMapAssetsByCountry(country);
+      setData(res.data);
+    } catch (err) {
+      console.error("Fetch error:", err);
+      setError("Failed to load data");
+      setData([]);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-        const res = await fetch(
-          `http://localhost:8080/api/map/assets?country=${encodeURIComponent(country)}`
-        );
-
-        if (!res.ok) {
-          throw new Error(`HTTP ${res.status}`);
-        }
-
-        const json = await res.json();
-        setData(json);
-      } catch (err) {
-        console.error("Fetch error:", err);
-        setError("Failed to load data");
-        setData([]);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
-  }, [country]);
+  fetchData();
+}, [country]);
 
   return (
     <div className="card border-0 shadow-sm h-100">

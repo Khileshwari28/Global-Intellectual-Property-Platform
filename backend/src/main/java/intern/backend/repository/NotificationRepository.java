@@ -13,4 +13,6 @@ public interface NotificationRepository extends JpaRepository<Notification, Inte
             Integer ipAssetId,
             String message
     );
+
+    void deleteByUserId(Integer userId);
 }

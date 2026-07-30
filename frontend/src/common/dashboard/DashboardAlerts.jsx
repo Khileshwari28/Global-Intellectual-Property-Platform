@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { hasAccess } from "../utils/permissions";
-
+import { getNotifications } from "../../api/notificationApi";
 
 const getBorderClass = (type) => {
   switch (type) {
@@ -24,16 +24,12 @@ const DashboardAlerts = () => {
  
 
   useEffect(() => {
-    if (!userUniqueId) return;
+  if (!userUniqueId) return;
 
-    axios
-      .get(`http://localhost:8080/api/notifications/${userUniqueId}`)
-      .then(res => {
-        // ✅ show only top 3
-        setAlerts(res.data.slice(0, 3));
-      })
-      .catch(err => console.error("Notification error:", err));
-  }, [userUniqueId]);
+  getNotifications(userUniqueId)
+    .then(res => setAlerts(res.data.slice(0, 3)))
+    .catch(err => console.error("Notification error:", err));
+}, [userUniqueId]);
 
   
 

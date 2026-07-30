@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import IPSearch from "./IPSearch";
 import IPDetailModal from "../../common/components/IPDetailModal";
-
+import { searchIP, trackIP } from "../../api/ipSearchApi";
 
 const SearchResult = () => {
   const [results, setResults] = useState([]);
@@ -16,45 +16,35 @@ const SearchResult = () => {
 
   // 🔍 SEARCH API
   const handleSearch = async (filters) => {
-    const user = JSON.parse(localStorage.getItem("user"));
-
+  const user = JSON.parse(localStorage.getItem("user"));
   if (!user?.id) {
     console.error("User not logged in");
     return;
   }
-
-    if (!filters) {
-      setResults([]);
-      return;
-    }
-
-    setLoading(true);
-    setNoData(false);
+  if (!filters) {
     setResults([]);
+    return;
+  }
 
-    try {
-      const response = await fetch("http://localhost:8080/api/ip/search", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-        ...filters,
-        userId: user.id   // ✅ THIS WAS MISSING
-      })
-      });
+  setLoading(true);
+  setNoData(false);
+  setResults([]);
 
-      const data = await response.json();
-      if (Array.isArray(data) && data.length > 0) {
-        setResults(data);
-      } else {
-        setNoData(true);
-      }
-    } catch (error) {
-      console.error(error);
+  try {
+    const response = await searchIP({ ...filters, userId: user.id });
+    const data = response.data;
+    if (Array.isArray(data) && data.length > 0) {
+      setResults(data);
+    } else {
       setNoData(true);
-    } finally {
-      setLoading(false);
     }
-  };
+  } catch (error) {
+    console.error(error);
+    setNoData(true);
+  } finally {
+    setLoading(false);
+  }
+};
 
   // 📄 DETAILS
   const handleViewDetails = (id) => {
@@ -64,17 +54,13 @@ const SearchResult = () => {
 
   // 📌 TRACK
   const handleTrack = async (id) => {
-    try {
-      await fetch(`http://localhost:8080/api/ip/track/${id}`, {
-        method: "POST"
-      });
-
-      // ✅ mark as tracked in UI
-      setTrackedIds(prev => new Set(prev).add(id));
-    } catch (error) {
-      console.error("Track failed", error);
-    }
-  };
+  try {
+    await trackIP(id);
+    setTrackedIds(prev => new Set(prev).add(id));
+  } catch (error) {
+    console.error("Track failed", error);
+  }
+};
 
   return (
     <div>

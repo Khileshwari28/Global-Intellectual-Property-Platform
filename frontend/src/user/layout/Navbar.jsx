@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { hasAccess } from "../../common/utils/permissions";
+import { getNotifications, clearNotifications } from "../../api/notificationApi";
 
 const Navbar = ({ sidebarOpen, setSidebarOpen, setActiveComponent }) => {
   const navigate = useNavigate();
@@ -20,21 +21,20 @@ const Navbar = ({ sidebarOpen, setSidebarOpen, setActiveComponent }) => {
   const canNotify = hasAccess(plan, "canNotify");
 
   useEffect(() => {
-    if (!userUniqueId || !canNotify) return;
+  if (!userUniqueId || !canNotify) return;
 
-    setLoadingNotifs(true);
-    axios
-      .get(`http://localhost:8080/api/notifications/${userUniqueId}`)
-      .then((res) => {
-        setNotifications(res.data);
-        setNotifError(null);
-      })
-      .catch((err) => {
-        console.error("Notification error:", err);
-        setNotifError("Failed to load notifications");
-      })
-      .finally(() => setLoadingNotifs(false));
-  }, [userUniqueId, canNotify]);
+  setLoadingNotifs(true);
+  getNotifications(userUniqueId)
+    .then((res) => {
+      setNotifications(res.data);
+      setNotifError(null);
+    })
+    .catch((err) => {
+      console.error("Notification error:", err);
+      setNotifError("Failed to load notifications");
+    })
+    .finally(() => setLoadingNotifs(false));
+}, [userUniqueId, canNotify]);
 
   const getNotifIcon = (type) => {
     switch (type) {
@@ -55,10 +55,10 @@ const Navbar = ({ sidebarOpen, setSidebarOpen, setActiveComponent }) => {
   };
 
   const handleClearAll = () => {
-    setNotifications([]);
-    // optionally: call a backend endpoint here to persist "cleared" state
-    // axios.put(`http://localhost:8080/api/notifications/${userUniqueId}/clear`)
-  };
+  clearNotifications(userUniqueId)
+    .then(() => setNotifications([]))
+    .catch((err) => console.error("Clear notifications failed:", err));
+};
 
   const handleLogout = () => {
     localStorage.removeItem("user");
