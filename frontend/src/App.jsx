@@ -1,21 +1,11 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
-// Pages
-import Landing from "./pages/landing/Landing";
-import Login from "./pages/Login";
-import Register from "./pages/Register";
-import Home from "./pages/Home";
-import AdminHome from "./pages/AdminHome";
-
-// Components
-import ProtectedRoute from "./Components/ProtectedRoute";
-import Dashboard from "./Components/dashboard/Dashboard";
-import ProfileCard from "./Components/ui/ProfileCard";
-
-// Admin Sub-pages (Make sure these are imported correctly)
-import AdminUserManagement from "./Components/admin/AdminUserManagement";
-import SubscriptionManagement from "./Components/admin/AdminSubscriptionManagement";
-// import Pricing from "./Components/Pricing";
+import Landing from "./common/landing/Landing.jsx";
+import Login from "./common/auth/Login.jsx";
+import Register from "./common/auth/Register.jsx";
+import Home from "./user/pages/Home.jsx";
+import AdminHome from "./admin/AdminHome.jsx";
+import ProtectedRoute from "./common/components/ProtectedRoute.jsx";
 
 function App() {
   return (
