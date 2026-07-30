@@ -9,6 +9,7 @@ import SubscriptionManagement from "./AdminSubscriptionManagement";
 import AdminFilingManager from "./AdminFilingManager";
 import AdminProfile from "./AdminProfile";
 import AdminApiHealth from "./AdminApiHealth";
+import AdminSupport from "./AdminSupport";
 
 const AdminHome = () => {
   const [active, setActive] = useState("Dashboard");
@@ -42,6 +43,10 @@ const AdminHome = () => {
 
           {/* PROFILE */}
           {active === "AdminProfile" && <AdminProfile />}
+
+
+          {/* SUPPORT */}
+          {active === "AdminSupport" && <AdminSupport />}
 
         </div>
       </div>

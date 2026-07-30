@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
 import {
   FaUserCircle,
@@ -122,6 +122,27 @@ const UserProfile = () => {
   const [supportQuery, setSupportQuery] = useState({ subject: "", message: "" });
   const [sendingQuery, setSendingQuery] = useState(false);
 
+  const [myQueries, setMyQueries] = useState([]);
+  const [loadingQueries, setLoadingQueries] = useState(true);
+
+  const fetchMyQueries = () => {
+    axios
+      .get(`http://localhost:8080/api/support/user/${profile.id}`)
+      .then((res) => {
+        setMyQueries(res.data);
+        setLoadingQueries(false);
+      })
+      .catch((err) => {
+        console.error("Fetch queries error:", err);
+        setLoadingQueries(false);
+      });
+  };
+
+  useEffect(() => {
+    fetchMyQueries();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const handleSupportChange = (e) => {
     setSupportQuery({ ...supportQuery, [e.target.name]: e.target.value });
   };
@@ -134,9 +155,8 @@ const UserProfile = () => {
 
     setSendingQuery(true);
 
-    // NOTE: adjust this URL to match your real support-ticket endpoint.
     axios
-      .post(`http://localhost:8080/api/users/${profile.id}/support`, {
+      .post(`http://localhost:8080/api/support/user/${profile.id}`, {
         subject: supportQuery.subject,
         message: supportQuery.message,
       })
@@ -144,6 +164,7 @@ const UserProfile = () => {
         showMessage("Your query has been sent to the admin", "success");
         setSupportQuery({ subject: "", message: "" });
         setShowSupportForm(false);
+        fetchMyQueries(); // refresh the list so the new query shows up immediately
       })
       .catch((err) => {
         const backendMessage = err.response?.data?.message;
@@ -158,6 +179,8 @@ const UserProfile = () => {
     { key: "security", label: "Security", icon: <FaLock /> },
     { key: "support", label: "Support", icon: <FaHeadset /> },
   ];
+
+  const [selectedQueryId, setSelectedQueryId] = useState(null);
 
   return (
     <div style={styles.page} className="up-page">
@@ -537,6 +560,108 @@ const UserProfile = () => {
                   </div>
                 </div>
               )}
+
+              {/* MY QUERIES LIST / DETAIL VIEW */}
+              <div style={styles.queriesSection}>
+                {!selectedQueryId ? (
+                  <>
+                    <h3 style={styles.queriesHeading}>Your Queries</h3>
+
+                    {loadingQueries && (
+                      <p style={{ color: "#94a3b8", fontSize: "13.5px" }}>Loading...</p>
+                    )}
+
+                    {!loadingQueries && myQueries.length === 0 && (
+                      <p style={{ color: "#94a3b8", fontSize: "13.5px" }}>
+                        You haven't contacted support yet.
+                      </p>
+                    )}
+
+                    {myQueries.map((q) => (
+                      <div
+                        key={q.id}
+                        style={styles.queryListItem}
+                        onClick={() => setSelectedQueryId(q.id)}
+                      >
+                        <div style={styles.queryListItemLeft}>
+                          <span style={styles.querySubject}>{q.subject}</span>
+                          <span style={styles.queryDate}>
+                            {q.createdAt ? new Date(q.createdAt).toLocaleDateString() : ""}
+                          </span>
+                        </div>
+                        <span
+                          style={{
+                            ...styles.statusBadge,
+                            ...(q.status === "RESOLVED"
+                              ? styles.statusResolved
+                              : styles.statusOpen),
+                          }}
+                        >
+                          {q.status}
+                        </span>
+                      </div>
+                    ))}
+                  </>
+                ) : (
+                  (() => {
+                    const q = myQueries.find((item) => item.id === selectedQueryId);
+                    if (!q) return null;
+
+                    return (
+                      <div>
+                        <button
+                          style={styles.backBtn}
+                          onClick={() => setSelectedQueryId(null)}
+                        >
+                          ← Back to all queries
+                        </button>
+
+                        <div style={styles.queryDetailHeader}>
+                          <h3 style={styles.queriesHeading}>{q.subject}</h3>
+                          <span
+                            style={{
+                              ...styles.statusBadge,
+                              ...(q.status === "RESOLVED"
+                                ? styles.statusResolved
+                                : styles.statusOpen),
+                            }}
+                          >
+                            {q.status}
+                          </span>
+                        </div>
+
+                        <div style={styles.queryCard}>
+                          <div style={styles.bubbleRowLeft}>
+                            <div style={styles.bubbleUser}>
+                              <p style={styles.bubbleText}>{q.message}</p>
+                              <span style={styles.bubbleTime}>
+                                {q.createdAt ? new Date(q.createdAt).toLocaleString() : ""}
+                              </span>
+                            </div>
+                          </div>
+
+                          {q.adminReply && (
+                            <div style={styles.bubbleRowRight}>
+                              <div style={styles.bubbleAdmin}>
+                                <p style={styles.bubbleText}>{q.adminReply}</p>
+                                <span style={styles.bubbleTimeLight}>
+                                  {q.repliedAt ? new Date(q.repliedAt).toLocaleString() : ""}
+                                </span>
+                              </div>
+                            </div>
+                          )}
+
+                          {!q.adminReply && (
+                            <p style={{ color: "#94a3b8", fontSize: "12.5px", margin: "6px 0 0" }}>
+                              Waiting for admin response...
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })()
+                )}
+              </div>
             </div>
           )}
         </div>
@@ -938,6 +1063,149 @@ const styles = {
     fontWeight: "bold",
     fontSize: "14px",
     whiteSpace: "nowrap",
+  },
+
+  queriesSection: {
+    marginTop: "24px",
+    paddingTop: "20px",
+    borderTop: "1px solid #eef0f4",
+  },
+
+  queriesHeading: {
+    fontSize: "15px",
+    fontWeight: "700",
+    color: "#1e293b",
+    marginBottom: "14px",
+  },
+
+  queryCard: {
+    background: "#f8fafc",
+    border: "1px solid #eef0f4",
+    borderRadius: "10px",
+    padding: "14px 16px",
+    marginBottom: "14px",
+  },
+
+  queryCardHeader: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: "10px",
+  },
+
+  querySubject: {
+    fontWeight: "700",
+    fontSize: "14px",
+    color: "#1e293b",
+  },
+
+  statusBadge: {
+    fontSize: "10.5px",
+    fontWeight: "bold",
+    padding: "3px 8px",
+    borderRadius: "999px",
+    whiteSpace: "nowrap",
+  },
+
+  statusOpen: {
+    background: "#fef3c7",
+    color: "#92400e",
+  },
+
+  statusResolved: {
+    background: "#dcfce7",
+    color: "#166534",
+  },
+
+  bubbleRowLeft: {
+    display: "flex",
+    justifyContent: "flex-start",
+    marginBottom: "8px",
+  },
+
+  bubbleRowRight: {
+    display: "flex",
+    justifyContent: "flex-end",
+  },
+
+  bubbleUser: {
+    background: "#e2e8f0",
+    color: "#1e293b",
+    padding: "10px 12px",
+    borderRadius: "10px 10px 10px 2px",
+    maxWidth: "85%",
+  },
+
+  bubbleAdmin: {
+    background: "#1e40af",
+    color: "#fff",
+    padding: "10px 12px",
+    borderRadius: "10px 10px 2px 10px",
+    maxWidth: "85%",
+  },
+
+  bubbleText: {
+    margin: 0,
+    fontSize: "13.5px",
+    whiteSpace: "pre-wrap",
+  },
+
+  bubbleTime: {
+    display: "block",
+    marginTop: "5px",
+    fontSize: "10px",
+    color: "#64748b",
+  },
+
+  bubbleTimeLight: {
+    display: "block",
+    marginTop: "5px",
+    fontSize: "10px",
+    color: "#c7dbff",
+  },
+
+  queryListItem: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    background: "#f8fafc",
+    border: "1px solid #eef0f4",
+    borderRadius: "10px",
+    padding: "12px 16px",
+    marginBottom: "10px",
+    cursor: "pointer",
+  },
+
+  queryListItemLeft: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "4px",
+  },
+
+  queryDate: {
+    fontSize: "12px",
+    color: "#94a3b8",
+  },
+
+  backBtn: {
+    background: "transparent",
+    border: "none",
+    color: "#1e40af",
+    fontWeight: "600",
+    fontSize: "13.5px",
+    cursor: "pointer",
+    padding: "0",
+    marginBottom: "16px",
+    display: "flex",
+    alignItems: "center",
+    gap: "6px",
+  },
+
+  queryDetailHeader: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: "14px",
   },
 };
 
