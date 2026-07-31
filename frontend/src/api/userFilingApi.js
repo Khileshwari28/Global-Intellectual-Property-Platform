@@ -19,3 +19,15 @@ export const getUserFilingById = (id) => {
 export const createUserFiling = (filingData) => {
     return axiosClient.post(`/user-filings/create`, filingData);
 };
+
+// GET all user filings across all users (admin view)
+export const getAdminFilings = () => {
+    return axiosClient.get(`/user-filings/admin`);
+};
+ 
+// PUT update the status of a filing (admin action)
+export const updateFilingStatus = (id, status) => {
+    return axiosClient.put(`/user-filings/admin/${id}/status`, null, {
+        params: { status },
+    });
+};

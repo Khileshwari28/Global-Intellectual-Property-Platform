@@ -1,18 +1,18 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import { getAdminFilings, updateFilingStatus } from "../api/userFilingApi";
 
 const AdminFilingManager = () => {
 
   const [filings, setFilings] = useState([]);
 
   useEffect(() => {
-    axios.get("http://localhost:8080/api/user-filings/admin")
+    getAdminFilings()
       .then(res => setFilings(res.data))
       .catch(err => console.error(err));
   }, []);
 
   const updateStatus = (id, status) => {
-    axios.put(`http://localhost:8080/api/user-filings/admin/${id}/status?status=${status}`)
+    updateFilingStatus(id, status)
       .then(() => {
         setFilings(prev =>
           prev.map(f =>

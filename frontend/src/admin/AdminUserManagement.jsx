@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import { getAllUsers, deleteUser as deleteUserApi, promoteUser, disableUser, enableUser } from "../api/adminUserApi";
 
 const AdminUserManagement = () => {
     const [users, setUsers] = useState([]);
@@ -13,7 +13,7 @@ const AdminUserManagement = () => {
     const [planFilter, setPlanFilter] = useState("ALL");
 
     const loadUsers = () => {
-        axios.get("http://localhost:8080/api/admin/users/getall")
+        getAllUsers()
             .then(res => setUsers(res.data))
             .catch(err => console.error("Failed to load users", err));
     };
@@ -24,17 +24,17 @@ const AdminUserManagement = () => {
 
     // --- FILTER LOGIC ---
     const filteredUsers = users.filter((user) => {
-        const matchesSearch = 
-            user.username.toLowerCase().includes(searchTerm.toLowerCase()) || 
+        const matchesSearch =
+            user.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
             user.email.toLowerCase().includes(searchTerm.toLowerCase());
-        
+
         const matchesPlan = planFilter === "ALL" || user.plan === planFilter;
 
         return matchesSearch && matchesPlan;
     });
 
     const deleteUser = () => {
-        axios.delete(`http://localhost:8080/api/admin/users/${deleteUserId}`)
+        deleteUserApi(deleteUserId)
             .then(() => {
                 setMessage("User deleted successfully");
                 setMessageType("success");
@@ -52,17 +52,15 @@ const AdminUserManagement = () => {
     };
 
     const updateRole = (id) => {
-        axios.put(`http://localhost:8080/api/admin/users/${id}/promote`)
+        promoteUser(id)
             .then(() => loadUsers())
             .catch(err => console.error(err));
     };
 
     const toggleStatus = (id, enabled) => {
-        const url = enabled
-            ? `http://localhost:8080/api/admin/users/${id}/disable`
-            : `http://localhost:8080/api/admin/users/${id}/enable`;
+        const request = enabled ? disableUser(id) : enableUser(id);
 
-        axios.put(url)
+        request
             .then(() => loadUsers())
             .catch(err => console.error(err));
     };
@@ -86,7 +84,7 @@ const AdminUserManagement = () => {
                     </div>
                 </div>
                 <div className="col-md-4">
-                    <select 
+                    <select
                         className="form-select"
                         value={planFilter}
                         onChange={(e) => setPlanFilter(e.target.value)}
@@ -175,7 +173,7 @@ const AdminUserManagement = () => {
                                     <button type="button" className="btn-close btn-close-white" onClick={() => setShowConfirmModal(false)}></button>
                                 </div>
                                 <div className="modal-body text-center p-4">
-                                    <i className="bi bi-exclamation-triangle text-danger" style={{fontSize: "2rem"}}></i>
+                                    <i className="bi bi-exclamation-triangle text-danger" style={{ fontSize: "2rem" }}></i>
                                     <p className="mt-3 mb-1 fw-bold">Are you sure you want to delete this user?</p>
                                     <p className="text-muted small">This action is permanent and cannot be undone.</p>
                                 </div>

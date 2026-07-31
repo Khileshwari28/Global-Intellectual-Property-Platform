@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import { getAllUsers } from "../api/adminUserApi";
+import { getAdminFilings } from "../api/userFilingApi";
 
 const AdminStats = () => {
   const [stats, setStats] = useState([
@@ -21,9 +22,9 @@ const AdminStats = () => {
   const loadStats = () => {
     setLoading(true);
 
-    const usersRequest = axios.get("http://localhost:8080/api/admin/users/getall");
+    const usersRequest = getAllUsers();
     // Matches UserFilingController: GET /api/user-filings/admin
-    const filingsRequest = axios.get("http://localhost:8080/api/user-filings/admin");
+    const filingsRequest = getAdminFilings();
 
     Promise.allSettled([usersRequest, filingsRequest]).then(([usersRes, filingsRes]) => {
       setStats((prev) =>

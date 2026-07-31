@@ -9,3 +9,8 @@ export const getPermissionsByPlan = (plan) => {
 export const getAllPermissions = () => {
     return axiosClient.get(`/permissions`);
 };
+
+// POST toggle a feature on/off for a given plan (admin action)
+export const updatePermission = (plan, feature, enabled) => {
+    return axiosClient.post(`/permissions/update`, { plan, feature, enabled });
+};

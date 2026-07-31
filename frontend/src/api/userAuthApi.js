@@ -22,3 +22,8 @@ export const changePassword = (userId, currentPassword, newPassword) => {
         newPassword,
     });
 };
+
+// PUT update a user's profile fields (username, email, role)
+export const updateUser = (userId, profileData) => {
+    return axiosClient.put(`/users/${userId}`, profileData);
+};

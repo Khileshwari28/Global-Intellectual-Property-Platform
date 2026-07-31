@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import { getAdminOpenCount } from "../api/supportApi";
 
 const AdminNavbar = ({ setActiveComponent }) => {
   const user = JSON.parse(localStorage.getItem("user"));
@@ -10,8 +10,7 @@ const AdminNavbar = ({ setActiveComponent }) => {
 
   useEffect(() => {
     const fetchOpenCount = () => {
-      axios
-        .get("http://localhost:8080/api/support/admin/open-count")
+      getAdminOpenCount()
         .then((res) => setOpenCount(res.data))
         .catch((err) => console.error("Open ticket count error:", err));
     };

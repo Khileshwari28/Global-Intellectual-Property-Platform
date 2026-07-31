@@ -1140,18 +1140,18 @@ const styles = {
   },
 
   bubbleTime: {
-  display: "block",
-  marginTop: "5px",
-  fontSize: "10px",
-  color: "#c7dbff",
-},
+    display: "block",
+    marginTop: "5px",
+    fontSize: "10px",
+    color: "#c7dbff",
+  },
 
   bubbleTimeLight: {
-  display: "block",
-  marginTop: "5px",
-  fontSize: "10px",
-  color: "#64748b",
-},
+    display: "block",
+    marginTop: "5px",
+    fontSize: "10px",
+    color: "#64748b",
+  },
 
   queryListItem: {
     display: "flex",

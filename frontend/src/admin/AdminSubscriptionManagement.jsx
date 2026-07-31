@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import { getAllPermissions, updatePermission } from "../api/subscriptionPermissionApi";
 
 const FEATURES = [
   { id: "canLegalStatus", label: "Legal Status Access", icon: "⚖️" },
@@ -26,7 +26,7 @@ export default function SubscriptionManagement() {
   }, []);
 
   const loadPermissions = async () => {
-    const res = await axios.get("http://localhost:8080/api/permissions");
+    const res = await getAllPermissions();
 
     // Normalize DB data → frontend structure
     const formatted = {
@@ -48,11 +48,7 @@ export default function SubscriptionManagement() {
   const togglePermission = async (plan, featureId) => {
     const isEnabled = permissions[plan].includes(featureId);
 
-    await axios.post("http://localhost:8080/api/permissions/update", {
-      plan: plan,
-      feature: featureId,
-      enabled: !isEnabled
-    });
+    await updatePermission(plan, featureId, !isEnabled);
 
     loadPermissions();   // refresh UI from DB
   };

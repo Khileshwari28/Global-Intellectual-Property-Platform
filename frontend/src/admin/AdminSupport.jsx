@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import { getAdminTickets, replyToTicket } from "../api/supportApi";
 import { FaHeadset, FaEnvelope, FaPaperPlane, FaCheckCircle } from "react-icons/fa";
 
 const AdminSupport = () => {
@@ -10,8 +10,7 @@ const AdminSupport = () => {
   const [loading, setLoading] = useState(true);
 
   const fetchTickets = () => {
-    axios
-      .get("http://localhost:8080/api/support/admin")
+    getAdminTickets()
       .then((res) => {
         setTickets(res.data);
         setLoading(false);
@@ -38,12 +37,7 @@ const AdminSupport = () => {
 
     setSending(true);
 
-    axios
-      .put(
-        `http://localhost:8080/api/support/admin/${selectedTicket.id}/reply`,
-        null,
-        { params: { reply: replyText } }
-      )
+    replyToTicket(selectedTicket.id, replyText)
       .then((res) => {
         setTickets((prev) =>
           prev.map((t) => (t.id === selectedTicket.id ? { ...t, ...res.data } : t))

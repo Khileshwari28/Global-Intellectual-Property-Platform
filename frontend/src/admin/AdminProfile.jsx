@@ -1,5 +1,5 @@
 import { useState } from "react";
-import axios from "axios";
+import { updateUser, changePassword } from "../api/userAuthApi";
 import {
   FaUserCircle,
   FaEnvelope,
@@ -80,12 +80,7 @@ const AdminProfile = () => {
     setSaving(true);
 
     // Matches UserController: PUT /api/users/{id}
-    axios
-      .put(`http://localhost:8080/api/users/${profile.id}`, {
-        username: profile.username,
-        email: profile.email,
-        role: profile.role,
-      })
+    updateUser(profile.id, { username: profile.username, email: profile.email, role: profile.role })
       .then((res) => {
         showMessage("Profile updated successfully", "success");
         setEditing(false);
@@ -113,11 +108,7 @@ const AdminProfile = () => {
     }
 
     // Matches UserController: PUT /api/users/{id}/change-password
-    axios
-      .put(`http://localhost:8080/api/users/${profile.id}/change-password`, {
-        currentPassword: passwords.currentPassword,
-        newPassword: passwords.newPassword,
-      })
+    changePassword(profile.id, passwords.currentPassword, passwords.newPassword)
       .then(() => {
         showMessage("Password updated successfully", "success");
         setPasswords({ currentPassword: "", newPassword: "", confirmPassword: "" });
