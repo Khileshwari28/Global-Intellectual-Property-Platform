@@ -10,7 +10,10 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/subscription")
-@CrossOrigin(origins = "http://localhost:5173")
+@CrossOrigin(origins = {
+        "http://localhost:5173",
+        "https://global-ip-portal.netlify.app"
+})
 public class SubscriptionController {
 
     @Autowired

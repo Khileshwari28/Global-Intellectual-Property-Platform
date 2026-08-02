@@ -8,7 +8,10 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/admin/filings")
-@CrossOrigin(origins = "http://localhost:5173")
+@CrossOrigin(origins = {
+        "http://localhost:5173",
+        "https://global-ip-portal.netlify.app"
+})
 public class AdminFilingController {
 
     private final UserFilingService service;

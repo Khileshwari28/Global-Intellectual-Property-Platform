@@ -10,7 +10,10 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/user-filings")
-@CrossOrigin(origins = "http://localhost:5173")
+@CrossOrigin(origins = {
+        "http://localhost:5173",
+        "https://global-ip-portal.netlify.app"
+})
 public class UserFilingController {
 
     private final UserFilingService service;

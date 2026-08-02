@@ -11,7 +11,10 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/ip")
-@CrossOrigin(origins = "http://localhost:5173")
+@CrossOrigin(origins = {
+        "http://localhost:5173",
+        "https://global-ip-portal.netlify.app"
+})
 public class IPSearchController {
 
     private final IPService ipService;

@@ -9,7 +9,10 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/support")
-@CrossOrigin(origins = "http://localhost:5173")
+@CrossOrigin(origins = {
+        "http://localhost:5173",
+        "https://global-ip-portal.netlify.app"
+})
 public class SupportController {
 
     private final SupportMessageService service;
