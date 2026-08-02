@@ -6,14 +6,6 @@ let PERMISSIONS = {}; // will be filled from backend
 export const loadPermissions = async () => {
   const res = await axios.get("http://localhost:8080/api/permissions");
 
-  /*
-   Backend gives:
-   [
-     { planName: "BASIC", featureKey: "canTrack", enabled: true },
-     { planName: "PROFESSIONAL", featureKey: "canSeeCharts", enabled: true }
-   ]
-  */
-
   const formatted = {};
 
   res.data.forEach(p => {

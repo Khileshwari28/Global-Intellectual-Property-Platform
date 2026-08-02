@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
 
 import { hasAccess } from "../../common/utils/permissions";
 import IPTrendChart from "../../common/charts/IPTrendChart";

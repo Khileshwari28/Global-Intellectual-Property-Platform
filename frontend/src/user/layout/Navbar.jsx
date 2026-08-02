@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
 import { hasAccess } from "../../common/utils/permissions";
 import { getNotifications, clearNotifications } from "../../api/notificationApi";
 

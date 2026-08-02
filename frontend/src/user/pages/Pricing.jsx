@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
 import { getAllPermissions } from "../../api/subscriptionPermissionApi";
 import { upgradeSubscription } from "../../api/subscriptionApi";
 

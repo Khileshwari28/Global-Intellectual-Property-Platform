@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
 import { getKPIs } from "../../api/ipSearchApi"; // adjust path to your actual api folder
 
 const KPISummary = () => {
