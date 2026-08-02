@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import axiosClient from "../../api/axiosClient";
 
 export default function OAuth2Callback() {
     const [searchParams] = useSearchParams();
@@ -8,6 +9,7 @@ export default function OAuth2Callback() {
 
     useEffect(() => {
         const token = searchParams.get("token");
+        const API_URL = import.meta.env.VITE_API_URL;
         
         if (!token) {
             setError("No token received from OAuth2");
@@ -18,23 +20,13 @@ export default function OAuth2Callback() {
         // Fetch user details using the token
         const fetchUser = async () => {
             try {
-                const response = await fetch(
-                    `http://localhost:8080/api/users/oauth2/user?token=${token}`,
-                    {
-                        method: "GET",
-                        headers: { "Content-Type": "application/json" }
-                    }
+                const response = await axiosClient.get(
+                    `/users/oauth2/user?token=${token}`
                 );
 
-                if (response.ok) {
-                    const user = await response.json();
-                    localStorage.setItem("user", JSON.stringify(user));
-                    navigate("/dashboard");
-                } else {
-                    const errorMsg = await response.text();
-                    setError(errorMsg || "Failed to retrieve user information");
-                    setTimeout(() => navigate("/login"), 3000);
-                }
+                const user = response.data;
+                localStorage.setItem("user", JSON.stringify(user));
+                navigate("/dashboard");
             } catch (error) {
                 console.error("OAuth2 Callback Error:", error);
                 setError("Error processing OAuth2 login");

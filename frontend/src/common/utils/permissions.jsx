@@ -1,10 +1,10 @@
-import axios from "axios";
+import axiosClient from "../../api/axiosClient";
 
 let PERMISSIONS = {}; // will be filled from backend
 
 // Load permissions from backend once
 export const loadPermissions = async () => {
-  const res = await axios.get("http://localhost:8080/api/permissions");
+  const res = await axiosClient.get("/permissions");
 
   const formatted = {};
 
