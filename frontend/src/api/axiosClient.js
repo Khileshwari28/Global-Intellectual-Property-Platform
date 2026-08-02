@@ -2,7 +2,7 @@ import axios from "axios";
 
 // Central place for the backend base URL.
 // Change this once here instead of in every component.
-const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8080/api";
+const BASE_URL = import.meta.env.VITE_API_URL ;
 
 const axiosClient = axios.create({
     baseURL: BASE_URL,

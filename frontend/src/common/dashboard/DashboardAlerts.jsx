@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
 import { hasAccess } from "../utils/permissions";
 import { getNotifications } from "../../api/notificationApi";
 
