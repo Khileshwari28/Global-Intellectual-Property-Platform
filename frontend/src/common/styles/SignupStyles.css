@@ -60,20 +60,17 @@
 }
 
 .branding-column::before {
-    content: '';
+    content: "";
     position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    
-    background-image: url('./img/photo.png'); 
+    inset: 0;
+
+    background-image: url("/img/photo.png");
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
-    
-    filter: brightness(0.25) blur(3px); 
-    z-index: -1; 
+
+    filter: brightness(0.25) blur(3px);
+    z-index: -1;
 }
 
 .headline-desktop-only {
