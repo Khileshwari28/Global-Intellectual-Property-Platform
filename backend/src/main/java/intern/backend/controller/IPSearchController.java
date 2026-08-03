@@ -67,7 +67,7 @@ public class IPSearchController {
     }
 
     // user clicks "track" on a search result
-    @PostMapping("/track/{assetId}")
+    @PostMapping("/tracked/{assetId}")
     public void trackAsset(@PathVariable Long assetId, @RequestParam Integer userId) {
         ipService.trackAssetForUser(userId, assetId);
     }
