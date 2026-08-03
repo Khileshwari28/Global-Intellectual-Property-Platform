@@ -52,12 +52,12 @@ public class SubscriptionService {
         Subscription saved = repository.save(sub);
 
         // 🔔 NOTIFICATION
-        notificationService.createIfNotExists(
-                userId.intValue(),
-                null,
-                "Your subscription has been upgraded to " + newPlan,
-                "SUBSCRIPTION"
-        );
+//        notificationService.createIfNotExists(
+//                userId.intValue(),
+//                null,
+//                "Your subscription has been upgraded to " + newPlan,
+//                "SUBSCRIPTION"
+//        );
 
         notificationService.createSubscriptionNotification(
                 userId.intValue(),
