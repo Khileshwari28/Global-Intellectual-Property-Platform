@@ -16,7 +16,13 @@ public class AdminSeeder {
 
         return args -> {
 
-            if (userRepository.findByEmail("admin@globalip.com").isEmpty()) {
+            System.out.println("===== ADMIN SEEDER STARTED =====");
+
+            boolean exists = userRepository.findByEmail("admin@globalip.com").isPresent();
+
+            System.out.println("Admin exists: " + exists);
+
+            if (!exists) {
 
                 User admin = new User();
 
@@ -29,11 +35,7 @@ public class AdminSeeder {
 
                 userRepository.save(admin);
 
-                System.out.println("====================================");
-                System.out.println("Admin account created successfully!");
-                System.out.println("Email: admin@globalip.com");
-                System.out.println("Password: Admin@123");
-                System.out.println("====================================");
+                System.out.println("===== ADMIN CREATED =====");
             }
         };
     }
