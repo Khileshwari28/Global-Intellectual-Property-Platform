@@ -4,7 +4,7 @@ import { getAllPermissions } from "../../api/subscriptionPermissionApi";
 import { upgradeSubscription } from "../../api/subscriptionApi";
 
 /* Razorpay TEST Key */
-const RAZORPAY_KEY = "rzp_test_S0yogPh9RsxaZ5";
+const RAZORPAY_KEY = import.meta.env.VITE_RAZORPAY_KEY;
 
 const plans = [
   {
